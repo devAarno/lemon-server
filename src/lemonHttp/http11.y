@@ -190,7 +190,8 @@ http_headers ::= .
 http_headers ::= http_headers header_field crlf.
 
 /* header-field   = field-name ":" OWS field-value OWS */
-header_field ::= field_name CLN ows field_value ows.
+/* header_field ::= field_name CLN ows field_value ows. */
+header_field ::= field_name CLN ows field_value.
 
 /* field-name     = token */
 field_name ::= token.
@@ -198,7 +199,7 @@ field_name ::= token.
 /* field-value    = *( field-content / obs-fold ) */
 field_value ::= .
 field_value ::= field_value field_content.
-field_value ::= field_value obs_fold.
+/*field_value ::= field_value obs_fold.*/
 
 /* field-content  = field-vchar [ 1*( SP / HTAB ) field-vchar ] */
 field_content ::= field_vchar.
@@ -206,8 +207,8 @@ field_content ::= field_vchar SP ows field_vchar.
 field_content ::= field_vchar HTAB ows field_vchar.
 
 /* obs-fold       = CRLF 1*( SP / HTAB ) */
-obs_fold ::= crlf SP ows.
-obs_fold ::= crlf HTAB ows.
+/*obs_fold ::= crlf SP ows.
+obs_fold ::= crlf HTAB ows.*/
 
 /* field-vchar    = VCHAR / obs-text */
 field_vchar ::= vchar.
