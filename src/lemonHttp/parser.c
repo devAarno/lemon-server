@@ -27,39 +27,39 @@
 #include "../boolean.h"
 #include "http11.h"
 
-static const unsigned char stop_symbols[256] = {
-    [0] = 0, [1] = 0, [2] = 0, [3] = 0, [4] = 0, [5] = 0, [6] = 0, [7] = 0,
-    [8] = 0, [9] = TOK_HTAB, [10] = TOK_LF, [11] = 0, [12] = 0, [13] = TOK_CR, [14] = 0, [15] = 0,
-    [16] = 0, [17] = 0, [18] = 0, [19] = 0, [20] = 0, [21] = 0, [22] = 0, [23] = 0,
-    [24] = 0, [25] = 0, [26] = 0, [27] = 0, [28] = 0, [29] = 0, [30] = 0, [31] = 0,
-    [32] = TOK_SP, [33] = 0, [34] = 0, [35] = 0, [36] = 0, [37] = 0, [38] = TOK_AMP, [39] = 0,
-    [40] = 0, [41] = 0, [42] = 0, [43] = 0, [44] = 0, [45] = 0, [46] = 0, [47] = 0,
-    [48] = 0, [49] = 0, [50] = 0, [51] = 0, [52] = 0, [53] = 0, [54] = 0, [55] = 0,
-    [56] = 0, [57] = 0, [58] = TOK_CLN, [59] = 0, [60] = 0, [61] = TOK_EQ, [62] = 0, [63] = TOK_QST,
-    [64] = 0, [65] = 0, [66] = 0, [67] = 0, [68] = 0, [69] = 0, [70] = 0, [71] = 0,
-    [72] = 0, [73] = 0, [74] = 0, [75] = 0, [76] = 0, [77] = 0, [78] = 0, [79] = 0,
-    [80] = 0, [81] = 0, [82] = 0, [83] = 0, [84] = 0, [85] = 0, [86] = 0, [87] = 0,
-    [88] = 0, [89] = 0, [90] = 0, [91] = 0, [92] = 0, [93] = 0, [94] = 0, [95] = 0,
-    [96] = 0, [97] = 0, [98] = 0, [99] = 0, [100] = 0, [101] = 0, [102] = 0, [103] = 0,
-    [104] = 0, [105] = 0, [106] = 0, [107] = 0, [108] = 0, [109] = 0, [110] = 0, [111] = 0,
-    [112] = 0, [113] = 0, [114] = 0, [115] = 0, [116] = 0, [117] = 0, [118] = 0, [119] = 0,
-    [120] = 0, [121] = 0, [122] = 0, [123] = 0, [124] = 0, [125] = 0, [126] = 0, [127] = 0,
-    [128] = 0, [129] = 0, [130] = 0, [131] = 0, [132] = 0, [133] = 0, [134] = 0, [135] = 0,
-    [136] = 0, [137] = 0, [138] = 0, [139] = 0, [140] = 0, [141] = 0, [142] = 0, [143] = 0,
-    [144] = 0, [145] = 0, [146] = 0, [147] = 0, [148] = 0, [149] = 0, [150] = 0, [151] = 0,
-    [152] = 0, [153] = 0, [154] = 0, [155] = 0, [156] = 0, [157] = 0, [158] = 0, [159] = 0,
-    [160] = 0, [161] = 0, [162] = 0, [163] = 0, [164] = 0, [165] = 0, [166] = 0, [167] = 0,
-    [168] = 0, [169] = 0, [170] = 0, [171] = 0, [172] = 0, [173] = 0, [174] = 0, [175] = 0,
-    [176] = 0, [177] = 0, [178] = 0, [179] = 0, [180] = 0, [181] = 0, [182] = 0, [183] = 0,
-    [184] = 0, [185] = 0, [186] = 0, [187] = 0, [188] = 0, [189] = 0, [190] = 0, [191] = 0,
-    [192] = 0, [193] = 0, [194] = 0, [195] = 0, [196] = 0, [197] = 0, [198] = 0, [199] = 0,
-    [200] = 0, [201] = 0, [202] = 0, [203] = 0, [204] = 0, [205] = 0, [206] = 0, [207] = 0,
-    [208] = 0, [209] = 0, [210] = 0, [211] = 0, [212] = 0, [213] = 0, [214] = 0, [215] = 0,
-    [216] = 0, [217] = 0, [218] = 0, [219] = 0, [220] = 0, [221] = 0, [222] = 0, [223] = 0,
-    [224] = 0, [225] = 0, [226] = 0, [227] = 0, [228] = 0, [229] = 0, [230] = 0, [231] = 0,
-    [232] = 0, [233] = 0, [234] = 0, [235] = 0, [236] = 0, [237] = 0, [238] = 0, [239] = 0,
-    [240] = 0, [241] = 0, [242] = 0, [243] = 0, [244] = 0, [245] = 0, [246] = 0, [247] = 0,
-    [248] = 0, [249] = 0, [250] = 0, [251] = 0, [252] = 0, [253] = 0, [254] = 0, [255] = 0
+static const unsigned char ascii[256] = {
+    [0] = TOK_CONTROL, [1] = TOK_CONTROL, [2] = TOK_CONTROL, [3] = TOK_CONTROL, [4] = TOK_CONTROL, [5] = TOK_CONTROL, [6] = TOK_CONTROL, [7] = TOK_CONTROL,
+    [8] = TOK_CONTROL, [9] = TOK_HTAB, [10] = TOK_CLF, [11] = TOK_CONTROL, [12] = TOK_CONTROL, [13] = TOK_CR, [14] = TOK_CONTROL, [15] = TOK_CONTROL,
+    [16] = TOK_CONTROL, [17] = TOK_CONTROL, [18] = TOK_CONTROL, [19] = TOK_CONTROL, [20] = TOK_CONTROL, [21] = TOK_CONTROL, [22] = TOK_CONTROL, [23] = TOK_CONTROL,
+    [24] = TOK_CONTROL, [25] = TOK_CONTROL, [26] = TOK_CONTROL, [27] = TOK_CONTROL, [28] = TOK_CONTROL, [29] = TOK_CONTROL, [30] = TOK_CONTROL, [31] = TOK_CONTROL,
+    [32] = TOK_SP, [33] = TOK_EXCLAMATION, [34] = TOK_QUOTATION, [35] = TOK_OCTOTHORPE, [36] = TOK_DOLLAR, [37] = TOK_PERCENT, [38] = TOK_AMPERSAND, [39] = TOK_APOSTROPHE,
+    [40] = TOK_LPARENTHESIS, [41] = TOK_RPARENTHESIS, [42] = TOK_ASTERISK, [43] = TOK_PLUS, [44] = TOK_COMMA, [45] = TOK_MINUS, [46] = TOK_DOT, [47] = TOK_SLASH,
+    [48] = TOK_ZERO, [49] = TOK_ONE, [50] = TOK_TWO, [51] = TOK_THREE, [52] = TOK_FOUR, [53] = TOK_FIVE, [54] = TOK_SIX, [55] = TOK_SEVEN,
+    [56] = TOK_EIGHT, [57] = TOK_NINE, [58] = TOK_COLON, [59] = TOK_SEMICOLON, [60] = TOK_LESSTHAN, [61] = TOK_EQUALS, [62] = TOK_GREATERTHAN, [63] = TOK_QUESTION,
+    [64] = TOK_AT, [65] = TOK_A, [66] = TOK_B, [67] = TOK_C, [68] = TOK_D, [69] = TOK_E, [70] = TOK_F, [71] = TOK_G,
+    [72] = TOK_H, [73] = TOK_I, [74] = TOK_J, [75] = TOK_K, [76] = TOK_L, [77] = TOK_M, [78] = TOK_N, [79] = TOK_O,
+    [80] = TOK_P, [81] = TOK_Q, [82] = TOK_R, [83] = TOK_S, [84] = TOK_T, [85] = TOK_U, [86] = TOK_V, [87] = TOK_W,
+    [88] = TOK_X, [89] = TOK_Y, [90] = TOK_Z, [91] = TOK_LBRACKET, [92] = TOK_BACKSLASH, [93] = TOK_RBRACKET, [94] = TOK_CARET, [95] = TOK_UNDERSCORE,
+    [96] = TOK_BACKQUOTE, [97] = TOK_LA, [98] = TOK_LB, [99] = TOK_LC, [100] = TOK_LD, [101] = TOK_LE, [102] = TOK_LF, [103] = TOK_LG,
+    [104] = TOK_LH, [105] = TOK_LI, [106] = TOK_LJ, [107] = TOK_LK, [108] = TOK_LL, [109] = TOK_LM, [110] = TOK_LN, [111] = TOK_LO,
+    [112] = TOK_LP, [113] = TOK_LQ, [114] = TOK_LR, [115] = TOK_LS, [116] = TOK_LT, [117] = TOK_LU, [118] = TOK_LV, [119] = TOK_LW,
+    [120] = TOK_LX, [121] = TOK_LY, [122] = TOK_LZ, [123] = TOK_LBRACE, [124] = TOK_VBAR, [125] = TOK_RBRACE, [126] = TOK_TILDE, [127] = TOK_CONTROL,
+    [128] = TOK_OBSTEXT, [129] = TOK_OBSTEXT, [130] = TOK_OBSTEXT, [131] = TOK_OBSTEXT, [132] = TOK_OBSTEXT, [133] = TOK_OBSTEXT, [134] = TOK_OBSTEXT, [135] = TOK_OBSTEXT,
+    [136] = TOK_OBSTEXT, [137] = TOK_OBSTEXT, [138] = TOK_OBSTEXT, [139] = TOK_OBSTEXT, [140] = TOK_OBSTEXT, [141] = TOK_OBSTEXT, [142] = TOK_OBSTEXT, [143] = TOK_OBSTEXT,
+    [144] = TOK_OBSTEXT, [145] = TOK_OBSTEXT, [146] = TOK_OBSTEXT, [147] = TOK_OBSTEXT, [148] = TOK_OBSTEXT, [149] = TOK_OBSTEXT, [150] = TOK_OBSTEXT, [151] = TOK_OBSTEXT,
+    [152] = TOK_OBSTEXT, [153] = TOK_OBSTEXT, [154] = TOK_OBSTEXT, [155] = TOK_OBSTEXT, [156] = TOK_OBSTEXT, [157] = TOK_OBSTEXT, [158] = TOK_OBSTEXT, [159] = TOK_OBSTEXT,
+    [160] = TOK_OBSTEXT, [161] = TOK_OBSTEXT, [162] = TOK_OBSTEXT, [163] = TOK_OBSTEXT, [164] = TOK_OBSTEXT, [165] = TOK_OBSTEXT, [166] = TOK_OBSTEXT, [167] = TOK_OBSTEXT,
+    [168] = TOK_OBSTEXT, [169] = TOK_OBSTEXT, [170] = TOK_OBSTEXT, [171] = TOK_OBSTEXT, [172] = TOK_OBSTEXT, [173] = TOK_OBSTEXT, [174] = TOK_OBSTEXT, [175] = TOK_OBSTEXT,
+    [176] = TOK_OBSTEXT, [177] = TOK_OBSTEXT, [178] = TOK_OBSTEXT, [179] = TOK_OBSTEXT, [180] = TOK_OBSTEXT, [181] = TOK_OBSTEXT, [182] = TOK_OBSTEXT, [183] = TOK_OBSTEXT,
+    [184] = TOK_OBSTEXT, [185] = TOK_OBSTEXT, [186] = TOK_OBSTEXT, [187] = TOK_OBSTEXT, [188] = TOK_OBSTEXT, [189] = TOK_OBSTEXT, [190] = TOK_OBSTEXT, [191] = TOK_OBSTEXT,
+    [192] = TOK_OBSTEXT, [193] = TOK_OBSTEXT, [194] = TOK_OBSTEXT, [195] = TOK_OBSTEXT, [196] = TOK_OBSTEXT, [197] = TOK_OBSTEXT, [198] = TOK_OBSTEXT, [199] = TOK_OBSTEXT,
+    [200] = TOK_OBSTEXT, [201] = TOK_OBSTEXT, [202] = TOK_OBSTEXT, [203] = TOK_OBSTEXT, [204] = TOK_OBSTEXT, [205] = TOK_OBSTEXT, [206] = TOK_OBSTEXT, [207] = TOK_OBSTEXT,
+    [208] = TOK_OBSTEXT, [209] = TOK_OBSTEXT, [210] = TOK_OBSTEXT, [211] = TOK_OBSTEXT, [212] = TOK_OBSTEXT, [213] = TOK_OBSTEXT, [214] = TOK_OBSTEXT, [215] = TOK_OBSTEXT,
+    [216] = TOK_OBSTEXT, [217] = TOK_OBSTEXT, [218] = TOK_OBSTEXT, [219] = TOK_OBSTEXT, [220] = TOK_OBSTEXT, [221] = TOK_OBSTEXT, [222] = TOK_OBSTEXT, [223] = TOK_OBSTEXT,
+    [224] = TOK_OBSTEXT, [225] = TOK_OBSTEXT, [226] = TOK_OBSTEXT, [227] = TOK_OBSTEXT, [228] = TOK_OBSTEXT, [229] = TOK_OBSTEXT, [230] = TOK_OBSTEXT, [231] = TOK_OBSTEXT,
+    [232] = TOK_OBSTEXT, [233] = TOK_OBSTEXT, [234] = TOK_OBSTEXT, [235] = TOK_OBSTEXT, [236] = TOK_OBSTEXT, [237] = TOK_OBSTEXT, [238] = TOK_OBSTEXT, [239] = TOK_OBSTEXT,
+    [240] = TOK_OBSTEXT, [241] = TOK_OBSTEXT, [242] = TOK_OBSTEXT, [243] = TOK_OBSTEXT, [244] = TOK_OBSTEXT, [245] = TOK_OBSTEXT, [246] = TOK_OBSTEXT, [247] = TOK_OBSTEXT,
+    [248] = TOK_OBSTEXT, [249] = TOK_OBSTEXT, [250] = TOK_OBSTEXT, [251] = TOK_OBSTEXT, [252] = TOK_OBSTEXT, [253] = TOK_OBSTEXT, [254] = TOK_OBSTEXT, [255] = TOK_OBSTEXT
 };
 
 const static lemonHttpError appendHttpToParser(parserState* ps, httpRequest *http) {
@@ -96,8 +96,7 @@ const lemonHttpError markAsSyntaxIncorrect(parserState* ps) {
 
 const lemonHttpError parse(httpRequest *request) {
     char pParser[ParseHTTP11Size()];
-    size_t start_pos = 0;
-    size_t len = 0;
+    size_t pos = 0;
 
     parserState ps;
 
@@ -109,32 +108,16 @@ const lemonHttpError parse(httpRequest *request) {
     }
 
     ParseHTTP11Init(&pParser);
-    /*ParseHTTP11Trace(stdout, "parser >>");*/
+    ParseHTTP11Trace(stdout, "parser >>");
 
     ps.isParsed = ps.isParseFailed = ps.isSyntaxIncorrect = FALSE;
-    memcpy(&(ps.stopSymbols), &stop_symbols, sizeof (stop_symbols));
     while (
-            (FALSE == isParsed(&ps)) && 
-            (FALSE == isParseFailed(&ps)) && 
+            (FALSE == isParsed(&ps)) &&
+            (FALSE == isParseFailed(&ps)) &&
             (FALSE == isSyntaxIncorrect(&ps))
             ) {
-        len = 0;
-        while (!(ps.stopSymbols[(request->privateBuffer)[start_pos + len]])) {
-            ++len;
-        }
-
-        if (0 == len) {
-            ParseHTTP11(&pParser, ps.stopSymbols[(request->privateBuffer)[start_pos]], &((request->privateBuffer)[start_pos]), &ps);
-            if ((4 <= start_pos) && ((request->privateBuffer)[start_pos] == '\n')  && ((request->privateBuffer)[start_pos - 1] == '\r') && ((request->privateBuffer)[start_pos - 2] == '\n') && ((request->privateBuffer)[start_pos - 3] == '\r')) {
-                ++start_pos;
-                break;
-            }
-            ++start_pos;
-        } else {
-            ps.length = len;
-            ParseHTTP11(&pParser, TOK_STRING, &((request->privateBuffer)[start_pos]), &ps);
-        }
-        start_pos += len;
+        ParseHTTP11(&pParser, ascii[(request->privateBuffer)[pos]], &((request->privateBuffer)[pos]), &ps);
+        ++pos;
     }
 
     ParseHTTP11(&pParser, 0, NULL, &ps);
@@ -146,8 +129,8 @@ const lemonHttpError parse(httpRequest *request) {
         }
     }
 
-    request->body.data = &((request->privateBuffer)[start_pos]);
-    request->body.length -= start_pos;
+    request->body.data = &((request->privateBuffer)[pos]);
+    request->body.length -= pos;
 
     return (FALSE == isParseFailed(&ps)) ? ((FALSE == isSyntaxIncorrect(&ps)) ? OK : INCORRECT_SYNTAX) : PARSING_IS_FAILED;
 }
