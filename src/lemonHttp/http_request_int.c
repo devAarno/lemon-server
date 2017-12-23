@@ -28,7 +28,7 @@
 
 static const char *emptyString = "";
 
-const lemonHttpError appendElementOfHttpRequest(httpRequest *r, const char *startPos, const size_t len, const elementType type) {
+requestElement *appendElementOfHttpRequest(httpRequest *r, const string s, const elementType type) {
     /*if ((NULL == r) || (NULL == startPos)) {
         return NULL_IN_INPUT_VALUES;
     }
@@ -41,22 +41,37 @@ const lemonHttpError appendElementOfHttpRequest(httpRequest *r, const char *star
     if ((0 >= r->elementsCount) || ((0 == len) && (NULL != startPos) && (VALUE != type)) || (0 > len)) {
         return INCORRECT_INPUT_VALUES;
     }*/
-    if ((NULL == r) || (NULL == startPos)) {
+    if ((NULL == r) || (NULL == s.data)) {
         return NULL_IN_INPUT_VALUES;
     }
-    if ((0 >= r->elementsCount) || ((0 == len) && (emptyString != startPos) && (VALUE != type)) || (0 > len)) {
+    if ((0 >= r->elementsCount) || ((0 == s.length) && (emptyString != s.data) && (VALUE != type)) || (0 > s.length)) {
         return INCORRECT_INPUT_VALUES;
     }
     {
         const size_t elementNo = (r->elementsCount)++;
         ((r->elements)[elementNo]).type = type;
-        ((r->elements)[elementNo]).value.str.data = (char *) startPos;
-        ((r->elements)[elementNo]).value.str.length = len;
+        ((r->elements)[elementNo]).value.str.data = s.data;
+        ((r->elements)[elementNo]).value.str.length = s.length;
         ((r->elements)[elementNo]).value.nextVal = NULL;
-        return OK;
+        return &((r->elements)[elementNo]);
     }
 }
 
-const char *getEmptyString() {
-    return emptyString;
+const lemonHttpError linkRequestElement(requestElement *key, const requestElement *value) {
+    if ((NULL == key) ||
+       (NULL == value)) {
+        return NULL_IN_INPUT_VALUES;
+    }
+    {
+        linkedDataString *pos = &(key->value);
+        while (NULL != pos->nextVal) { pos = pos->nextVal; };
+        pos->nextVal = &(value->value.str);
+    }
+}
+
+const string getEmptyString() {
+    string s;
+    s.data = emptyString;
+    s.length = 0;
+    return s;
 }

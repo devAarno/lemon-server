@@ -18,6 +18,7 @@
  */
 
 %include {
+#include <stddef.h>
 #include <assert.h>
 #include "parser.h"
 #include "http_request.h"
@@ -78,11 +79,12 @@ http_message ::= request_line http_headers finalcrlf ANY.
 request_line ::= method SP request_target SP http_version crlf.
 
 /* method = token  */
-method ::= token.
+%type token {string}
+method ::= token(var_s). { appendElementOfHttpRequest(ps->request, var_s, METHOD); }
 
 /* token = 1*tchar */
-token ::= tchar.
-token ::= token tchar.
+token(var_s) ::= tchar(var_c). { var_s.length = 1; var_s.data = var_c; }
+token(var_s) ::= token tchar. { ++(var_s.length); }
 
 
 /*method ::= STRING(X). { 
@@ -101,23 +103,26 @@ token ::= token tchar.
 
 /* pct-encoded    = "%" HEXDIG HEXDIG */
 /* sub-delims     */
-request_target ::= absolute_path.
-request_target ::= absolute_path QUESTION query.
+%type absolute_path {string}
+request_target ::= absolute_path(var_s). { appendElementOfHttpRequest(ps->request, var_s, URI); }
+request_target ::= absolute_path(var_s) QUESTION query. { appendElementOfHttpRequest(ps->request, var_s, URI); }
 
 /* absolute-path  = 1*( "/" segment )*/
-absolute_path ::= SLASH segment.
-absolute_path ::= absolute_path SLASH segment.
+%type segment {size_t}
+absolute_path(var_s) ::= SLASH(var_c) segment(var_l). { var_s.length = 1 + var_l; var_s.data = var_c; }
+absolute_path(var_s) ::= absolute_path SLASH segment(var_l). { var_s.length += 1 + var_l; }
 
 /* segment        = *pchar */
-segment ::= .
-segment ::= segment pchar.
+%type pchar {size_t}
+segment(var_l) ::= . { var_l = 0; }
+segment(var_l) ::= segment pchar(var_p). { var_l += var_p; }
 
 /* pchar          = unreserved / pct-encoded / sub-delims / ":" / "@" */
-pchar ::= unreserved.
-pchar ::= pctencoded.
-pchar ::= subdelims.
-pchar ::= COLON.
-pchar ::= AT.
+pchar(var_p) ::= unreserved. {var_p = 1;}
+pchar(var_p) ::= pctencoded. {var_p = 3;}
+pchar(var_p) ::= subdelims. {var_p = 1;}
+pchar(var_p) ::= COLON. {var_p = 1;}
+pchar(var_p) ::= AT. {var_p = 1;}
 
 /* pct-encoded    = "%" HEXDIG HEXDIG */
 pctencoded ::= PERCENT hexdig hexdig.
@@ -152,21 +157,27 @@ filler ::= filler DOT SLASH.*/
 query ::= .
 query ::= key_val.
 query ::= query AMPERSAND key_val.
-key_val ::= key EQUALS.
-key_val ::= key EQUALS val.
 
-key ::= pchar_kv.
-key ::= key pchar_kv.
-val ::= pchar_kv.
-val ::= val pchar_kv.
+%type key {string}
+%type val {string}
+key_val ::= key(var_k) EQUALS. { appendElementOfHttpRequest(ps->request, var_k, GET_QUERY_ELEMENT); }
+key_val ::= key(var_k) EQUALS val(var_l). { linkRequestElement(appendElementOfHttpRequest(ps->request, var_k, GET_QUERY_ELEMENT), appendElementOfHttpRequest(ps->request, var_l, VALUE)); }
 
-pchar_kv ::= unreserved.
-pchar_kv ::= pctencoded.
-pchar_kv ::= subdelims_kv.
-pchar_kv ::= COLON.
-pchar_kv ::= AT.
-pchar_kv ::= SLASH.
-pchar_kv ::= QUESTION.
+%type pchar_kv {string}
+key(var_k) ::= pchar_kv(var_c). { var_k.length = var_c.length; var_k.data = var_c.data; }
+key(var_k) ::= key pchar_kv(var_c). { var_k.length += var_c.length; }
+
+
+val(var_l) ::= pchar_kv(var_c). { var_l.length = var_c.length; var_l.data = var_c.data; }
+val(var_l) ::= val(var_l) pchar_kv(var_c). { var_l.length += var_c.length; }
+
+pchar_kv(var_c) ::= unreserved(var_cc). { var_c.length = 1; var_c.data = var_cc; }
+pchar_kv(var_c) ::= pctencoded(var_cc). { var_c.length = 3; var_c.data = var_cc; }
+pchar_kv(var_c) ::= subdelims_kv(var_cc). { var_c.length = 1; var_c.data = var_cc; }
+pchar_kv(var_c) ::= COLON(var_cc). { var_c.length = 1; var_c.data = var_cc; }
+pchar_kv(var_c) ::= AT(var_cc). { var_c.length = 1; var_c.data = var_cc; }
+pchar_kv(var_c) ::= SLASH(var_cc). { var_c.length = 1; var_c.data = var_cc; }
+pchar_kv(var_c) ::= QUESTION(var_cc). { var_c.length = 1; var_c.data = var_cc; }
 
 /*key ::= STRING(K). {
   appendElementOfHttpRequest(ps->request, K, ps->length, GET_QUERY_ELEMENT);
@@ -177,8 +188,8 @@ val ::= STRING(V). {
 
 /* HTTP-version  = HTTP-name "/" DIGIT "." DIGIT */
 /* HTTP-name     = %x48.54.54.50 ; "HTTP", case-sensitive */
-
-http_version ::= H T T P SLASH digit DOT digit.
+%type http_version {string}
+http_version(var_s) ::= H(var_c) T T P SLASH digit DOT digit. { var_s.length = 8; var_s.data = var_c; appendElementOfHttpRequest(ps->request, var_s, HTTP_VERSION); }
 
 /*http_version ::= STRING(X). {
     puts("HTTP VER:");
@@ -193,23 +204,27 @@ http_headers ::= .
 http_headers ::= http_headers header_field crlf.
 
 /* header-field   = field-name ":" OWS field-value OWS */
-/* header_field ::= field_name COLON ows field_value ows. */
 header_field ::= field_name COLON field_value.
 
 /* field-name     = token */
-field_name ::= token.
+field_name ::= token(var_s). { appendElementOfHttpRequest(ps->request, var_s, HEADER); }
 
-/* header_field ::= field_name COLON ows field_value ows. */
 /* field-value    = *( field-content / obs-fold ) */
-/* field-content  = field-vchar [ 1*( SP / HTAB ) field-vchar ] */
-/* field-vchar    = VCHAR / obs-text */
 /* There is no support of obs-fold, because of parsing conflicts. So reduce 
- * rules. */
+ * some rules. */
+%type field_content {string}
 field_value ::= .
-field_value ::= field_value vchar.
-field_value ::= field_value SP.
-field_value ::= field_value HTAB.
-field_value ::= field_value OBSTEXT.
+field_value ::= field_content(var_s). { appendElementOfHttpRequest(ps->request, var_s, VALUE); }
+
+/* field-content  = field-vchar [ 1*( SP / HTAB ) field-vchar ] */
+field_content(var_s) ::= field_vchar(var_c). { var_s.length = 1; var_s.data = var_c; }
+field_content(var_s) ::= field_content field_vchar. { ++(var_s.length); }
+
+/* field-vchar    = VCHAR / obs-text */
+field_vchar ::= vchar.
+field_vchar ::= SP.
+field_vchar ::= HTAB.
+field_vchar ::= OBSTEXT.
 
 /*http_header ::= header_name CLN field_value ows. {
   puts("ENABLE ALL");

@@ -25,9 +25,11 @@
 #include "http_request.h"
 #include "lemonHttpError.h"
 
-const lemonHttpError appendElementOfHttpRequest(httpRequest *r, const char *startPos, const size_t len, const elementType type);
+requestElement *appendElementOfHttpRequest(httpRequest *r, const string s, const elementType type);
 
-const char *getEmptyString();
+const lemonHttpError linkRequestElement(requestElement *key, const requestElement *value);
+
+const string getEmptyString();
 
 #endif /* HTTP_REQUEST_INT_H */
 

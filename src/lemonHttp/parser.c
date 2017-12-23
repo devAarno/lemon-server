@@ -122,13 +122,6 @@ const lemonHttpError parse(httpRequest *request) {
 
     ParseHTTP11(&pParser, 0, NULL, &ps);
 
-    {
-        const lemonHttpError ret = finalizeHttpRequest(request);
-        if (OK != ret) {
-            return ret;
-        }
-    }
-
     request->body.data = &((request->privateBuffer)[pos]);
     request->body.length -= pos;
 

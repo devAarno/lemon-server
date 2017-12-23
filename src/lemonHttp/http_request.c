@@ -196,93 +196,13 @@ const lemonHttpError initHttpRequest(httpRequest *r, const int fd) {
 
         /* Adds fake EMPTY element into zero position */
         ((r->elements)[0]).type = VALUE;
-        ((r->elements)[0]).value.str.data = getEmptyString();
-        ((r->elements)[0]).value.str.length = 0;
+        ((r->elements)[0]).value.str = getEmptyString();
         ((r->elements)[0]).value.nextVal = NULL;
         r->elementsCount = 1;
         /*appendElementOfHttpRequest(r, getEmptyString(), 0, VALUE);*/
 
         return OK;
     }
-}
-
-const lemonHttpError finalizeHttpRequest(httpRequest *r) {
-    if (NULL == r) {
-        return NULL_IN_INPUT_VALUES;
-    }
-    if (0 >= r->elementsCount) {
-        return INCORRECT_INPUT_VALUES;
-    }
-    {
-        requestElement *currElement;
-        const size_t elementsCount = r->elementsCount;
-        size_t i, j, length;
-        for (i = 0; i < elementsCount; ++i) {
-            currElement = &((r->elements)[i]);
-            switch (currElement->type) {
-                case HEADER:
-                    length = 0;
-                    j = i + 1;
-                    while ((elementsCount > j) && (VALUE == ((r->elements)[j]).type)) {
-                        /* Do not use decodeValue here */
-                        ((r->elements)[j - 1]).value.nextVal = &(((r->elements)[j]).value);
-                        length += ((r->elements)[j]).value.str.length;
-                        ++j;
-                    }
-                    if (0 != length) {
-                        const lemonHttpError ret = appendElementOfHttpRequest(r, ((r->elements)[i + 1]).value.str.data, length, HEADER_VALUE_AS_STRING_CHUNK);
-                        if (OK != ret) {
-                            return ret;
-                        }
-                        ((r->elements)[r->elementsCount - 1]).value.nextVal = &(((r->elements)[i + 1]).value);
-                        currElement->value.nextVal = &(((r->elements)[r->elementsCount - 1]).value);
-                    } else {
-                        /* If nothing was found */
-                        const lemonHttpError ret = appendElementOfHttpRequest(r, ((r->elements)[0]).value.str.data, 0, HEADER_VALUE_AS_STRING_CHUNK);
-                        if (OK != ret) {
-                            return ret;
-                        }
-                        currElement->value.nextVal = ((r->elements)[r->elementsCount - 1]).value.nextVal = &(((r->elements)[0]).value);
-                    }
-                    break;
-                case GET_QUERY_ELEMENT:
-                    {
-                        const lemonHttpError ret = decodeValue( &(currElement->value.str) , TRUE);
-                        if (OK != ret) {
-                            return ret;
-                        }
-                    }
-                    if ((elementsCount > i + 1) && (VALUE == ((r->elements)[i + 1]).type)) {
-                        const lemonHttpError ret = decodeValue(&(((r->elements)[i + 1]).value.str), TRUE);
-                        if (OK != ret) {
-                            return ret;
-                        }
-                        currElement->value.nextVal = &(((r->elements)[i + 1]).value);
-                    } else {
-                        currElement->value.nextVal = &(((r->elements)[0]).value);
-                    }
-                    break;
-                case URI:
-                    {
-                        const lemonHttpError ret = normalizePath(&(currElement->value.str));
-                        if (OK != ret) {
-                            return ret;
-                        }
-                    }
-                    {
-                        const lemonHttpError ret = decodeValue(&(currElement->value.str), FALSE);
-                        if (OK != ret) {
-                            return ret;
-                        }
-                        puts(currElement->value.str);
-                    }
-                    break;
-                default:
-                    break;
-            }
-        }
-    }
-    return OK;
 }
 
 const string *getMethodOfHttpRequest(const httpRequest *r) {
@@ -396,5 +316,6 @@ const boolean isStringEmpty(const string *s) {
     if (NULL == s) {
         return TRUE;
     }
-    return ((0 == s->length) && (getEmptyString() == s->data)) ? TRUE : FALSE;
+    const string empty = getEmptyString();
+    return ((empty.length == s->length) && (empty.data == s->data)) ? TRUE : FALSE;
 }
