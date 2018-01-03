@@ -64,7 +64,6 @@ static void test_byRawRequest1(void) {
 static void test_byRawRequest2(void) {
     httpRequest request;
     string* out;
-    linkedDataString *lds1, *lds2;
 
     initHttpRequest(&request, FAKE_DESCRIPTOR);
 
@@ -88,71 +87,17 @@ static void test_byRawRequest2(void) {
     TEST_ASSERT_NOT_NULL(out);
     TEST_ASSERT_EQUAL_STRING_LEN("myserver:40000", out->data, out->length);
 
-    lds1 = (linkedDataString *) getHeaderOfHttpRequestAsSplitStrings(&request, "Host");
-    TEST_ASSERT_NOT_NULL(lds1);
-    TEST_ASSERT_EQUAL_STRING_LEN("myserver:40000", lds1->str.data, lds1->str.length);
-    TEST_ASSERT_NULL(lds1->nextVal);
-
     out = (string *) getHeaderOfHttpRequest(&request, "User-Agent");
     TEST_ASSERT_NOT_NULL(out);
     TEST_ASSERT_EQUAL_STRING_LEN("Browser/5.0 (OS 10.0; os64; x64; rv:54.0) HTMLEngine/20100101 Browser/54.0", out->data, out->length);
-
-
-    lds1 = (linkedDataString *) getHeaderOfHttpRequestAsSplitStrings(&request, "User-Agent");
-    TEST_ASSERT_NOT_NULL(lds1);
-    TEST_ASSERT_EQUAL_STRING_LEN("Browser/5.0", lds1->str.data, lds1->str.length);
-    lds1 = lds1->nextVal;
-    TEST_ASSERT_NOT_NULL(lds1);
-    TEST_ASSERT_EQUAL_STRING_LEN("(OS", lds1->str.data, lds1->str.length);
-    lds1 = lds1->nextVal;
-    TEST_ASSERT_NOT_NULL(lds1);
-    TEST_ASSERT_EQUAL_STRING_LEN("10.0;", lds1->str.data, lds1->str.length);
-    lds1 = lds1->nextVal;
-
-    /** Unexpected agressive parse breaking **/
-    lds2 = (linkedDataString *) getHeaderOfHttpRequestAsSplitStrings(&request, "Accept-Encoding");
-    TEST_ASSERT_NOT_NULL(lds2);
-    TEST_ASSERT_EQUAL_STRING_LEN("gzip,", lds2->str.data, lds2->str.length);
-    lds2 = lds2->nextVal;
-    TEST_ASSERT_NOT_NULL(lds2);
-    TEST_ASSERT_EQUAL_STRING_LEN("deflate", lds2->str.data, lds2->str.length);
-    TEST_ASSERT_NULL(lds2->nextVal);
-    /** Unexpected agressive parse breaking **/
-
-    TEST_ASSERT_NOT_NULL(lds1);
-    TEST_ASSERT_EQUAL_STRING_LEN("os64;", lds1->str.data, lds1->str.length);
-    lds1 = lds1->nextVal;
-    TEST_ASSERT_NOT_NULL(lds1);
-    TEST_ASSERT_EQUAL_STRING_LEN("x64;", lds1->str.data, lds1->str.length);
-    lds1 = lds1->nextVal;
-    TEST_ASSERT_NOT_NULL(lds1);
-    TEST_ASSERT_EQUAL_STRING_LEN("rv:54.0)", lds1->str.data, lds1->str.length);
-    lds1 = lds1->nextVal;
-    TEST_ASSERT_NOT_NULL(lds1);
-    TEST_ASSERT_EQUAL_STRING_LEN("HTMLEngine/20100101", lds1->str.data, lds1->str.length);
-    lds1 = lds1->nextVal;
-    TEST_ASSERT_NOT_NULL(lds1);
-    TEST_ASSERT_EQUAL_STRING_LEN("Browser/54.0", lds1->str.data, lds1->str.length);
-    TEST_ASSERT_NULL(lds1->nextVal);
-
 
     out = (string *) getHeaderOfHttpRequest(&request, "Accept");
     TEST_ASSERT_NOT_NULL(out);
     TEST_ASSERT_EQUAL_STRING_LEN("text/html,application/xhtml+xml,application/xml;q=0.9,*//*;q=0.8", out->data, out->length);
 
-    lds1 = (linkedDataString *) getHeaderOfHttpRequestAsSplitStrings(&request, "Accept");
-    TEST_ASSERT_NOT_NULL(lds1);
-    TEST_ASSERT_EQUAL_STRING_LEN("text/html,application/xhtml+xml,application/xml;q=0.9,*//*;q=0.8", lds1->str.data, lds1->str.length);
-    TEST_ASSERT_NULL(lds1->nextVal);
-
     out = (string *) getHeaderOfHttpRequest(&request, "Accept-Language");
     TEST_ASSERT_NOT_NULL(out);
     TEST_ASSERT_EQUAL_STRING_LEN("ru-RU,ru;q=0.8,en-US;q=0.5,en;q=0.3", out->data, out->length);
-
-    lds1 = (linkedDataString *) getHeaderOfHttpRequestAsSplitStrings(&request, "Accept-Language");
-    TEST_ASSERT_NOT_NULL(lds1);
-    TEST_ASSERT_EQUAL_STRING_LEN("ru-RU,ru;q=0.8,en-US;q=0.5,en;q=0.3", lds1->str.data, lds1->str.length);
-    TEST_ASSERT_NULL(lds1->nextVal);
 
     out = (string *) getHeaderOfHttpRequest(&request, "Accept-Encoding");
     TEST_ASSERT_NOT_NULL(out);
@@ -163,25 +108,14 @@ static void test_byRawRequest2(void) {
     TEST_ASSERT_NOT_NULL(out);
     TEST_ASSERT_EQUAL_STRING_LEN("keep-alive", out->data, out->length);
 
-    lds1 = (linkedDataString *) getHeaderOfHttpRequestAsSplitStrings(&request, "Connection");
-    TEST_ASSERT_NOT_NULL(lds1);
-    TEST_ASSERT_EQUAL_STRING_LEN("keep-alive", lds1->str.data, lds1->str.length);
-    TEST_ASSERT_NULL(lds1->nextVal);
-
     out = (string *) getHeaderOfHttpRequest(&request, "Upgrade-Insecure-Requests");
     TEST_ASSERT_NOT_NULL(out);
     TEST_ASSERT_EQUAL_STRING_LEN("1", out->data, out->length);
-
-    lds1 = (linkedDataString *) getHeaderOfHttpRequestAsSplitStrings(&request, "Upgrade-Insecure-Requests");
-    TEST_ASSERT_NOT_NULL(lds1);
-    TEST_ASSERT_EQUAL_STRING_LEN("1", lds1->str.data, lds1->str.length);
-    TEST_ASSERT_NULL(lds1->nextVal);
 }
 
 static void test_byRawRequest3(void) {
     httpRequest request;
     string* out;
-    linkedDataString *lds;
 
     initHttpRequest(&request, FAKE_DESCRIPTOR);
 
@@ -217,36 +151,13 @@ static void test_byRawRequest3(void) {
     TEST_ASSERT_NOT_NULL(out);
     TEST_ASSERT_EQUAL_STRING_LEN("localhost", out->data, out->length);
 
-    lds = (linkedDataString *) getHeaderOfHttpRequestAsSplitStrings(&request, "Host");
-    TEST_ASSERT_NOT_NULL(lds);
-    TEST_ASSERT_EQUAL_STRING_LEN("localhost", lds->str.data, lds->str.length);
-    TEST_ASSERT_NULL(lds->nextVal);
-
     out = (string *) getHeaderOfHttpRequest(&request, "complex");
     TEST_ASSERT_NOT_NULL(out);
-    TEST_ASSERT_EQUAL_STRING_LEN("test1;test2;test3    groovy  mmm   ", out->data, out->length);
-
-
-    lds = (linkedDataString *) getHeaderOfHttpRequestAsSplitStrings(&request, "complex");
-    TEST_ASSERT_NOT_NULL(lds);
-    TEST_ASSERT_EQUAL_STRING_LEN("test1;test2;test3", lds->str.data, lds->str.length);
-    lds = lds->nextVal;
-    TEST_ASSERT_NOT_NULL(lds);
-    TEST_ASSERT_EQUAL_STRING_LEN("groovy", lds->str.data, lds->str.length);
-    lds = lds->nextVal;
-    TEST_ASSERT_NOT_NULL(lds);
-    TEST_ASSERT_EQUAL_STRING_LEN("mmm", lds->str.data, lds->str.length);
-    TEST_ASSERT_NULL(lds->nextVal);
-
+    TEST_ASSERT_EQUAL_STRING_LEN("test1;test2;test3    groovy  mmm", out->data, out->length);
 
     out = (string *) getHeaderOfHttpRequest(&request, "Hozt");
     TEST_ASSERT_NOT_NULL(out);
     TEST_ASSERT_EQUAL_STRING_LEN("z=z&z?z:z127.0.0.1", out->data, out->length);
-
-    lds = (linkedDataString *) getHeaderOfHttpRequestAsSplitStrings(&request, "Hozt");
-    TEST_ASSERT_NOT_NULL(lds);
-    TEST_ASSERT_EQUAL_STRING_LEN("z=z&z?z:z127.0.0.1", lds->str.data, lds->str.length);
-    TEST_ASSERT_NULL(lds->nextVal);
 }
 
 int main(void) {

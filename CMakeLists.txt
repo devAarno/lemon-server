@@ -20,7 +20,7 @@ cmake_minimum_required (VERSION 2.4)
 project (lemonServer C)
 
 set(CMAKE_VERBOSE_MAKEFILE on)
-add_definitions(-g -O0)
+add_definitions(-g -O0 -ansi -pedantic)
 #add_definitions(-O3 -flto -march=broadwell)
 set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -Wall -Wpedantic -Wextra")
 
