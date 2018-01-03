@@ -57,131 +57,7 @@ static int strncasecmp_internal(const char *s1, const char *s2, size_t n) {
 #define STRNCASECMP strncasecmp
 #endif
 
-/* inspired by https://stackoverflow.com/questions/2673207/c-c-url-decode-library */
-#undef NA
-#define NA 127
-static const char tbl[256] = {
-    NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,
-    NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,
-    NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,
-    0, 1, 2, 3, 4, 5, 6, 7, 8, 9, NA, NA, NA, NA, NA, NA,
-    NA, 10, 11, 12, 13, 14, 15, NA, NA, NA, NA, NA, NA, NA, NA, NA,
-    NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,
-    NA, 10, 11, 12, 13, 14, 15, NA, NA, NA, NA, NA, NA, NA, NA, NA,
-    NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,
-    NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,
-    NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,
-    NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,
-    NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,
-    NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,
-    NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,
-    NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA,
-    NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA
-};
-
-static const lemonHttpError decodeValue(string *s, boolean replacePlusWithSpace) {
-    if ((NULL == s) || (NULL == s->data)) {
-        return NULL_IN_INPUT_VALUES;
-    }
-    {
-        const size_t oldSize = s->length;
-        size_t readPos = 0;
-        size_t writePos = 0;
-        char a, b;
-        while (readPos < oldSize) {
-            switch ((s->data)[readPos]) {
-                case '%':
-                    switch ((readPos < oldSize - 2) ? (a = tbl[(s->data)[readPos + 1]]) : NA) {
-                        case NA:
-                            return PARSING_IS_FAILED;
-                            break;
-                        default:
-                            switch (b = tbl[(s->data)[readPos + 2]]) {
-                                case NA:
-                                    return PARSING_IS_FAILED;
-                                    break;
-                                default:
-                                    /* (s->data)[writePos] = 16 * a + b; */
-                                    (s->data)[writePos] = (a << 4) | b;
-                                    readPos += 3;
-                                    ++writePos;
-                                    break;
-                            }
-                            break;
-                    }
-                    break;
-                case '+':
-                    (s->data)[writePos] = ((TRUE == replacePlusWithSpace) ? ' ' : (s->data)[readPos]);
-                    ++writePos;
-                    ++readPos;
-                    break;
-                default:
-                    (s->data)[writePos] = (s->data)[readPos];
-                    ++writePos;
-                    ++readPos;
-                    break;
-            }
-        }
-        s->length = writePos;
-    }
-    return OK;
-}
-
 static const lemonHttpError normalizePath(string *s) {
-    if ((NULL == s) || (NULL == s->data)) {
-        return NULL_IN_INPUT_VALUES;
-    }
-    {
-        const size_t oldSize = s->length;
-        size_t readPos = 0;
-        size_t writePos = 0;
-        /* char a, b; */
-        while (readPos < oldSize) {
-            switch ((s->data)[readPos]) {
-                case '.':
-                    switch ((readPos < oldSize - 1) ? ((s->data)[readPos + 1]) : NA) {
-                        case '/':
-                            readPos += 2;
-                            break;
-                        case '.':
-                            switch ((readPos < oldSize - 2) ? ((s->data)[readPos + 2]) : NA) {
-                                case '/':
-                                    /* writePos at the end of path now. */
-                                    --writePos;
-                                    /* writePos discard last '/' if it is not first. */
-                                    if (0 != writePos) {
-                                        --writePos;
-                                    }
-                                    while ('/' != ((s->data)[writePos]) && (writePos > 0)) {
-                                        --writePos;
-                                    }
-                                    readPos += 2;
-                                    break;
-                                case NA:
-                                default:
-                                    (s->data)[writePos] = tolower((s->data)[readPos]);
-                                    ++writePos;
-                                    ++readPos;
-                                    break;
-                            }
-                            break;
-                        case NA:
-                        default:
-                            (s->data)[writePos] = tolower((s->data)[readPos]);
-                            ++writePos;
-                            ++readPos;
-                            break;
-                    }
-                    break;
-                default:
-                    (s->data)[writePos] = tolower((s->data)[readPos]);
-                    ++writePos;
-                    ++readPos;
-                    break;
-            }
-        }
-        s->length = writePos;
-    }
     return OK;
 }
 
@@ -196,93 +72,13 @@ const lemonHttpError initHttpRequest(httpRequest *r, const int fd) {
 
         /* Adds fake EMPTY element into zero position */
         ((r->elements)[0]).type = VALUE;
-        ((r->elements)[0]).value.str.data = getEmptyString();
-        ((r->elements)[0]).value.str.length = 0;
+        ((r->elements)[0]).value.str = getEmptyString();
         ((r->elements)[0]).value.nextVal = NULL;
         r->elementsCount = 1;
         /*appendElementOfHttpRequest(r, getEmptyString(), 0, VALUE);*/
 
         return OK;
     }
-}
-
-const lemonHttpError finalizeHttpRequest(httpRequest *r) {
-    if (NULL == r) {
-        return NULL_IN_INPUT_VALUES;
-    }
-    if (0 >= r->elementsCount) {
-        return INCORRECT_INPUT_VALUES;
-    }
-    {
-        requestElement *currElement;
-        const size_t elementsCount = r->elementsCount;
-        size_t i, j, length;
-        for (i = 0; i < elementsCount; ++i) {
-            currElement = &((r->elements)[i]);
-            switch (currElement->type) {
-                case HEADER:
-                    length = 0;
-                    j = i + 1;
-                    while ((elementsCount > j) && (VALUE == ((r->elements)[j]).type)) {
-                        /* Do not use decodeValue here */
-                        ((r->elements)[j - 1]).value.nextVal = &(((r->elements)[j]).value);
-                        length += ((r->elements)[j]).value.str.length;
-                        ++j;
-                    }
-                    if (0 != length) {
-                        const lemonHttpError ret = appendElementOfHttpRequest(r, ((r->elements)[i + 1]).value.str.data, length, HEADER_VALUE_AS_STRING_CHUNK);
-                        if (OK != ret) {
-                            return ret;
-                        }
-                        ((r->elements)[r->elementsCount - 1]).value.nextVal = &(((r->elements)[i + 1]).value);
-                        currElement->value.nextVal = &(((r->elements)[r->elementsCount - 1]).value);
-                    } else {
-                        /* If nothing was found */
-                        const lemonHttpError ret = appendElementOfHttpRequest(r, ((r->elements)[0]).value.str.data, 0, HEADER_VALUE_AS_STRING_CHUNK);
-                        if (OK != ret) {
-                            return ret;
-                        }
-                        currElement->value.nextVal = ((r->elements)[r->elementsCount - 1]).value.nextVal = &(((r->elements)[0]).value);
-                    }
-                    break;
-                case GET_QUERY_ELEMENT:
-                    {
-                        const lemonHttpError ret = decodeValue( &(currElement->value.str) , TRUE);
-                        if (OK != ret) {
-                            return ret;
-                        }
-                    }
-                    if ((elementsCount > i + 1) && (VALUE == ((r->elements)[i + 1]).type)) {
-                        const lemonHttpError ret = decodeValue(&(((r->elements)[i + 1]).value.str), TRUE);
-                        if (OK != ret) {
-                            return ret;
-                        }
-                        currElement->value.nextVal = &(((r->elements)[i + 1]).value);
-                    } else {
-                        currElement->value.nextVal = &(((r->elements)[0]).value);
-                    }
-                    break;
-                case URI:
-                    {
-                        const lemonHttpError ret = normalizePath(&(currElement->value.str));
-                        if (OK != ret) {
-                            return ret;
-                        }
-                    }
-                    {
-                        const lemonHttpError ret = decodeValue(&(currElement->value.str), FALSE);
-                        if (OK != ret) {
-                            return ret;
-                        }
-                        puts(currElement->value.str);
-                    }
-                    break;
-                default:
-                    break;
-            }
-        }
-    }
-    return OK;
 }
 
 const string *getMethodOfHttpRequest(const httpRequest *r) {
@@ -350,24 +146,6 @@ const string *getQueryParameterOfHttpRequest(const httpRequest *r, const char *n
     }
 }
 
-const linkedDataString *getHeaderOfHttpRequestAsSplitStrings(const httpRequest *r, const char *name) {
-    if ((NULL == r) || (NULL == name) || (0 >= r->elementsCount)) {
-        return NULL;
-    }
-    {
-        const size_t nameLength = strlen(name);
-        const size_t elementsCount = r->elementsCount;
-        size_t i;
-        for (i = 0; i < elementsCount; ++i) {
-            if ((HEADER == ((r->elements)[i]).type) && (nameLength == ((r->elements)[i]).value.str.length) && (0 == STRNCASECMP(name, ((r->elements)[i]).value.str.data, nameLength))) {
-                /* skip HEADER_VALUE_AS_STRING_CHUNK */
-                return ((r->elements)[i]).value.nextVal->nextVal;
-            };
-        };
-        return NULL;
-    }
-}
-
 const string *getHeaderOfHttpRequest(const httpRequest *r, const char *name) {
     if ((NULL == r) || (NULL == name) || (0 >= r->elementsCount)) {
         return NULL;
@@ -396,5 +174,6 @@ const boolean isStringEmpty(const string *s) {
     if (NULL == s) {
         return TRUE;
     }
-    return ((0 == s->length) && (getEmptyString() == s->data)) ? TRUE : FALSE;
+    const string empty = getEmptyString();
+    return ((empty.length == s->length) && (empty.data == s->data)) ? TRUE : FALSE;
 }

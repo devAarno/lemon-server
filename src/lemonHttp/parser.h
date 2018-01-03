@@ -27,7 +27,6 @@
 #include "lemonHttpError.h"
 
 typedef struct {
-    char stopSymbols[256];
     requestElement tmpElement;
     size_t length;
     httpRequest *request;
