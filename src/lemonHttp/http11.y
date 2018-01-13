@@ -114,34 +114,61 @@ request_target ::= absolute_path(var_s) QUESTION query. {
 }
 
 /* absolute-path  = 1*( "/" segment )*/
-%type segment {size_t}
+%type segment {string}
 absolute_path(var_s) ::= SLASH(var_c). { var_s.length = 1; var_s.data = var_c; }
-absolute_path(var_s) ::= SLASH(var_c) segment(var_l). { var_s.length = 1 + var_l; var_s.data = var_c; }
+absolute_path(var_s) ::= SLASH(var_c) segment(var_l). {
+    var_s.data = var_c;
+    var_s.length = var_l.length + 1;
+}
 absolute_path(var_s) ::= SLASH(var_c) DOT. { var_s.length = 1; var_s.data = var_c; }
-absolute_path(var_s) ::= SLASH(var_c) DOT segment(var_l). { var_s.length = 2 + var_l; var_s.data = var_c; }
+absolute_path(var_s) ::= SLASH(var_c) DOT segment(var_l). {
+    var_s.data = var_c;
+    var_s.length = var_l.length + 2;
+}
 absolute_path(var_s) ::= SLASH(var_c) DOT DOT. { var_s.length = 1; var_s.data = var_c; }
-absolute_path(var_s) ::= absolute_path SLASH. { ++(var_s.length); }
-absolute_path(var_s) ::= absolute_path SLASH DOT. { var_s; }
-absolute_path(var_s) ::= absolute_path SLASH DOT DOT. { var_s; }
-absolute_path(var_s) ::= absolute_path SLASH segment(var_l). { var_s.length += 1 + var_l; }
-absolute_path(var_s) ::= absolute_path SLASH DOT segment(var_l). { var_s.length += 1 + var_l; }
+absolute_path        ::= absolute_path SLASH.
+absolute_path        ::= absolute_path SLASH DOT.
+absolute_path(var_s) ::= absolute_path SLASH DOT DOT. {
+    while ('/' != ((var_s.data)[var_s.length - 1]) && (var_s.length > 0)) {
+        --(var_s.length);
+    }
+    if (var_s.length > 0) {
+        /* Delete SLASH too if possible */
+        --(var_s.length);
+    }
+    printf ("QQQQ Len %d chars: %.*s\n", var_s.length, var_s.length, var_s.data);
+}
+absolute_path(var_s) ::= absolute_path SLASH segment(var_l). {
+    size_t i;
+    for (i = 0; i <= var_l.length; ++i) {
+        (var_s.data)[var_s.length + i] = (var_l.data)[i - 1];
+    }
+    var_s.length += 1 + var_l.length;
+}
+absolute_path(var_s) ::= absolute_path SLASH DOT segment(var_l). {
+    size_t i;
+    for (i = 0; i <= var_l.length + 1; ++i) {
+        (var_s.data)[var_s.length + i] = (var_l.data)[i - 2];
+    }
+    var_s.length += 2 + var_l.length;
+}
 
 /* segment        = *pchar */
-%type pchar {size_t}
+%type pchar {string}
 /*segment(var_l) ::= . { var_l = 0; }*/
 segment(var_l) ::= pchar(var_p). { var_l = var_p; }
-segment(var_l) ::= segment pchar(var_p). { var_l += var_p; }
-segment(var_l) ::= segment DOT. { var_l += 1; }
+segment(var_l) ::= segment pchar(var_p). { var_l.length += var_p.length; }
+segment(var_l) ::= segment DOT. { var_l.length += 1; }
 
 /* pchar          = unreserved / pct-encoded / sub-delims / ":" / "@" */
-pchar(var_p) ::= unreserved_dot_ex. {var_p = 1;} /* unreserved_dot_ex */
-pchar(var_p) ::= pctencoded. {var_p = 3;}
-pchar(var_p) ::= subdelims. {var_p = 1;}
-pchar(var_p) ::= COLON. {var_p = 1;}
-pchar(var_p) ::= AT. {var_p = 1;}
+pchar(var_p) ::= unreserved_dot_ex(var_c). { *var_c = tolower(*var_c); var_p.data = var_c; var_p.length = 1; }
+pchar(var_p) ::= pctencoded(var_z). { var_p.data = var_z; var_p.length = 3; }
+pchar(var_p) ::= subdelims(var_c). { var_p.data = var_c; var_p.length = 1; }
+pchar(var_p) ::= COLON(var_c). { var_p.data = var_c; var_p.length = 1; }
+pchar(var_p) ::= AT(var_c). { var_p.data = var_c; var_p.length = 1; }
 
 /* pct-encoded    = "%" HEXDIG HEXDIG */
-pctencoded ::= PERCENT hexdig hexdig.
+pctencoded(var_z) ::= PERCENT(var_c) hexdig hexdig. { var_z = var_c; }
 
 /* query          = *( pchar / "/" / "?" ) 
  * (In general case, but we go deeper. Let's exclude '=' and '&'
