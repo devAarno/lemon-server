@@ -32,47 +32,6 @@
 
 static const char* rawRequest1 = "POST /1%201.%6apg?heLLo=world&vAlue1=&value2=++%20+&TesT=te+st&Yes= HTTP/1.1\r\nClient:           \r\nServer:\r\nThis:   is+a value  \r\n\r\n";
 
-/*void setUp(void) {
-    FILE *f;
-    size_t charBitShifts;
-    size_t i, j;
-    int rnd = RAND_MAX;
-
-    charBitShifts = 0;
-    while (0 != rnd) {
-        rnd >>= 8;
-        ++charBitShifts;
-    }
-    charBitShifts = (charBitShifts * 8) / 6; * Also it is an amount of chars which we can get from one rand() *
-
-    bigRequestSize = ((50 * PRIVATE_BUFFER_SIZE + PRIVATE_BUFFER_SIZE / 2) / charBitShifts) * charBitShifts + 3; * 3 is \r\n\0 *
-
-    bigRequest = malloc(bigRequestSize * sizeof (char));
-    
-    i = 0;
-    while (i < bigRequestSize - 3) {
-        rnd = rand();
-        j = 0;
-        while (j < charBitShifts) {
-            bigRequest[i + j] = rnd % 64 + 32;
-            rnd /= 64;
-            ++j;
-        }
-        i += charBitShifts;
-    }
-    bigRequest[bigRequestSize - 3] = '\r';
-    bigRequest[bigRequestSize - 2] = '\n';
-    bigRequest[bigRequestSize - 1] = '\0';
-    
-    f = fopen("request.txt", "wb");
-    fwrite(rawRequest1, sizeof(char), strlen(rawRequest1), f);
-    fwrite(bigRequest, sizeof(char), bigRequestSize, f);
-    fclose(f);
-    
-    
-}*/
-
-
 void setUp(void) {
     FILE *f;
     size_t charBitShifts;

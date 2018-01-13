@@ -52,6 +52,9 @@
 /* unreserved = ALPHA / DIGIT / "-" / "." / "_" / "~" */
 %token_class unreserved A|B|C|D|E|F|G|H|I|J|K|L|M|N|O|P|Q|R|S|T|U|V|W|X|Y|Z|LA|LB|LC|LD|LE|LF|LG|LH|LI|LJ|LK|LL|LM|LN|LO|LP|LQ|LR|LS|LT|LU|LV|LW|LX|LY|LZ|ZERO|ONE|TWO|THREE|FOUR|FIVE|SIX|SEVEN|EIGHT|NINE|MINUS|DOT|UNDERSCORE|TILDE.
 
+/* unreserved_dot_ex = ALPHA / DIGIT / "-" / "_" / "~" */
+%token_class unreserved_dot_ex A|B|C|D|E|F|G|H|I|J|K|L|M|N|O|P|Q|R|S|T|U|V|W|X|Y|Z|LA|LB|LC|LD|LE|LF|LG|LH|LI|LJ|LK|LL|LM|LN|LO|LP|LQ|LR|LS|LT|LU|LV|LW|LX|LY|LZ|ZERO|ONE|TWO|THREE|FOUR|FIVE|SIX|SEVEN|EIGHT|NINE|MINUS|UNDERSCORE|TILDE.
+
 /* sub-delims = "!" / "$" / "&" / "'" / "(" / ")" / "*" / "+" / "," / ";" / "=" */        
 %token_class subdelims EXCLAMATION|DOLLAR|AMPERSAND|APOSTROPHE|LPARENTHESIS|RPARENTHESIS|ASTERISK|PLUS|COMMA|SEMICOLON|EQUALS.
 
@@ -90,13 +93,6 @@ method ::= token(var_s). { appendElementOfHttpRequest(ps->request, &var_s, METHO
 token(var_s) ::= tchar(var_c). { var_s.length = 1; var_s.data = var_c; }
 token(var_s) ::= token tchar. { ++(var_s.length); }
 
-
-/*method ::= STRING(X). { 
-    puts("Method:");
-    puts(X);
-  appendElementOfHttpRequest(ps->request, X, ps->length, METHOD);
-}*/
-
 /* request-target = origin-form
                     / absolute-form
                     / authority-form
@@ -108,53 +104,74 @@ token(var_s) ::= token tchar. { ++(var_s.length); }
 /* pct-encoded    = "%" HEXDIG HEXDIG */
 /* sub-delims     */
 %type absolute_path {string}
-request_target ::= absolute_path(var_s). { decodeValue( &(var_s) , FALSE); appendElementOfHttpRequest(ps->request, &var_s, URI); }
-request_target ::= absolute_path(var_s) QUESTION query. { decodeValue( &(var_s) , FALSE); appendElementOfHttpRequest(ps->request, &var_s, URI); }
+request_target ::= absolute_path(var_s). {
+    decodeValue( &(var_s) , FALSE);
+    appendElementOfHttpRequest(ps->request, &var_s, URI);
+}
+request_target ::= absolute_path(var_s) QUESTION query. {
+    decodeValue( &(var_s) , FALSE);
+    appendElementOfHttpRequest(ps->request, &var_s, URI);
+}
 
 /* absolute-path  = 1*( "/" segment )*/
-%type segment {size_t}
-absolute_path(var_s) ::= SLASH(var_c) segment(var_l). { var_s.length = 1 + var_l; var_s.data = var_c; }
-absolute_path(var_s) ::= absolute_path SLASH segment(var_l). { var_s.length += 1 + var_l; }
+%type segment {string}
+absolute_path(var_s) ::= SLASH(var_c). { var_s.length = 1; var_s.data = var_c; }
+absolute_path(var_s) ::= SLASH(var_c) segment(var_l). {
+    var_s.data = var_c;
+    var_s.length = var_l.length + 1;
+}
+absolute_path(var_s) ::= SLASH(var_c) DOT. { var_s.length = 1; var_s.data = var_c; }
+absolute_path(var_s) ::= SLASH(var_c) DOT segment(var_l). {
+    var_s.data = var_c;
+    var_s.length = var_l.length + 2;
+}
+absolute_path(var_s) ::= SLASH(var_c) DOT DOT. { var_s.length = 1; var_s.data = var_c; }
+absolute_path        ::= absolute_path SLASH.
+absolute_path        ::= absolute_path SLASH DOT.
+absolute_path(var_s) ::= absolute_path SLASH DOT DOT. {
+    while ('/' != ((var_s.data)[var_s.length - 1]) && (var_s.length > 0)) {
+        --(var_s.length);
+    }
+    if (var_s.length > 0) {
+        /* Delete SLASH too if possible */
+        --(var_s.length);
+    }
+    printf ("QQQQ Len %d chars: %.*s\n", var_s.length, var_s.length, var_s.data);
+}
+absolute_path(var_s) ::= absolute_path SLASH segment(var_l). {
+    size_t i;
+    for (i = 0; i <= var_l.length; ++i) {
+        (var_s.data)[var_s.length + i] = (var_l.data)[i - 1];
+    }
+    var_s.length += 1 + var_l.length;
+}
+absolute_path(var_s) ::= absolute_path SLASH DOT segment(var_l). {
+    size_t i;
+    for (i = 0; i <= var_l.length + 1; ++i) {
+        (var_s.data)[var_s.length + i] = (var_l.data)[i - 2];
+    }
+    var_s.length += 2 + var_l.length;
+}
 
 /* segment        = *pchar */
-%type pchar {size_t}
-segment(var_l) ::= . { var_l = 0; }
-segment(var_l) ::= segment pchar(var_p). { var_l += var_p; }
+%type pchar {string}
+/*segment(var_l) ::= . { var_l = 0; }*/
+segment(var_l) ::= pchar(var_p). { var_l = var_p; }
+segment(var_l) ::= segment pchar(var_p). { var_l.length += var_p.length; }
+segment(var_l) ::= segment DOT. { var_l.length += 1; }
 
 /* pchar          = unreserved / pct-encoded / sub-delims / ":" / "@" */
-pchar(var_p) ::= unreserved. {var_p = 1;}
-pchar(var_p) ::= pctencoded. {var_p = 3;}
-pchar(var_p) ::= subdelims. {var_p = 1;}
-pchar(var_p) ::= COLON. {var_p = 1;}
-pchar(var_p) ::= AT. {var_p = 1;}
+pchar(var_p) ::= unreserved_dot_ex(var_c). { *var_c = tolower(*var_c); var_p.data = var_c; var_p.length = 1; }
+pchar(var_p) ::= pctencoded(var_z). { var_p.data = var_z; var_p.length = 3; }
+pchar(var_p) ::= subdelims(var_c). { var_p.data = var_c; var_p.length = 1; }
+pchar(var_p) ::= COLON(var_c). { var_p.data = var_c; var_p.length = 1; }
+pchar(var_p) ::= AT(var_c). { var_p.data = var_c; var_p.length = 1; }
 
 /* pct-encoded    = "%" HEXDIG HEXDIG */
-pctencoded ::= PERCENT hexdig hexdig.
-        
-/*absolute_path ::= STRING(X). {
-    puts("Uri:");
-    puts(X);
-  appendElementOfHttpRequest(ps->request, X, ps->length, URI);
-}*/
-        
-/*absolute_path ::= path.
-path ::= SLASH.
-path ::= SLASH ident.
-path ::= path filler SLASH ident.
-path ::= path filler DOT DOT SLASH.*/
-
-/*absolute_path ::= path.
-
-path ::= SLASH.
-path(P) ::= path filler STRING(X) SLASH. {puts("JJJJJJJ"); puts(P); P, X }
-path ::= path filler DOT DOT SLASH.
-
-filler ::= .
-filler ::= filler SLASH.
-filler ::= filler DOT SLASH.*/
+pctencoded(var_z) ::= PERCENT(var_c) hexdig hexdig. { var_z = var_c; }
 
 /* query          = *( pchar / "/" / "?" ) 
- * (In genral case, but we go deeper. Let's exclude '=' and '&'
+ * (In general case, but we go deeper. Let's exclude '=' and '&'
  * from subdelims and include and get a key-value pairs. Assume '/' and '?' as 
  * a part of custom pchar.)
  */
@@ -164,8 +181,15 @@ query ::= query AMPERSAND key_val.
 
 %type key {string}
 %type val {string}
-key_val ::= key(var_k) EQUALS. { decodeValue( &(var_k) , TRUE); linkRequestElement(appendElementOfHttpRequest(ps->request, &var_k, GET_QUERY_ELEMENT), getEmptyValueElement(ps->request)); }
-key_val ::= key(var_k) EQUALS val(var_l). { decodeValue( &(var_k) , TRUE); decodeValue( &(var_l) , TRUE); linkRequestElement(appendElementOfHttpRequest(ps->request, &var_k, GET_QUERY_ELEMENT), appendElementOfHttpRequest(ps->request, &var_l, VALUE)); }
+key_val ::= key(var_k) EQUALS. {
+    decodeValue( &(var_k) , TRUE);
+    linkRequestElement(appendElementOfHttpRequest(ps->request, &var_k, GET_QUERY_ELEMENT), getEmptyValueElement(ps->request));
+}
+key_val ::= key(var_k) EQUALS val(var_l). {
+    decodeValue( &(var_k) , TRUE);
+    decodeValue( &(var_l) , TRUE);
+    linkRequestElement(appendElementOfHttpRequest(ps->request, &var_k, GET_QUERY_ELEMENT), appendElementOfHttpRequest(ps->request, &var_l, VALUE));
+}
 
 %type pchar_kv {string}
 key(var_k) ::= pchar_kv(var_c). { var_k.length = var_c.length; var_k.data = var_c.data; }
@@ -183,23 +207,14 @@ pchar_kv(var_c) ::= AT(var_cc). { var_c.length = 1; var_c.data = var_cc; }
 pchar_kv(var_c) ::= SLASH(var_cc). { var_c.length = 1; var_c.data = var_cc; }
 pchar_kv(var_c) ::= QUESTION(var_cc). { var_c.length = 1; var_c.data = var_cc; }
 
-/*key ::= STRING(K). {
-  appendElementOfHttpRequest(ps->request, K, ps->length, GET_QUERY_ELEMENT);
-}
-val ::= STRING(V). {
-  appendElementOfHttpRequest(ps->request, V, ps->length, VALUE);
-}*/
-
 /* HTTP-version  = HTTP-name "/" DIGIT "." DIGIT */
 /* HTTP-name     = %x48.54.54.50 ; "HTTP", case-sensitive */
 %type http_version {string}
-http_version(var_s) ::= H(var_c) T T P SLASH digit DOT digit. { var_s.length = 8; var_s.data = var_c; appendElementOfHttpRequest(ps->request, &var_s, HTTP_VERSION); }
-
-/*http_version ::= STRING(X). {
-    puts("HTTP VER:");
-    puts(X);
-  appendElementOfHttpRequest(ps->request, X, ps->length, HTTP_VERSION);
-}*/
+http_version(var_s) ::= H(var_c) T T P SLASH digit DOT digit. {
+    var_s.length = 8;
+    var_s.data = var_c;
+    appendElementOfHttpRequest(ps->request, &var_s, HTTP_VERSION); 
+}
 
 /* HTTP-message   = start-line
                     *( header-field CRLF )
@@ -213,40 +228,23 @@ http_headers ::= http_headers header_field crlf.
 /* There is no support of obs-fold, because of parsing conflicts. So reduce 
  * some rules. */
 %type field_content {string}
-header_field ::= token(var_k) COLON ows. { linkRequestElement(appendElementOfHttpRequest(ps->request, &var_k, HEADER), getEmptyValueElement(ps->request)); }
-header_field ::= token(var_k) COLON ows field_content(var_v) ows. { trim(&var_v); linkRequestElement(appendElementOfHttpRequest(ps->request, &var_k, HEADER), appendElementOfHttpRequest(ps->request, &var_v, VALUE)); }
+header_field ::= token(var_k) COLON ows. {
+    linkRequestElement(appendElementOfHttpRequest(ps->request, &var_k, HEADER), getEmptyValueElement(ps->request));
+}
+header_field ::= token(var_k) COLON ows field_content(var_v) ows. {
+    trim(&var_v);
+    linkRequestElement(appendElementOfHttpRequest(ps->request, &var_k, HEADER), appendElementOfHttpRequest(ps->request, &var_v, VALUE));
+}
 
 /* field-content  = field-vchar [ 1*( SP / HTAB ) field-vchar ] */
 field_content(var_v) ::= field_vchar(var_c). { var_v.length = 1; var_v.data = var_c; }
 field_content(var_v) ::= field_content field_vchar. { ++(var_v.length); }
-/*field_content(var_v) ::= field_content SP ows field_vchar. { ++(var_v.length); }
-field_content(var_v) ::= field_content HTAB ows field_vchar. { ++(var_v.length); }*/
 
 /* field-vchar    = VCHAR / obs-text */
 field_vchar ::= vchar.
 field_vchar ::= HSP.
 field_vchar ::= HHTAB.
 field_vchar ::= OBSTEXT.
-
-/*http_header ::= header_name CLN field_value ows. {
-  puts("ENABLE ALL");
-  (ps->stopSymbols)[':'] = TOK_CLN;
-  (ps->stopSymbols)['&'] = TOK_AMP;
-  (ps->stopSymbols)['='] = TOK_EQ;
-  (ps->stopSymbols)['?'] = TOK_QST;
-}
-
-header_name ::= STRING(K). {
-    printf("xxxOFFF %.*s!\n", (int)ps->length, K);
-  appendElementOfHttpRequest(ps->request, K, ps->length, HEADER);
-  (ps->stopSymbols)[':'] = (ps->stopSymbols)['&'] = (ps->stopSymbols)['='] = (ps->stopSymbols)['?'] = 0;
-}
-
-field_value ::= .
-field_value ::= field_value ows STRING(V). {
-  printf("OFFF %.*s!\n", (int)ps->length, V);
-  appendElementOfHttpRequest(ps->request, V, ps->length, VALUE);
-}*/
 
 crlf ::= CR CLF.
 finalcrlf ::= CR CLF. {markAsParsed(ps); puts("DONE");}
