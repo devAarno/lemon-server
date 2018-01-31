@@ -22,8 +22,8 @@
 
 #include <stddef.h>
 
-#include "http_request.h"
-#include "lemonHttpError.h"
+#include "httpRequest.h"
+#include "lemonError.h"
 
 const lemonError decodeValue(string *s, boolean replacePlusWithSpace);
 

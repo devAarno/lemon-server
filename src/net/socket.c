@@ -27,9 +27,9 @@
 
 #include <unistd.h>
 
-#include "../lemonHttp/http_request.h"
+#include "../lemonHttp/httpRequest.h"
 #include "../lemonHttp/parser.h"
-#include "../lemonHttp/lemonHttpError.h"
+#include "../lemonHttp/lemonError.h"
 
 #include "socketError.h"
 

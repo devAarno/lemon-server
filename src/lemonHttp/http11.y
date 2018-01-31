@@ -21,8 +21,8 @@
 #include <stddef.h>
 #include <assert.h>
 #include "parser.h"
-#include "http_request.h"
-#include "http_request_int.h"
+#include "httpRequest.h"
+#include "httpRequestInternal.h"
 #include "string.h"
 }
 

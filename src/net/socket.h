@@ -23,7 +23,7 @@
 #include <stdint.h>
 #include <sys/types.h>
 
-#include "../lemonHttp/http_request.h"
+#include "../lemonHttp/httpRequest.h"
 #include "socketError.h"
 
 typedef void (*handle)(int fd, const httpRequest *);

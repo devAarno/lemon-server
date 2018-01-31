@@ -22,7 +22,7 @@
 #include "../3rdParty/unity/git/src/unity.h"
 #include "../src/lemonHttp/parser.h"
 #include "../src/lemonHttp/string.h"
-#include "../src/lemonHttp/lemonHttpError.h"
+#include "../src/lemonHttp/lemonError.h"
 
 #include "fakeDescriptor.h"
 

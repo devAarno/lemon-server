@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "http_request.h"
+#include "httpRequest.h"
 
 #include <stddef.h>
 #include <string.h>
@@ -28,8 +28,8 @@
 
 #include "string.h"
 #include "../boolean.h"
-#include "lemonHttpError.h"
-#include "http_request_int.h"
+#include "lemonError.h"
+#include "httpRequestInternal.h"
 
 /** FreeBSD implementation
  * https://svnweb.freebsd.org/base/head/lib/libc/string/strcasecmp.c?view=markup

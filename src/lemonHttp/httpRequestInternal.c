@@ -17,14 +17,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "http_request_int.h"
+#include "httpRequestInternal.h"
 
 #include <stddef.h>
 #include <string.h>
 
 
 #include "string.h"
-#include "lemonHttpError.h"
+#include "lemonError.h"
 
 static const char *emptyString = "";
 

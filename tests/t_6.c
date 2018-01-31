@@ -25,6 +25,7 @@
 #include "../src/lemonHttp/parser.h"
 #include "../src/lemonHttp/string.h"
 #include "../src/net/socket.h"
+#include "../src/lemonHttp/lemonError.h"
 
 #include "fakeDescriptor.h"
 

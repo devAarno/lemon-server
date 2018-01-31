@@ -22,9 +22,9 @@
 
 #include <stddef.h>
 
-#include "http_request.h"
+#include "httpRequest.h"
 #include "../boolean.h"
-#include "lemonHttpError.h"
+#include "lemonError.h"
 
 typedef struct {
     httpRequest *request;

@@ -24,7 +24,7 @@
 
 #include "string.h"
 #include "../boolean.h"
-#include "lemonHttpError.h"
+#include "lemonError.h"
 
 #define MAX_ELEMENTS 128
 

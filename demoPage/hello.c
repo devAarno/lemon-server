@@ -20,7 +20,7 @@
 #include <string.h>
 #include <unistd.h>
 
-#include "../src/lemonHttp/http_request.h"
+#include "../src/lemonHttp/httpRequest.h"
 #include "../src/net/socket.h"
 
 static const char *response = "HTTP/1.1 200 OK\r\n\
