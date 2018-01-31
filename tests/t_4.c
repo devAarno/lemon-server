@@ -48,11 +48,11 @@ static void test_correctValues1(void) {
     httpRequest request;
     string* out;
 
-    initHttpRequest(&request, FAKE_DESCRIPTOR);
+    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request, FAKE_DESCRIPTOR));
 
     strncpy(request.privateBuffer, rawRequest1, sizeof (request.privateBuffer));
 
-    TEST_ASSERT_EQUAL(OK, parse(&request));
+    TEST_ASSERT_EQUAL(LE_OK, parse(&request));
 
     out = (string *) getMethodOfHttpRequest(&request);
     TEST_ASSERT_NOT_NULL(out);
@@ -118,11 +118,11 @@ static void test_correctValues2(void) {
     httpRequest request;
     string* out;
 
-    initHttpRequest(&request, FAKE_DESCRIPTOR);
+    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request, FAKE_DESCRIPTOR));
 
     strncpy(request.privateBuffer, rawRequest2, sizeof (request.privateBuffer));
 
-    TEST_ASSERT_EQUAL(OK, parse(&request));
+    TEST_ASSERT_EQUAL(LE_OK, parse(&request));
 
     out = (string *) getMethodOfHttpRequest(&request);
     TEST_ASSERT_NOT_NULL(out);
@@ -152,72 +152,72 @@ static void test_correctValues2(void) {
 static void test_incorrectValues1(void) {
     httpRequest request;
 
-    initHttpRequest(&request, FAKE_DESCRIPTOR);
+    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request, FAKE_DESCRIPTOR));
 
     strncpy(request.privateBuffer, rawRequest3a, sizeof (request.privateBuffer));
 
-    TEST_ASSERT_EQUAL(PARSING_IS_FAILED, parse(&request));
+    TEST_ASSERT_EQUAL(LE_PARSING_IS_FAILED, parse(&request));
 }
 
 static void test_incorrectValues2(void) {
     httpRequest request;
 
-    initHttpRequest(&request, FAKE_DESCRIPTOR);
+    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request, FAKE_DESCRIPTOR));
 
     strncpy(request.privateBuffer, rawRequest3b, sizeof (request.privateBuffer));
 
-    TEST_ASSERT_EQUAL(PARSING_IS_FAILED, parse(&request));
+    TEST_ASSERT_EQUAL(LE_PARSING_IS_FAILED, parse(&request));
 }
 
 static void test_incorrectValues3(void) {
     httpRequest request;
 
-    initHttpRequest(&request, FAKE_DESCRIPTOR);
+    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request, FAKE_DESCRIPTOR));
 
     strncpy(request.privateBuffer, rawRequest3c, sizeof (request.privateBuffer));
 
-    TEST_ASSERT_EQUAL(PARSING_IS_FAILED, parse(&request));
+    TEST_ASSERT_EQUAL(LE_PARSING_IS_FAILED, parse(&request));
 }
 
 static void test_incorrectValues4(void) {
     httpRequest request;
 
-    initHttpRequest(&request, FAKE_DESCRIPTOR);
+    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request, FAKE_DESCRIPTOR));
 
     strncpy(request.privateBuffer, rawRequest3d, sizeof (request.privateBuffer));
 
-    TEST_ASSERT_EQUAL(PARSING_IS_FAILED, parse(&request));
+    TEST_ASSERT_EQUAL(LE_PARSING_IS_FAILED, parse(&request));
 }
 
 static void test_incorrectValues5(void) {
     httpRequest request;
 
-    initHttpRequest(&request, FAKE_DESCRIPTOR);
+    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request, FAKE_DESCRIPTOR));
 
     strncpy(request.privateBuffer, rawRequest3e, sizeof (request.privateBuffer));
 
-    TEST_ASSERT_EQUAL(PARSING_IS_FAILED, parse(&request));
+    TEST_ASSERT_EQUAL(LE_PARSING_IS_FAILED, parse(&request));
 }
 
 static void test_incorrectValues6(void) {
     httpRequest request;
 
-    initHttpRequest(&request, FAKE_DESCRIPTOR);
+    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request, FAKE_DESCRIPTOR));
 
     strncpy(request.privateBuffer, rawRequest3f, sizeof (request.privateBuffer));
 
-    TEST_ASSERT_EQUAL(PARSING_IS_FAILED, parse(&request));
+    TEST_ASSERT_EQUAL(LE_PARSING_IS_FAILED, parse(&request));
 }
 
 static void test_correctValues3(void) {
     httpRequest request;
     string* out;
 
-    initHttpRequest(&request, FAKE_DESCRIPTOR);
+    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request, FAKE_DESCRIPTOR));
 
     strncpy(request.privateBuffer, rawRequest3g, sizeof (request.privateBuffer));
 
-    TEST_ASSERT_EQUAL(OK, parse(&request));
+    TEST_ASSERT_EQUAL(LE_OK, parse(&request));
 
     out = (string *) getMethodOfHttpRequest(&request);
     TEST_ASSERT_NOT_NULL(out);
@@ -248,11 +248,11 @@ static void test_correctValues4(void) {
     httpRequest request;
     string* out;
 
-    initHttpRequest(&request, FAKE_DESCRIPTOR);
+    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request, FAKE_DESCRIPTOR));
 
     strncpy(request.privateBuffer, rawRequest3h, sizeof (request.privateBuffer));
 
-    TEST_ASSERT_EQUAL(OK, parse(&request));
+    TEST_ASSERT_EQUAL(LE_OK, parse(&request));
 
     out = (string *) getMethodOfHttpRequest(&request);
     TEST_ASSERT_NOT_NULL(out);

@@ -62,69 +62,104 @@ static const unsigned char ascii[256] = {
     TOK_OBSTEXT, TOK_OBSTEXT, TOK_OBSTEXT, TOK_OBSTEXT, TOK_OBSTEXT, TOK_OBSTEXT, TOK_OBSTEXT, TOK_OBSTEXT
 };
 
-const static lemonHttpError appendHttpToParser(parserState* ps, httpRequest *http) {
+const static lemonError appendHttpToParser(parserState* ps, httpRequest *http) {
+    if ((NULL == ps) || (NULL == http)) {
+        return LE_NULL_IN_INPUT_VALUES;
+    }
     ps->request = http;
-    return OK;
+    return LE_OK;
 }
 
 const boolean isParsed(const parserState* ps) {
+    if ((NULL == ps) || (NULL == ps->request)) {
+        return FALSE;
+    }
     return ps->isParsed;
 }
 
 const static boolean isParseFailed(const parserState* ps) {
+    if ((NULL == ps) || (NULL == ps->request)) {
+        return FALSE;
+    }
     return ps->isParseFailed;
 }
 
 const static boolean isSyntaxIncorrect(const parserState* ps) {
+    if ((NULL == ps) || (NULL == ps->request)) {
+        return FALSE;
+    }
     return ps->isSyntaxIncorrect;
 }
 
-const lemonHttpError markAsParsed(parserState* ps) {
+const lemonError markAsParsed(parserState* ps) {
+    if ((NULL == ps) || (NULL == ps->request)) {
+        return LE_NULL_IN_INPUT_VALUES;
+    }
     ps->isParsed = TRUE;
-    return OK;
+    return LE_OK;
 }
 
-const lemonHttpError markAsParseFailed(parserState* ps) {
+const lemonError markAsParseFailed(parserState* ps) {
+    if ((NULL == ps) || (NULL == ps->request)) {
+        return LE_NULL_IN_INPUT_VALUES;
+    }
+    if (0 >= ps->request->elementsCount) {
+        return LE_INCORRECT_INPUT_VALUES;
+    }
     ps->isParseFailed = TRUE;
-    return OK;
+    return LE_OK;
 }
 
-const lemonHttpError markAsSyntaxIncorrect(parserState* ps) {
+const lemonError markAsSyntaxIncorrect(parserState* ps) {
+    if ((NULL == ps) || (NULL == ps->request)) {
+        return LE_NULL_IN_INPUT_VALUES;
+    }
+    if (0 >= ps->request->elementsCount) {
+        return LE_INCORRECT_INPUT_VALUES;
+    }
     ps->isSyntaxIncorrect = TRUE;
-    return OK;
+    return LE_OK;
 }
 
-const lemonHttpError parse(httpRequest *request) {
-    char pParser[ParseHTTP11Size()];
-    size_t pos = 0;
-
-    parserState ps;
-
+const lemonError parse(httpRequest *request) {
+    if (NULL == request) {
+        return LE_NULL_IN_INPUT_VALUES;
+    }
+    if (0 >= request->elementsCount) {
+        return LE_INCORRECT_INPUT_VALUES;
+    }
     {
-        const lemonHttpError ret = appendHttpToParser(&ps, request);
-        if (OK != ret) {
-            return ret;
+        char pParser[ParseHTTP11Size()];
+        size_t pos = 0;
+
+        parserState ps;
+
+        {
+            const lemonError ret = appendHttpToParser(&ps, request);
+            if (LE_OK != ret) {
+                return ret;
+            }
         }
+
+        ParseHTTP11Init(&pParser);
+        ParseHTTP11Trace(stdout, "parser >>");
+
+        ps.isParsed = ps.isParseFailed = ps.isSyntaxIncorrect = FALSE;
+        while (
+                (FALSE == isParsed(&ps)) &&
+                (FALSE == isParseFailed(&ps)) &&
+                (FALSE == isSyntaxIncorrect(&ps))
+                ) {
+            ParseHTTP11(&pParser, ascii[(request->privateBuffer)[pos]], &((request->privateBuffer)[pos]), &ps);
+            ++pos;
+        }
+
+        ParseHTTP11(&pParser, 0, NULL, &ps);
+
+        --pos; /* Because of last ANY */
+        request->body.data = &((request->privateBuffer)[pos]);
+        request->body.length -= pos;
+
+        return (FALSE == isParseFailed(&ps)) ? ((FALSE == isSyntaxIncorrect(&ps)) ? LE_OK : LE_INCORRECT_SYNTAX) : LE_PARSING_IS_FAILED;
     }
-
-    ParseHTTP11Init(&pParser);
-    ParseHTTP11Trace(stdout, "parser >>");
-
-    ps.isParsed = ps.isParseFailed = ps.isSyntaxIncorrect = FALSE;
-    while (
-            (FALSE == isParsed(&ps)) &&
-            (FALSE == isParseFailed(&ps)) &&
-            (FALSE == isSyntaxIncorrect(&ps))
-            ) {
-        ParseHTTP11(&pParser, ascii[(request->privateBuffer)[pos]], &((request->privateBuffer)[pos]), &ps);
-        ++pos;
-    }
-
-    ParseHTTP11(&pParser, 0, NULL, &ps);
-
-    --pos; /* Because of last ANY */
-    request->body.data = &((request->privateBuffer)[pos]);
-    request->body.length -= pos;
-
-    return (FALSE == isParseFailed(&ps)) ? ((FALSE == isSyntaxIncorrect(&ps)) ? OK : INCORRECT_SYNTAX) : PARSING_IS_FAILED;
 }

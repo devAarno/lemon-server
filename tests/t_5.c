@@ -44,11 +44,11 @@ static void test1(void) {
 
     const char* rawRequest = "GET /a/b/././c HTTP/1.1\r\n\r\n";
 
-    TEST_ASSERT_EQUAL(OK, initHttpRequest(&request, FAKE_DESCRIPTOR));
+    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request, FAKE_DESCRIPTOR));
 
     strncpy(request.privateBuffer, rawRequest, sizeof (request.privateBuffer));
 
-    TEST_ASSERT_EQUAL(OK, parse(&request));
+    TEST_ASSERT_EQUAL(LE_OK, parse(&request));
 
     out = (string *) getMethodOfHttpRequest(&request);
     TEST_ASSERT_NOT_NULL(out);
@@ -69,11 +69,11 @@ static void test2(void) {
 
     const char* rawRequest = "GET /a/bxxxxx/../c HTTP/1.1\r\n\r\n";
 
-    TEST_ASSERT_EQUAL(OK, initHttpRequest(&request, FAKE_DESCRIPTOR));
+    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request, FAKE_DESCRIPTOR));
 
     strncpy(request.privateBuffer, rawRequest, sizeof (request.privateBuffer));
 
-    TEST_ASSERT_EQUAL(OK, parse(&request));
+    TEST_ASSERT_EQUAL(LE_OK, parse(&request));
 
     out = (string *) getMethodOfHttpRequest(&request);
     TEST_ASSERT_NOT_NULL(out);
@@ -94,11 +94,11 @@ static void test3(void) {
 
     const char* rawRequest = "GET /a/b/../../c HTTP/1.1\r\n\r\n";
 
-    TEST_ASSERT_EQUAL(OK, initHttpRequest(&request, FAKE_DESCRIPTOR));
+    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request, FAKE_DESCRIPTOR));
 
     strncpy(request.privateBuffer, rawRequest, sizeof (request.privateBuffer));
 
-    TEST_ASSERT_EQUAL(OK, parse(&request));
+    TEST_ASSERT_EQUAL(LE_OK, parse(&request));
 
     out = (string *) getMethodOfHttpRequest(&request);
     TEST_ASSERT_NOT_NULL(out);
@@ -119,11 +119,11 @@ static void test4(void) {
 
     const char* rawRequest = "GET /a/b/../../../c HTTP/1.1\r\n\r\n";
 
-    TEST_ASSERT_EQUAL(OK, initHttpRequest(&request, FAKE_DESCRIPTOR));
+    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request, FAKE_DESCRIPTOR));
 
     strncpy(request.privateBuffer, rawRequest, sizeof (request.privateBuffer));
 
-    TEST_ASSERT_EQUAL(OK, parse(&request));
+    TEST_ASSERT_EQUAL(LE_OK, parse(&request));
 
     out = (string *) getMethodOfHttpRequest(&request);
     TEST_ASSERT_NOT_NULL(out);
@@ -144,11 +144,11 @@ static void test5(void) {
 
     const char* rawRequest = "GET /a/b/../../.././.././././.././../../c HTTP/1.1\r\n\r\n";
 
-    TEST_ASSERT_EQUAL(OK, initHttpRequest(&request, FAKE_DESCRIPTOR));
+    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request, FAKE_DESCRIPTOR));
 
     strncpy(request.privateBuffer, rawRequest, sizeof (request.privateBuffer));
 
-    TEST_ASSERT_EQUAL(OK, parse(&request));
+    TEST_ASSERT_EQUAL(LE_OK, parse(&request));
 
     out = (string *) getMethodOfHttpRequest(&request);
     TEST_ASSERT_NOT_NULL(out);
@@ -169,11 +169,11 @@ static void test6(void) {
 
     const char* rawRequest = "GET /a/b/c/d/e/f/g/h/i/../../.././.././././.././../../j HTTP/1.1\r\n\r\n";
 
-    TEST_ASSERT_EQUAL(OK, initHttpRequest(&request, FAKE_DESCRIPTOR));
+    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request, FAKE_DESCRIPTOR));
 
     strncpy(request.privateBuffer, rawRequest, sizeof (request.privateBuffer));
 
-    TEST_ASSERT_EQUAL(OK, parse(&request));
+    TEST_ASSERT_EQUAL(LE_OK, parse(&request));
 
     out = (string *) getMethodOfHttpRequest(&request);
     TEST_ASSERT_NOT_NULL(out);
@@ -194,11 +194,11 @@ static void test7(void) {
 
     const char* rawRequest = "GET /a/b/../c/././d HTTP/1.1\r\n\r\n";
 
-    TEST_ASSERT_EQUAL(OK, initHttpRequest(&request, FAKE_DESCRIPTOR));
+    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request, FAKE_DESCRIPTOR));
 
     strncpy(request.privateBuffer, rawRequest, sizeof (request.privateBuffer));
 
-    TEST_ASSERT_EQUAL(OK, parse(&request));
+    TEST_ASSERT_EQUAL(LE_OK, parse(&request));
 
     out = (string *) getMethodOfHttpRequest(&request);
     TEST_ASSERT_NOT_NULL(out);
@@ -219,11 +219,11 @@ static void test8(void) {
 
     const char* rawRequest = "GET /A/b/c/%7bfoo%7d HTTP/1.1\r\n\r\n";
 
-    TEST_ASSERT_EQUAL(OK, initHttpRequest(&request, FAKE_DESCRIPTOR));
+    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request, FAKE_DESCRIPTOR));
 
     strncpy(request.privateBuffer, rawRequest, sizeof (request.privateBuffer));
 
-    TEST_ASSERT_EQUAL(OK, parse(&request));
+    TEST_ASSERT_EQUAL(LE_OK, parse(&request));
 
     out = (string *) getMethodOfHttpRequest(&request);
     TEST_ASSERT_NOT_NULL(out);
@@ -244,11 +244,11 @@ static void test9(void) {
 
     const char* rawRequest = "GET /host/%7Euser/x/y/z HTTP/1.1\r\n\r\n";
 
-    TEST_ASSERT_EQUAL(OK, initHttpRequest(&request, FAKE_DESCRIPTOR));
+    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request, FAKE_DESCRIPTOR));
 
     strncpy(request.privateBuffer, rawRequest, sizeof (request.privateBuffer));
 
-    TEST_ASSERT_EQUAL(OK, parse(&request));
+    TEST_ASSERT_EQUAL(LE_OK, parse(&request));
 
     out = (string *) getMethodOfHttpRequest(&request);
     TEST_ASSERT_NOT_NULL(out);
@@ -269,11 +269,11 @@ static void test10(void) {
 
     const char* rawRequest = "GET /host/%7euser/x/y/z HTTP/1.1\r\n\r\n";
 
-    TEST_ASSERT_EQUAL(OK, initHttpRequest(&request, FAKE_DESCRIPTOR));
+    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request, FAKE_DESCRIPTOR));
 
     strncpy(request.privateBuffer, rawRequest, sizeof (request.privateBuffer));
 
-    TEST_ASSERT_EQUAL(OK, parse(&request));
+    TEST_ASSERT_EQUAL(LE_OK, parse(&request));
 
     out = (string *) getMethodOfHttpRequest(&request);
     TEST_ASSERT_NOT_NULL(out);
@@ -294,11 +294,11 @@ static void test11(void) {
 
     const char* rawRequest = "GET /..//..///a//./././///../../b/c/.%64%65%66/test/./././///././//me/////./.././../.%7a%7A.///./. HTTP/1.1\r\n\r\n";
 
-    TEST_ASSERT_EQUAL(OK, initHttpRequest(&request, FAKE_DESCRIPTOR));
+    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request, FAKE_DESCRIPTOR));
 
     strncpy(request.privateBuffer, rawRequest, sizeof (request.privateBuffer));
 
-    TEST_ASSERT_EQUAL(OK, parse(&request));
+    TEST_ASSERT_EQUAL(LE_OK, parse(&request));
 
     out = (string *) getMethodOfHttpRequest(&request);
     TEST_ASSERT_NOT_NULL(out);
@@ -319,11 +319,11 @@ static void test12(void) {
 
     const char* rawRequest = "GET /..//..///a//./././///../../b/c/.%64%65%66/test/./././///././//me/////./.././../.%7a%7A././../.././.qq HTTP/1.1\r\n\r\n";
 
-    TEST_ASSERT_EQUAL(OK, initHttpRequest(&request, FAKE_DESCRIPTOR));
+    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request, FAKE_DESCRIPTOR));
 
     strncpy(request.privateBuffer, rawRequest, sizeof (request.privateBuffer));
 
-    TEST_ASSERT_EQUAL(OK, parse(&request));
+    TEST_ASSERT_EQUAL(LE_OK, parse(&request));
 
     out = (string *) getMethodOfHttpRequest(&request);
     TEST_ASSERT_NOT_NULL(out);
@@ -344,11 +344,11 @@ static void test13(void) {
 
     const char* rawRequest = "POST /test/me/./again/.and./fake1/fake2/../fake3/../../again/index.html?i=100&j=-7&temp=Kelvin HTTP/1.1\r\nHost:          localhost\r\ncomplex: test1;test2;test3    groovy  mmm   \r\nHozt:z=z&z?z:z127.0.0.1\r\n\r\n";
 
-    TEST_ASSERT_EQUAL(OK, initHttpRequest(&request, FAKE_DESCRIPTOR));
+    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request, FAKE_DESCRIPTOR));
 
     strncpy(request.privateBuffer, rawRequest, sizeof (request.privateBuffer));
 
-    TEST_ASSERT_EQUAL(OK, parse(&request));
+    TEST_ASSERT_EQUAL(LE_OK, parse(&request));
 
     out = (string *) getMethodOfHttpRequest(&request);
     TEST_ASSERT_NOT_NULL(out);

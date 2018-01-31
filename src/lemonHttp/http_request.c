@@ -57,13 +57,9 @@ static int strncasecmp_internal(const char *s1, const char *s2, size_t n) {
 #define STRNCASECMP strncasecmp
 #endif
 
-static const lemonHttpError normalizePath(string *s) {
-    return OK;
-}
-
-const lemonHttpError initHttpRequest(httpRequest *r, const int fd) {
+const lemonError initHttpRequest(httpRequest *r, const int fd) {
     if (NULL == r) {
-        return NULL_IN_INPUT_VALUES;
+        return LE_NULL_IN_INPUT_VALUES;
     }
     {
         r->descriptor = fd;
@@ -77,7 +73,7 @@ const lemonHttpError initHttpRequest(httpRequest *r, const int fd) {
         r->elementsCount = 1;
         /*appendElementOfHttpRequest(r, getEmptyString(), 0, VALUE);*/
 
-        return OK;
+        return LE_OK;
     }
 }
 

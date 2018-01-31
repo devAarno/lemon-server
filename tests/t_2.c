@@ -39,11 +39,11 @@ static void test_empty(void) {
     httpRequest request;
     string* out;
 
-    initHttpRequest(&request, FAKE_DESCRIPTOR);
+    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request, FAKE_DESCRIPTOR));
 
     strncpy(request.privateBuffer, rawRequest1, sizeof (request.privateBuffer));
 
-    TEST_ASSERT_EQUAL(OK, parse(&request));
+    TEST_ASSERT_EQUAL(LE_OK, parse(&request));
 
     out = (string *) getMethodOfHttpRequest(&request);
     TEST_ASSERT_NOT_NULL(out);
@@ -110,11 +110,11 @@ static void test_absent(void) {
     httpRequest request;
     string* out;
 
-    initHttpRequest(&request, FAKE_DESCRIPTOR);
+    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request, FAKE_DESCRIPTOR));
 
     strncpy(request.privateBuffer, rawRequest1, sizeof (request.privateBuffer));
 
-    TEST_ASSERT_EQUAL(OK, parse(&request));
+    TEST_ASSERT_EQUAL(LE_OK, parse(&request));
 
     out = (string *) getQueryParameterOfHttpRequest(&request, "zorg");
     TEST_ASSERT_NULL(out);

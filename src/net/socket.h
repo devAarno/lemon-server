@@ -24,12 +24,13 @@
 #include <sys/types.h>
 
 #include "../lemonHttp/http_request.h"
+#include "socketError.h"
 
 typedef void (*handle)(int fd, const httpRequest *);
 
 ssize_t readData(httpRequest *request);
 
-void runServer(uint16_t port, const handle h);
+const socketError runServer(uint16_t port, const handle h);
 
 #endif /* SOCKET_H */
 
