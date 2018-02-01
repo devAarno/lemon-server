@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "http_request.h"
+#include "httpRequest.h"
 
 #include <stddef.h>
 #include <string.h>
@@ -28,8 +28,8 @@
 
 #include "string.h"
 #include "../boolean.h"
-#include "lemonHttpError.h"
-#include "http_request_int.h"
+#include "lemonError.h"
+#include "httpRequestInternal.h"
 
 /** FreeBSD implementation
  * https://svnweb.freebsd.org/base/head/lib/libc/string/strcasecmp.c?view=markup
@@ -57,13 +57,9 @@ static int strncasecmp_internal(const char *s1, const char *s2, size_t n) {
 #define STRNCASECMP strncasecmp
 #endif
 
-static const lemonHttpError normalizePath(string *s) {
-    return OK;
-}
-
-const lemonHttpError initHttpRequest(httpRequest *r, const int fd) {
+const lemonError initHttpRequest(httpRequest *r, const int fd) {
     if (NULL == r) {
-        return NULL_IN_INPUT_VALUES;
+        return LE_NULL_IN_INPUT_VALUES;
     }
     {
         r->descriptor = fd;
@@ -77,7 +73,7 @@ const lemonHttpError initHttpRequest(httpRequest *r, const int fd) {
         r->elementsCount = 1;
         /*appendElementOfHttpRequest(r, getEmptyString(), 0, VALUE);*/
 
-        return OK;
+        return LE_OK;
     }
 }
 

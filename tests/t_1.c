@@ -22,7 +22,7 @@
 #include "../3rdParty/unity/git/src/unity.h"
 #include "../src/lemonHttp/parser.h"
 #include "../src/lemonHttp/string.h"
-#include "../src/lemonHttp/lemonHttpError.h"
+#include "../src/lemonHttp/lemonError.h"
 
 #include "fakeDescriptor.h"
 
@@ -42,11 +42,11 @@ static void test_byRawRequest1(void) {
     httpRequest request;
     string* out;
 
-    TEST_ASSERT_EQUAL(OK, initHttpRequest(&request, FAKE_DESCRIPTOR));
+    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request, FAKE_DESCRIPTOR));
 
     strncpy(request.privateBuffer, rawRequest1, sizeof (request.privateBuffer));
 
-    TEST_ASSERT_EQUAL(OK, parse(&request));
+    TEST_ASSERT_EQUAL(LE_OK, parse(&request));
 
     out = (string *) getMethodOfHttpRequest(&request);
     TEST_ASSERT_NOT_NULL(out);
@@ -65,11 +65,11 @@ static void test_byRawRequest2(void) {
     httpRequest request;
     string* out;
 
-    initHttpRequest(&request, FAKE_DESCRIPTOR);
+    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request, FAKE_DESCRIPTOR));
 
     strncpy(request.privateBuffer, rawRequest2, sizeof (request.privateBuffer));
 
-    TEST_ASSERT_EQUAL(OK, parse(&request));
+    TEST_ASSERT_EQUAL(LE_OK, parse(&request));
 
     out = (string *) getMethodOfHttpRequest(&request);
     TEST_ASSERT_NOT_NULL(out);
@@ -117,11 +117,11 @@ static void test_byRawRequest3(void) {
     httpRequest request;
     string* out;
 
-    initHttpRequest(&request, FAKE_DESCRIPTOR);
+    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request, FAKE_DESCRIPTOR));
 
     strncpy(request.privateBuffer, rawRequest3, sizeof (request.privateBuffer));
 
-    TEST_ASSERT_EQUAL(OK, parse(&request));
+    TEST_ASSERT_EQUAL(LE_OK, parse(&request));
 
     out = (string *) getMethodOfHttpRequest(&request);
     TEST_ASSERT_NOT_NULL(out);

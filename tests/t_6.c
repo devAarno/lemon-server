@@ -25,6 +25,7 @@
 #include "../src/lemonHttp/parser.h"
 #include "../src/lemonHttp/string.h"
 #include "../src/net/socket.h"
+#include "../src/lemonHttp/lemonError.h"
 
 #include "fakeDescriptor.h"
 
@@ -84,9 +85,9 @@ static void test_body(void) {
     FILE *fparser, *fraw;
 
     fparser = fopen("request.txt", "rb");
-    initHttpRequest(&request, fileno(fparser));
+    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request, fileno(fparser)));
     readData(&request);
-    TEST_ASSERT_EQUAL(OK, parse(&request));
+    TEST_ASSERT_EQUAL(LE_OK, parse(&request));
 
     out = (string *) getMethodOfHttpRequest(&request);
     TEST_ASSERT_NOT_NULL(out);

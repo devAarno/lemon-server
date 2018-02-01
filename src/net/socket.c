@@ -27,8 +27,11 @@
 
 #include <unistd.h>
 
-#include "../lemonHttp/http_request.h"
+#include "../lemonHttp/httpRequest.h"
 #include "../lemonHttp/parser.h"
+#include "../lemonHttp/lemonError.h"
+
+#include "socketError.h"
 
 ssize_t readData(httpRequest *request) {
     ssize_t res;
@@ -42,27 +45,34 @@ ssize_t readData(httpRequest *request) {
 
 static void manageConnection(int fd, const handle h) {
     httpRequest request;
-    ssize_t actualRead;
     
-    initHttpRequest(&request, fd);
+    if (LE_OK != initHttpRequest(&request, fd)) {
+        close(fd);
+        return ;
+    }
     
-    actualRead = readData(&request);
-    puts(request.privateBuffer);
-    parse(&request);
+    if (0 == readData(&request)) {
+        close(fd);
+        return ;
+    }
+    
+    if (LE_OK != parse(&request)) {
+        close(fd);
+        return ;
+    }
+    
     h(fd, &request);
 }
 
-void runServer(uint16_t port, const handle h) {
-    int listenfd;
+const socketError runServer(uint16_t port, const handle h) {
     struct sockaddr_in servaddr;
-    struct sockaddr_in readeraddr;
-    socklen_t readersize;
+    int listenfd;
     int readerfd;
     
 
     listenfd = socket(AF_INET, SOCK_STREAM, 0);
     if (-1 == listenfd) {
-        /*return SOCKETERROR;*/
+        return SE_SOCKET_ERROR;
     }
 
     memset(&servaddr, 0, sizeof (servaddr));
@@ -71,15 +81,18 @@ void runServer(uint16_t port, const handle h) {
     servaddr.sin_port = htons(port);
 
     if (0 != bind(listenfd, (const struct sockaddr *) &servaddr, sizeof (servaddr))) {
-        /*return SOCKETERROR;*/
+        return SE_BIND_ERROR;
     }
 
     if (0 != listen(listenfd, 128)) {
-        /*return SOCKETERROR;*/
+        return SE_LISTEN_ERROR;
     }
 
     for (;;) {
-        readerfd = accept(listenfd, (struct sockaddr *) &readeraddr, &readersize);
+        readerfd = accept(listenfd, NULL, NULL);
+        if (-1 == readerfd) {
+            return SE_ACCEPT_ERROR;
+        }
         manageConnection(readerfd, h);
     }
 }

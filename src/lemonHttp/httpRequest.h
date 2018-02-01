@@ -24,7 +24,7 @@
 
 #include "string.h"
 #include "../boolean.h"
-#include "lemonHttpError.h"
+#include "lemonError.h"
 
 #define MAX_ELEMENTS 128
 
@@ -58,9 +58,9 @@ typedef struct {
     int descriptor;
 } httpRequest;
 
-const lemonHttpError initHttpRequest(httpRequest *r, const int fd);
+const lemonError initHttpRequest(httpRequest *r, const int fd);
 
-const lemonHttpError finalizeHttpRequest(httpRequest *r);
+const lemonError finalizeHttpRequest(httpRequest *r);
 
 const string *getMethodOfHttpRequest(const httpRequest *r);
 

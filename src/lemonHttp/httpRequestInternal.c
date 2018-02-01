@@ -17,14 +17,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "http_request_int.h"
+#include "httpRequestInternal.h"
 
 #include <stddef.h>
 #include <string.h>
 
 
 #include "string.h"
-#include "lemonHttpError.h"
+#include "lemonError.h"
 
 static const char *emptyString = "";
 
@@ -50,9 +50,13 @@ static const char tbl[256] = {
     NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA
 };
 
-const lemonHttpError decodeValue(string *s, boolean replacePlusWithSpace) {
+const lemonError decodeValue(string *s, boolean replacePlusWithSpace) {
     if ((NULL == s) || (NULL == s->data)) {
-        return NULL_IN_INPUT_VALUES;
+        return LE_NULL_IN_INPUT_VALUES;
+    }
+    if (((0 == s->length) && (emptyString != s->data)) ||
+            ((0 != s->length) && (emptyString == s->data))) {
+        return LE_INCORRECT_INPUT_VALUES;
     }
     {
         const size_t oldSize = s->length;
@@ -64,12 +68,12 @@ const lemonHttpError decodeValue(string *s, boolean replacePlusWithSpace) {
                 case '%':
                     switch ((readPos < oldSize - 2) ? (a = tbl[(s->data)[readPos + 1]]) : NA) {
                         case NA:
-                            return PARSING_IS_FAILED;
+                            return LE_PARSING_IS_FAILED;
                             break;
                         default:
                             switch (b = tbl[(s->data)[readPos + 2]]) {
                                 case NA:
-                                    return PARSING_IS_FAILED;
+                                    return LE_PARSING_IS_FAILED;
                                     break;
                                 default:
                                     /* (s->data)[writePos] = 16 * a + b; */
@@ -95,26 +99,15 @@ const lemonHttpError decodeValue(string *s, boolean replacePlusWithSpace) {
         }
         s->length = writePos;
     }
-    return OK;
+    return LE_OK;
 }
 
 requestElement *appendElementOfHttpRequest(httpRequest *r, const string *s, const elementType type) {
-    /*if ((NULL == r) || (NULL == startPos)) {
-        return NULL_IN_INPUT_VALUES;
-    }
-    if ((0 >= r->elementsCount) || (0 >= len)) {
-        return INCORRECT_INPUT_VALUES;
-    }*/
-    /*if ((NULL == r) || ((NULL == startPos) && (0 != len) && (VALUE != type)) ) {
-        return NULL_IN_INPUT_VALUES;
-    }
-    if ((0 >= r->elementsCount) || ((0 == len) && (NULL != startPos) && (VALUE != type)) || (0 > len)) {
-        return INCORRECT_INPUT_VALUES;
-    }*/
-    if ((NULL == r) || (NULL == s) || (NULL == s->data)) {
-        return NULL;
-    }
-    if ((0 >= r->elementsCount) || ((0 == s->length) && (emptyString != s->data) && (VALUE != type)) || (0 > s->length)) {
+    if ((NULL == r) || (NULL == s) || (NULL == s->data) ||
+            (0 >= r->elementsCount) ||
+            (((0 == s->length) && (emptyString != s->data)) || ((0 != s->length) && (emptyString == s->data))) ||
+            ((0 == s->length) && (emptyString == s->data) && (VALUE != type)) ||
+            (0 > s->length)) {
         return NULL;
     }
     {
@@ -127,15 +120,18 @@ requestElement *appendElementOfHttpRequest(httpRequest *r, const string *s, cons
     }
 }
 
-const lemonHttpError linkRequestElement(requestElement *key, const requestElement *value) {
-    if ((NULL == key) ||
-       (NULL == value)) {
-        return NULL_IN_INPUT_VALUES;
+const lemonError linkRequestElement(requestElement *key, const requestElement *value) {
+    if ((NULL == key) || (NULL == key->value.str.data) ||
+            (NULL == value) || (NULL == value->value.str.data)) {
+        return LE_NULL_IN_INPUT_VALUES;
     }
     {
         linkedDataString *pos = &(key->value);
-        while (NULL != pos->nextVal) { pos = pos->nextVal; };
+        while (NULL != pos->nextVal) {
+            pos = pos->nextVal;
+        };
         pos->nextVal = &(value->value.str);
+        return LE_OK;
     }
 }
 
@@ -147,10 +143,20 @@ const string getEmptyString() {
 }
 
 const requestElement *getEmptyValueElement(const httpRequest *r) {
+    if ((NULL == r) || (0 >= r->elementsCount)) {
+        return NULL;
+    }
     return &(r->elements[0]);
 }
 
-const lemonHttpError trim(string *s) {
+const lemonError trim(string *s) {
+    if ((NULL == s) || (NULL == s->data)) {
+        return LE_NULL_IN_INPUT_VALUES;
+    }
+    if (((0 == s->length) && (emptyString != s->data)) ||
+            ((0 != s->length) && (emptyString == s->data))) {
+        return LE_INCORRECT_INPUT_VALUES;
+    }
     while ((s->data == ' ') || (s->data == '\t')) {
         ++(s->data);
         --(s->length);
@@ -158,5 +164,5 @@ const lemonHttpError trim(string *s) {
     while (((s->data)[s->length - 1] == ' ') || ((s->data)[s->length - 1] == '\t')) {
         --(s->length);
     };
-    return 0;
+    return LE_OK;
 }

@@ -22,19 +22,19 @@
 
 #include <stddef.h>
 
-#include "http_request.h"
-#include "lemonHttpError.h"
+#include "httpRequest.h"
+#include "lemonError.h"
 
-const lemonHttpError decodeValue(string *s, boolean replacePlusWithSpace);
+const lemonError decodeValue(string *s, boolean replacePlusWithSpace);
 
 requestElement *appendElementOfHttpRequest(httpRequest *r, const string *s, const elementType type);
 
-const lemonHttpError linkRequestElement(requestElement *key, const requestElement *value);
+const lemonError linkRequestElement(requestElement *key, const requestElement *value);
 
 const string getEmptyString();
 
 const requestElement *getEmptyValueElement(const httpRequest *r);
 
-const lemonHttpError trim(string *s);
+const lemonError trim(string *s);
 #endif /* HTTP_REQUEST_INT_H */
 

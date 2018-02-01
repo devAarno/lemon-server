@@ -22,29 +22,26 @@
 
 #include <stddef.h>
 
-#include "http_request.h"
+#include "httpRequest.h"
 #include "../boolean.h"
-#include "lemonHttpError.h"
+#include "lemonError.h"
 
 typedef struct {
-    requestElement tmpElement;
-    size_t length;
     httpRequest *request;
-    linkedDataString *link;
     boolean isParsed;
     boolean isParseFailed;
     boolean isSyntaxIncorrect;
 } parserState;
 
-const lemonHttpError parse(httpRequest *request);
+const lemonError parse(httpRequest *request);
 
 const boolean isParsed(const parserState* ps);
 
-const lemonHttpError markAsParsed(parserState* ps);
+const lemonError markAsParsed(parserState* ps);
 
-const lemonHttpError markAsParseFailed(parserState* ps);
+const lemonError markAsParseFailed(parserState* ps);
 
-const lemonHttpError markAsSyntaxIncorrect(parserState* ps);
+const lemonError markAsSyntaxIncorrect(parserState* ps);
 
 #endif /* PARSER_H */
 

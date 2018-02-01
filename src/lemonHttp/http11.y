@@ -21,8 +21,8 @@
 #include <stddef.h>
 #include <assert.h>
 #include "parser.h"
-#include "http_request.h"
-#include "http_request_int.h"
+#include "httpRequest.h"
+#include "httpRequestInternal.h"
 #include "string.h"
 }
 
@@ -87,7 +87,11 @@ request_line ::= method SP request_target SP http_version crlf.
 
 /* method = token  */
 %type token {string}
-method ::= token(var_s). { appendElementOfHttpRequest(ps->request, &var_s, METHOD); }
+method ::= token(var_s). {
+    if (NULL == appendElementOfHttpRequest(ps->request, &var_s, METHOD)) {
+        markAsParseFailed(ps);
+    }
+}
 
 /* token = 1*tchar */
 token(var_s) ::= tchar(var_c). { var_s.length = 1; var_s.data = var_c; }
@@ -105,12 +109,22 @@ token(var_s) ::= token tchar. { ++(var_s.length); }
 /* sub-delims     */
 %type absolute_path {string}
 request_target ::= absolute_path(var_s). {
-    decodeValue( &(var_s) , FALSE);
-    appendElementOfHttpRequest(ps->request, &var_s, URI);
+    if (LE_OK != decodeValue( &(var_s) , FALSE)) {
+        markAsParseFailed(ps);
+    } else {
+        if (NULL == appendElementOfHttpRequest(ps->request, &var_s, URI)) {
+            markAsParseFailed(ps);
+        }
+    }
 }
 request_target ::= absolute_path(var_s) QUESTION query. {
-    decodeValue( &(var_s) , FALSE);
-    appendElementOfHttpRequest(ps->request, &var_s, URI);
+    if (LE_OK != decodeValue( &(var_s) , FALSE)) {
+        markAsParseFailed(ps);
+    } else {
+        if (NULL == appendElementOfHttpRequest(ps->request, &var_s, URI)) {
+            markAsParseFailed(ps);
+        }
+    }
 }
 
 /* absolute-path  = 1*( "/" segment )*/
@@ -136,7 +150,6 @@ absolute_path(var_s) ::= absolute_path SLASH DOT DOT. {
         /* Delete SLASH too if possible */
         --(var_s.length);
     }
-    printf ("QQQQ Len %d chars: %.*s\n", var_s.length, var_s.length, var_s.data);
 }
 absolute_path(var_s) ::= absolute_path SLASH segment(var_l). {
     size_t i;
@@ -182,13 +195,35 @@ query ::= query AMPERSAND key_val.
 %type key {string}
 %type val {string}
 key_val ::= key(var_k) EQUALS. {
-    decodeValue( &(var_k) , TRUE);
-    linkRequestElement(appendElementOfHttpRequest(ps->request, &var_k, GET_QUERY_ELEMENT), getEmptyValueElement(ps->request));
+    if (LE_OK != decodeValue( &(var_k) , TRUE)) {
+        markAsParseFailed(ps);
+    } else {
+        requestElement *parent, *child;
+        if ((NULL == (parent = appendElementOfHttpRequest(ps->request, &var_k, GET_QUERY_ELEMENT))) ||
+                (NULL == (child = getEmptyValueElement(ps->request)))) {
+            markAsParseFailed(ps);
+        } else {
+            if (LE_OK != linkRequestElement(parent, child)) {
+                markAsParseFailed(ps);
+            }
+        }
+    }
 }
 key_val ::= key(var_k) EQUALS val(var_l). {
-    decodeValue( &(var_k) , TRUE);
-    decodeValue( &(var_l) , TRUE);
-    linkRequestElement(appendElementOfHttpRequest(ps->request, &var_k, GET_QUERY_ELEMENT), appendElementOfHttpRequest(ps->request, &var_l, VALUE));
+    if ((LE_OK != decodeValue( &(var_k) , TRUE)) ||
+            (LE_OK != decodeValue( &(var_l) , TRUE))) {
+        markAsParseFailed(ps);
+    } else {
+        requestElement *parent, *child;
+        if ((NULL == (parent = appendElementOfHttpRequest(ps->request, &var_k, GET_QUERY_ELEMENT))) ||
+                (NULL == (child = appendElementOfHttpRequest(ps->request, &var_l, VALUE)))) {
+            markAsParseFailed(ps);
+        } else {
+            if (LE_OK != linkRequestElement(parent, child)) {
+                markAsParseFailed(ps);
+            }
+        }
+    }
 }
 
 %type pchar_kv {string}
@@ -213,7 +248,9 @@ pchar_kv(var_c) ::= QUESTION(var_cc). { var_c.length = 1; var_c.data = var_cc; }
 http_version(var_s) ::= H(var_c) T T P SLASH digit DOT digit. {
     var_s.length = 8;
     var_s.data = var_c;
-    appendElementOfHttpRequest(ps->request, &var_s, HTTP_VERSION); 
+    if (NULL == appendElementOfHttpRequest(ps->request, &var_s, HTTP_VERSION)) {
+        markAsParseFailed(ps);
+    }
 }
 
 /* HTTP-message   = start-line
@@ -229,11 +266,30 @@ http_headers ::= http_headers header_field crlf.
  * some rules. */
 %type field_content {string}
 header_field ::= token(var_k) COLON ows. {
-    linkRequestElement(appendElementOfHttpRequest(ps->request, &var_k, HEADER), getEmptyValueElement(ps->request));
+    requestElement *parent, *child;
+    if ((NULL == (parent = appendElementOfHttpRequest(ps->request, &var_k, HEADER))) ||
+                (NULL == (child = getEmptyValueElement(ps->request)))) {
+        markAsParseFailed(ps);
+    } else {
+        if (LE_OK != linkRequestElement(parent, child)) {
+            markAsParseFailed(ps);
+        }
+    }
 }
 header_field ::= token(var_k) COLON ows field_content(var_v) ows. {
-    trim(&var_v);
-    linkRequestElement(appendElementOfHttpRequest(ps->request, &var_k, HEADER), appendElementOfHttpRequest(ps->request, &var_v, VALUE));
+    if (LE_OK != trim(&var_v)) {
+        markAsParseFailed(ps);
+    } else {
+        requestElement *parent, *child;
+        if ((NULL == (parent = appendElementOfHttpRequest(ps->request, &var_k, HEADER))) ||
+                (NULL == (child = appendElementOfHttpRequest(ps->request, &var_v, VALUE)))) {
+            markAsParseFailed(ps);
+        } else {
+            if (LE_OK != linkRequestElement(parent, child)) {
+                markAsParseFailed(ps);
+            }
+        }
+    }
 }
 
 /* field-content  = field-vchar [ 1*( SP / HTAB ) field-vchar ] */
