@@ -231,7 +231,7 @@ static void test8(void) {
 
     out = (string *) getUriOfHttpRequest(&request);
     TEST_ASSERT_NOT_NULL(out);
-    TEST_ASSERT_EQUAL_STRING_LEN("/a/b/c/{foo}", out->data, out->length);
+    TEST_ASSERT_EQUAL_STRING_LEN("/A/b/c/{foo}", out->data, out->length);
 
     out = (string *) getVersionOfHttpRequest(&request);
     TEST_ASSERT_NOT_NULL(out);

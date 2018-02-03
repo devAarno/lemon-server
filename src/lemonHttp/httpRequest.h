@@ -70,8 +70,6 @@ const string *getVersionOfHttpRequest(const httpRequest *r);
 
 const string *getQueryParameterOfHttpRequest(const httpRequest *r, const char *name);
 
-const linkedDataString *getHeaderOfHttpRequestAsSplitStrings(const httpRequest *r, const char *name);
-
 const string *getHeaderOfHttpRequest(const httpRequest *r, const char *name);
 
 const string *getBodyBufferOfHttpRequest(const httpRequest *r);
