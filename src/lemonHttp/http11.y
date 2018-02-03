@@ -174,7 +174,7 @@ segment(var_l) ::= segment pchar(var_p). { var_l.length += var_p.length; }
 segment(var_l) ::= segment DOT. { var_l.length += 1; }
 
 /* pchar          = unreserved / pct-encoded / sub-delims / ":" / "@" */
-pchar(var_p) ::= unreserved_dot_ex(var_c). { *var_c = tolower(*var_c); var_p.data = var_c; var_p.length = 1; }
+pchar(var_p) ::= unreserved_dot_ex(var_c). { var_p.data = var_c; var_p.length = 1; }
 pchar(var_p) ::= pctencoded(var_z). { var_p.data = var_z; var_p.length = 3; }
 pchar(var_p) ::= subdelims(var_c). { var_p.data = var_c; var_p.length = 1; }
 pchar(var_p) ::= COLON(var_c). { var_p.data = var_c; var_p.length = 1; }
