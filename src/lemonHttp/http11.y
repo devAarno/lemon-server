@@ -195,17 +195,17 @@ query ::= query AMPERSAND key_val.
 %type key {string}
 %type val {string}
 key_val ::= key(var_k) EQUALS. {
-    if (LE_OK != decodeValue( &(var_k) , TRUE)) {
+if (LE_OK != decodeValue( &(var_k) , TRUE)) {
         markAsParseFailed(ps);
     } else {
-        requestElement *parent, *child;
-        if ((NULL == (parent = appendElementOfHttpRequest(ps->request, &var_k, GET_QUERY_ELEMENT))) ||
-                (NULL == (child = getEmptyValueElement(ps->request)))) {
+        const requestElement *parent = appendElementOfHttpRequest(ps->request, &var_k, GET_QUERY_ELEMENT);
+        const requestElement *child = getEmptyValueElement(ps->request);
+        if ((NULL == parent) || (NULL == child)) {
             markAsParseFailed(ps);
         } else {
-            if (LE_OK != linkRequestElement(parent, child)) {
-                markAsParseFailed(ps);
-            }
+                if (LE_OK != linkRequestElement(parent, child)) {
+                    markAsParseFailed(ps);
+                }
         }
     }
 }
@@ -280,9 +280,9 @@ header_field ::= token(var_k) COLON ows field_content(var_v) ows. {
     if (LE_OK != trim(&var_v)) {
         markAsParseFailed(ps);
     } else {
-        requestElement *parent, *child;
-        if ((NULL == (parent = appendElementOfHttpRequest(ps->request, &var_k, HEADER))) ||
-                (NULL == (child = appendElementOfHttpRequest(ps->request, &var_v, VALUE)))) {
+        const requestElement *parent = appendElementOfHttpRequest(ps->request, &var_k, HEADER);
+        const requestElement *child = appendElementOfHttpRequest(ps->request, &var_v, VALUE);
+        if ((NULL == parent) || (NULL == child)) {
             markAsParseFailed(ps);
         } else {
             if (LE_OK != linkRequestElement(parent, child)) {
