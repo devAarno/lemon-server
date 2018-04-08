@@ -6,15 +6,6 @@
 **
 ** The author of this program disclaims copyright.
 */
-
-/*
- * Fossil info (same for a lempar.c):
-checkout:     ccf734f7d2bf8f99f3c55124b05c1835e4371bc2 2018-03-24 23:16:05 UTC
-parent:       e9508ab1f86ac70a3ca5622ce44141bc05186b19 2018-03-24 20:06:52 UTC
-tags:         trunk
-comment:      Fix a couple issues in the 'session' module tests. (user: mistachkin)
- */
-
 #include <stdio.h>
 #include <stdarg.h>
 #include <string.h>
@@ -3263,6 +3254,7 @@ void ReportOutput(struct lemon *lemp)
   struct state *stp;
   struct config *cfp;
   struct action *ap;
+  struct rule *rp;
   FILE *fp;
 
   fp = file_open(lemp,".out","wb");
@@ -3315,7 +3307,20 @@ void ReportOutput(struct lemon *lemp)
         }
       }
     }
+    if( sp->prec>=0 ) fprintf(fp," (precedence=%d)", sp->prec);
     fprintf(fp, "\n");
+  }
+  fprintf(fp, "----------------------------------------------------\n");
+  fprintf(fp, "Rules:\n");
+  for(rp=lemp->rule; rp; rp=rp->next){
+    fprintf(fp, "%4d: ", rp->iRule);
+    rule_print(fp, rp);
+    fprintf(fp,".");
+    if( rp->precsym ){
+      fprintf(fp," [%s precedence=%d]",
+              rp->precsym->name, rp->precsym->prec);
+    }
+    fprintf(fp,"\n");
   }
   fclose(fp);
   return;
