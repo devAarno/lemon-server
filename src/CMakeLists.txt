@@ -69,7 +69,7 @@ endif (NOT HAS_${sup_strncasecmp})
 # https://samthursfield.wordpress.com/2015/11/21/cmake-dependencies-between-targets-and-files-and-custom-commands/
 
 add_custom_command(OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/lemonHttp/http11.c ${CMAKE_CURRENT_SOURCE_DIR}/lemonHttp/http11.h
-  DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/lemonHttp/http11.y lemon makeheaders
+  DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/lemonHttp/http11.y ${CMAKE_CURRENT_SOURCE_DIR}/lemonHttp/lempar.c lemon makeheaders
   COMMAND lemon ARGS -m -DYYSTACKDEPTH=480 -DParseHTTP11_ENGINEALWAYSONSTACK -T${CMAKE_CURRENT_SOURCE_DIR}/lemonHttp/lempar.c ${CMAKE_CURRENT_SOURCE_DIR}/lemonHttp/http11.y
   COMMAND makeheaders ARGS ${CMAKE_CURRENT_SOURCE_DIR}/lemonHttp/http11.c
   COMMENT "Generating a HTTP v1.1 parser."

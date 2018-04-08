@@ -1,0 +1,5 @@
+updated-to:   602fbd8149b53d8f0e9a223cc1aec912e7df03fc 2018-04-06 19:12:55 UTC
+tags:         trunk
+comment:      Enhance LEMON to show precendence of symbols and all rules in the report that is generated in parallel to the
+              parser. (user: drh)
+
