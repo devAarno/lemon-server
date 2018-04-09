@@ -130,14 +130,14 @@ const lemonError linkRequestElement(requestElement *key, const requestElement *v
         while (NULL != pos->nextVal) {
             pos = pos->nextVal;
         };
-        pos->nextVal = &(value->value.str);
+        pos->nextVal = (linkedDataString *)(&(value->value));
         return LE_OK;
     }
 }
 
 const string getEmptyString() {
     string s;
-    s.data = emptyString;
+    s.data = (char *)emptyString;
     s.length = 0;
     return s;
 }
@@ -157,7 +157,7 @@ const lemonError trim(string *s) {
             ((0 != s->length) && (emptyString == s->data))) {
         return LE_INCORRECT_INPUT_VALUES;
     }
-    while ((s->data == ' ') || (s->data == '\t')) {
+    while (((s->data)[0] == ' ') || ((s->data)[0] == '\t')) {
         ++(s->data);
         --(s->length);
     };

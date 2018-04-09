@@ -24,7 +24,7 @@ include(CheckSymbolExists)
 
 set(allHeaders string.h stdio.h)
 
-set(allSymbols strncpy fmemopen)
+set(allSymbols strncpy fmemopen remove)
 
 check_include_files("${allHeaders}" ${PROJECT_NAME}_commonHeaders)
 if (NOT ${PROJECT_NAME}_commonHeaders)

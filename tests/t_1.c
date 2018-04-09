@@ -162,9 +162,9 @@ static void test_byRawRequest3(void) {
 
 int main(void) {
     UnityBegin(__FILE__);
-    RUN_TEST(test_byRawRequest1);
+    /*RUN_TEST(test_byRawRequest1);*/
     RUN_TEST(test_byRawRequest2);
-    RUN_TEST(test_byRawRequest3);
+    /*RUN_TEST(test_byRawRequest3);*/
     return (UnityEnd());
 }
 

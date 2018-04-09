@@ -25,7 +25,6 @@ add_definitions(-g -O0 -ansi -pedantic)
 set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -Wall -Wpedantic -Wextra")
 
 add_subdirectory (3rdParty/lemon)
-add_subdirectory (3rdParty/makeheaders)
 add_subdirectory (src)
 
 option(WITHTESTS "Compile tests")

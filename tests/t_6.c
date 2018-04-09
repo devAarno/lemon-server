@@ -47,11 +47,16 @@ void setUp(void) {
     charBitShifts = (charBitShifts * 8) / 6; /* Also it is an amount of chars which we can get from one rand() */
 
     f = fopen("request.txt", "wb");
+    
+    if (NULL == f) {
+        return ;
+    }
 
     fwrite(rawRequest1, sizeof (char), strlen(rawRequest1), f);
 
     {
-        char buf[charBitShifts];
+        /* Should be char buf[charBitShifts]; but it is not C89 */
+        char buf[sizeof(rnd) * 2];
         unsigned char j;
         for (i = 0; i < 32000; ++i) {
             rnd = rand();
@@ -85,6 +90,13 @@ static void test_body(void) {
     FILE *fparser, *fraw;
 
     fparser = fopen("request.txt", "rb");
+    
+    if (NULL == fparser) {
+        TEST_ASSERT_NOT_NULL(fparser);
+        return ;
+    }
+    
+    /* What should I do if test fails? How to close files? */
     TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request, fileno(fparser)));
     readData(&request);
     TEST_ASSERT_EQUAL(LE_OK, parse(&request));
@@ -148,20 +160,26 @@ static void test_body(void) {
     TEST_ASSERT_EQUAL(isStringEmpty(out), FALSE);
     TEST_ASSERT_EQUAL_STRING_LEN("is+a value", out->data, out->length);
 
-    puts("----------------------------------------------------------");
     body = getBodyBufferOfHttpRequest(&request);
     TEST_ASSERT_NOT_NULL(out);
     fraw = fopen("request.txt", "rb");
-    fseek(fraw, strlen(rawRequest1), SEEK_SET);
-    {
-        char buf[body->length];
+    
+    if (NULL == fraw) {
+        TEST_ASSERT_NOT_NULL(fraw);
+        fclose(fparser);
+        return ;
+    }
+    
+    if (0 != fseek(fraw, strlen(rawRequest1), SEEK_SET)) {
+        fclose(fraw);
+        fclose(fparser);
+        TEST_ASSERT_NOT_NULL(NULL);
+        return ;
+    } else {
+        char buf[PRIVATE_BUFFER_SIZE];
         do {
             fread(&buf, sizeof (char), sizeof (char) * (body->length), fraw);
-            printf("qqq - %s\n", &buf);
-            printf("www - %s\n", body->data);
-            printf("len - %d\n", body->length);
             TEST_ASSERT_EQUAL_MEMORY(&buf, body->data, body->length);
-            puts("***qwe");
         } while (0 < readData(&request));
     }
 
