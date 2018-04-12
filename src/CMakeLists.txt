@@ -69,20 +69,19 @@ endif (NOT HAS_${sup_strncasecmp})
 # https://samthursfield.wordpress.com/2015/11/21/cmake-dependencies-between-targets-and-files-and-custom-commands/
 
 add_custom_command(OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/lemonHttp/http11.c ${CMAKE_CURRENT_SOURCE_DIR}/lemonHttp/http11.h
-  DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/lemonHttp/http11.y ${CMAKE_CURRENT_SOURCE_DIR}/lemonHttp/lempar.c lemon makeheaders
-  COMMAND lemon ARGS -m -DYYSTACKDEPTH=480 -DParseHTTP11_ENGINEALWAYSONSTACK -T${CMAKE_CURRENT_SOURCE_DIR}/lemonHttp/lempar.c ${CMAKE_CURRENT_SOURCE_DIR}/lemonHttp/http11.y
-  COMMAND makeheaders ARGS ${CMAKE_CURRENT_SOURCE_DIR}/lemonHttp/http11.c
+  DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/lemonHttp/http11.y ${CMAKE_CURRENT_SOURCE_DIR}/lemonHttp/lempar.c lemon
+  COMMAND lemon ARGS -DYYSTACKDEPTH=480 -DParseHTTP11_ENGINEALWAYSONSTACK -T${CMAKE_CURRENT_SOURCE_DIR}/lemonHttp/lempar.c ${CMAKE_CURRENT_SOURCE_DIR}/lemonHttp/http11.y
   COMMENT "Generating a HTTP v1.1 parser."
   WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/lemonHttp)
 
 add_custom_target(parser
   DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/lemonHttp/http11.c ${CMAKE_CURRENT_SOURCE_DIR}/lemonHttp/http11.h)
 
-add_dependencies(parser lemon makeheaders)
+add_dependencies(parser lemon)
 
 file(GLOB_RECURSE allSrc RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.[c|h])
 list(REMOVE_ITEM allSrc lemonHttp/lempar.c)
-list(APPEND allSrc lemonHttp/http11.c lemonHttp/http11.h)
+list(REMOVE_ITEM allSrc lemonHttp/http11.c lemonHttp/http11.h)
 
 set_source_files_properties(lemonHttp/http_request.c PROPERTIES COMPILE_FLAGS "${httpRequestDefs}")
 

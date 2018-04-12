@@ -170,6 +170,9 @@ const boolean isStringEmpty(const string *s) {
     if (NULL == s) {
         return TRUE;
     }
-    const string empty = getEmptyString();
-    return ((empty.length == s->length) && (empty.data == s->data)) ? TRUE : FALSE;
+    {
+        const string empty = getEmptyString();
+        return ((empty.length == s->length) && (empty.data == s->data)) ? TRUE : FALSE;
+    }
+    return TRUE;
 }

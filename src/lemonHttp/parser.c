@@ -25,7 +25,9 @@
 #include <string.h>
 #include "httpRequest.h"
 #include "../boolean.h"
+
 #include "http11.h"
+#include "http11.c"
 
 static const unsigned char ascii[256] = {
     TOK_CONTROL, TOK_CONTROL, TOK_CONTROL, TOK_CONTROL, TOK_CONTROL, TOK_CONTROL, TOK_CONTROL, TOK_CONTROL,
@@ -129,7 +131,7 @@ const lemonError parse(httpRequest *request) {
         return LE_INCORRECT_INPUT_VALUES;
     }
     {
-        char pParser[ParseHTTP11Size()];
+        char pParser[sizeof(yyParser)];
         size_t pos = 0;
 
         parserState ps;
