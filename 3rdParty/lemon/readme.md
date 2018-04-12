@@ -12,16 +12,11 @@ two files:
 
 The LEMON LALR(1) parser generator (as a compiled executable file ``lemon.c``) 
 takes a grammar file (here ``http11.y``) and fills a driver template by a 
-grammar specific information. Noticed that generator works well, but there some 
-questions to the driver.
+grammar specific information. Noticed that generator works well, but there is 
+one questions to the driver.
 
-The first one is how to use a ``Parse_ENGINEALWAYSONSTACK`` definition properly. 
-In general case it is needed to call ``ParseHTTP11Init(void *yypParser)`` 
-before a parsing but it is not so clear how put ``yypParser`` in a stack (what 
-is a size of ``yypParser``).
-
-The second one is asserts in the driver. In a Fossil Sqlite's repository, on 
-2017-12-27 18:19:06 a developer ``drh`` has added a line 
+In a Fossil Sqlite's repository, on 2017-12-27 18:19:06 a developer ``drh`` has 
+added a line 
 [``tool/lempar.c:514``](https://www.sqlite.org/src/info/1b22b42e59793af1):
 
 ```diff
@@ -48,7 +43,7 @@ The LEMON LALR(1) parser generator is still being under development, so it is
 needed to update it time-by-time as a core dependency. The Fossil is a great 
 DVCS, but a poor external (additional) dependency, so it was decided to store 
 LEMON LALR(1) parser generator in the primary repository of the Lemon Server 
-and update it manually with a respect of the two problems (questions) described 
+and update it manually with a respect of the problem (question) described 
 above.
 
 So, to update LEMON LALR(1) parser generator for a Lemon Server, please, follow 
@@ -84,24 +79,7 @@ Lemon Server local Git repository). Example:
     cp ./tool/lempar.c %LEMON_SERVER%/src/lemonHttp/lempar.c
     ```
 
-1. Patch the ``%LEMON_SERVER%/src/lemonHttp/lempar.c`` to return a size of the 
-parser's structure:
-
-    ```diff
-    --- a/src/lemonHttp/lempar.c
-    +++ b/src/lemonHttp/lempar.c
-    @@ -359,10 +359,6 @@
-       if( pParser ) ParseInit(pParser);
-       return pParser;
-     }
-    +#else
-    +size_t ParseSize() {
-    +    return sizeof(yyParser);
-    +}
-     #endif /* Parse_ENGINEALWAYSONSTACK */
-    ```
-
-1. Patch the same file to disable the assert:
+1. Patch the ``%LEMON_SERVER%/src/lemonHttp/lempar.c`` to disable the assert:
 
     ```diff
     --- a/src/lemonHttp/lempar.c
