@@ -44,7 +44,7 @@ static void test_strncasecmp(void) {
 
     strncpy(request.privateBuffer, rawRequest1, sizeof (request.privateBuffer));
 
-    TEST_ASSERT_EQUAL(LE_OK, parse(&request));
+    TEST_ASSERT_EQUAL(LE_OK, parseHTTP(&request));
 
     out = (string *) getMethodOfHttpRequest(&request);
     TEST_ASSERT_NOT_NULL(out);

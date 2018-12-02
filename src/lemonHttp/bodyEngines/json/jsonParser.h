@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017, 2018, 2019 Parkhomenko Stanislav
+ * Copyright (C) 2017, 2018 Parkhomenko Stanislav
  *
  * This file is part of Lemon Server.
  *
@@ -22,26 +22,26 @@
 
 #include <stddef.h>
 
-#include "httpRequest.h"
-#include "../boolean.h"
-#include "lemonError.h"
+#include "../../httpRequest.h"
+#include "../../../boolean.h"
+#include "../../lemonError.h"
 
 typedef struct {
     httpRequest *request;
     boolean isParsed;
     boolean isParseFailed;
     boolean isSyntaxIncorrect;
-} parserState;
+} jsonParserState;
 
-const lemonError parseHTTP(httpRequest *request);
+const lemonError parseJSON(httpRequest *request);
 
-const boolean isParsed(const parserState* ps);
+const boolean isJSONParsed(const jsonParserState* ps);
 
-const lemonError markAsParsed(parserState* ps);
+const lemonError markAsJSONParsed(jsonParserState* ps);
 
-const lemonError markAsParseFailed(parserState* ps);
+const lemonError markAsJSONParseFailed(jsonParserState* ps);
 
-const lemonError markAsSyntaxIncorrect(parserState* ps);
+const lemonError markAsJSONIncorrect(jsonParserState* ps);
 
 #endif /* PARSER_H */
 

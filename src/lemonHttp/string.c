@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017, 2018, 2019 Parkhomenko Stanislav
+ * Copyright (C) 2017, 2018 Parkhomenko Stanislav
  *
  * This file is part of Lemon Server.
  *
@@ -17,31 +17,19 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef PARSER_H
-#define PARSER_H
+#include "string.h"
 
+#include <string.h>
 #include <stddef.h>
 
-#include "httpRequest.h"
-#include "../boolean.h"
-#include "lemonError.h"
-
-typedef struct {
-    httpRequest *request;
-    boolean isParsed;
-    boolean isParseFailed;
-    boolean isSyntaxIncorrect;
-} parserState;
-
-const lemonError parseHTTP(httpRequest *request);
-
-const boolean isParsed(const parserState* ps);
-
-const lemonError markAsParsed(parserState* ps);
-
-const lemonError markAsParseFailed(parserState* ps);
-
-const lemonError markAsSyntaxIncorrect(parserState* ps);
-
-#endif /* PARSER_H */
-
+string createString(char *chars) {
+    string res;
+    if (NULL == chars) {
+        res.data = NULL;
+        res.length = 0;
+    } else {        
+        res.data = chars;
+        res.length = strlen(chars);
+    }
+    return res;
+}

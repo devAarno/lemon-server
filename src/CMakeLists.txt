@@ -74,18 +74,40 @@ add_custom_command(OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/lemonHttp/http11.c ${CMAKE
   COMMENT "Generating a HTTP v1.1 parser."
   WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/lemonHttp)
 
+add_custom_command(OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/lemonHttp/bodyEngines/json/json.c ${CMAKE_CURRENT_SOURCE_DIR}/lemonHttp/bodyEngines/json/json.h
+  DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/lemonHttp/bodyEngines/json/json.y ${CMAKE_CURRENT_SOURCE_DIR}/lemonHttp/lempar.c lemon
+  COMMAND lemon ARGS -DYYSTACKDEPTH=480 -DParseJSON_ENGINEALWAYSONSTACK -T${CMAKE_CURRENT_SOURCE_DIR}/lemonHttp/lempar.c ${CMAKE_CURRENT_SOURCE_DIR}/lemonHttp/bodyEngines/json/json.y
+  COMMENT "Generating a JSON parser."
+  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/lemonHttp)
+
+add_custom_command(OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/lemonHttp/bodyEngines/json/jsonPath.c ${CMAKE_CURRENT_SOURCE_DIR}/lemonHttp/bodyEngines/json/jsonPath.h
+  DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/lemonHttp/bodyEngines/json/jsonPath.y ${CMAKE_CURRENT_SOURCE_DIR}/lemonHttp/lempar.c lemon
+  COMMAND lemon ARGS -DYYSTACKDEPTH=480 -DParseJSONPath_ENGINEALWAYSONSTACK -T${CMAKE_CURRENT_SOURCE_DIR}/lemonHttp/lempar.c ${CMAKE_CURRENT_SOURCE_DIR}/lemonHttp/bodyEngines/json/jsonPath.y
+  COMMENT "Generating a limited JSONPath parser."
+  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/lemonHttp)
+
 add_custom_target(parser
   DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/lemonHttp/http11.c ${CMAKE_CURRENT_SOURCE_DIR}/lemonHttp/http11.h)
+
+add_custom_target(json
+  DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/lemonHttp/bodyEngines/json/json.c ${CMAKE_CURRENT_SOURCE_DIR}/lemonHttp/bodyEngines/json/json.h)
+
+add_custom_target(jsonPath
+  DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/lemonHttp/bodyEngines/json/jsonPath.c ${CMAKE_CURRENT_SOURCE_DIR}/lemonHttp/bodyEngines/json/jsonPath.h)
+
+add_dependencies(parser jsonPath json lemon)
 
 add_dependencies(parser lemon)
 
 file(GLOB_RECURSE allSrc RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.[c|h])
 list(REMOVE_ITEM allSrc lemonHttp/lempar.c)
 list(REMOVE_ITEM allSrc lemonHttp/http11.c lemonHttp/http11.h)
+list(REMOVE_ITEM allSrc lemonHttp/bodyEngines/json/json.c lemonHttp/bodyEngines/json/json.h)
+list(REMOVE_ITEM allSrc lemonHttp/bodyEngines/json/jsonPath.c lemonHttp/bodyEngines/json/jsonPath.h)
 
 set_source_files_properties(lemonHttp/http_request.c PROPERTIES COMPILE_FLAGS "${httpRequestDefs}")
 
-add_definitions(-DYYSTACKDEPTH=480 -DParseHTTP11_ENGINEALWAYSONSTACK)
+# add_definitions(-DYYSTACKDEPTH=480 -DParseHTTP11_ENGINEALWAYSONSTACK -DParseJSON_ENGINEALWAYSONSTACK -DParseJSONPath_ENGINEALWAYSONSTACK)
 
 add_library(${PROJECT_NAME} SHARED ${allSrc})
 add_dependencies(${PROJECT_NAME} parser)

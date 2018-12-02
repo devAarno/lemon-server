@@ -29,5 +29,7 @@ typedef struct {
 
 typedef string buffer;
 
+string createString(char* chars);
+
 #endif /* STRING_H */
 

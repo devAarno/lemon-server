@@ -44,7 +44,7 @@ static void test_empty(void) {
 
     strncpy(request.privateBuffer, rawRequest1, sizeof (request.privateBuffer));
 
-    TEST_ASSERT_EQUAL(LE_OK, parse(&request));
+    TEST_ASSERT_EQUAL(LE_OK, parseHTTP(&request));
 
     out = (string *) getMethodOfHttpRequest(&request);
     TEST_ASSERT_NOT_NULL(out);
@@ -115,7 +115,7 @@ static void test_absent(void) {
 
     strncpy(request.privateBuffer, rawRequest1, sizeof (request.privateBuffer));
 
-    TEST_ASSERT_EQUAL(LE_OK, parse(&request));
+    TEST_ASSERT_EQUAL(LE_OK, parseHTTP(&request));
 
     out = (string *) getQueryParameterOfHttpRequest(&request, "zorg");
     TEST_ASSERT_NULL(out);
