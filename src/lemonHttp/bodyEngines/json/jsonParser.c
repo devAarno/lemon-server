@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017, 2018 Parkhomenko Stanislav
+ * Copyright (C) 2017, 2018, 2019 Parkhomenko Stanislav
  *
  * This file is part of Lemon Server.
  *
@@ -26,8 +26,8 @@
 #include "../../httpRequest.h"
 #include "../../../boolean.h"
 
-#include "json.h"
-#include "json.c"
+#include "jsonLemon.h"
+#include "jsonLemon.c"
 
 const static lemonError appendHttpToParser(jsonParserState* ps, httpRequest *http) {
     if ((NULL == ps) || (NULL == http)) {
@@ -44,21 +44,21 @@ const boolean isJSONParsed(const jsonParserState* ps) {
     return ps->isParsed;
 }
 
-const static boolean isParseFailed(const jsonParserState* ps) {
+const static boolean isJSONParseFailed(const jsonParserState* ps) {
     if ((NULL == ps) || (NULL == ps->request)) {
         return FALSE;
     }
     return ps->isParseFailed;
 }
 
-const static boolean isSyntaxIncorrect(const jsonParserState* ps) {
+const static boolean isJSONSyntaxIncorrect(const jsonParserState* ps) {
     if ((NULL == ps) || (NULL == ps->request)) {
         return FALSE;
     }
     return ps->isSyntaxIncorrect;
 }
 
-const lemonError markAsJSONParsed(jsonParserState* ps) {
+const lemonError markJSONAsParsed(jsonParserState* ps) {
     if ((NULL == ps) || (NULL == ps->request)) {
         return LE_NULL_IN_INPUT_VALUES;
     }
@@ -66,7 +66,7 @@ const lemonError markAsJSONParsed(jsonParserState* ps) {
     return LE_OK;
 }
 
-const lemonError markAsJSONParseFailed(jsonParserState* ps) {
+const lemonError markJSONAsParseFailed(jsonParserState* ps) {
     if ((NULL == ps) || (NULL == ps->request)) {
         return LE_NULL_IN_INPUT_VALUES;
     }
@@ -77,7 +77,7 @@ const lemonError markAsJSONParseFailed(jsonParserState* ps) {
     return LE_OK;
 }
 
-const lemonError markAsJSONIncorrect(jsonParserState* ps) {
+const lemonError markJSONAsIncorrect(jsonParserState* ps) {
     if ((NULL == ps) || (NULL == ps->request)) {
         return LE_NULL_IN_INPUT_VALUES;
     }
@@ -147,20 +147,22 @@ const lemonError parseJSON(httpRequest *request) {
 
         ps.isParsed = ps.isParseFailed = ps.isSyntaxIncorrect = FALSE;
         while (
-                (FALSE == isParsed(&ps)) &&
-                (FALSE == isParseFailed(&ps)) &&
-                (FALSE == isSyntaxIncorrect(&ps))
+                (FALSE == isJSONParsed(&ps)) &&
+                (FALSE == isJSONParseFailed(&ps)) &&
+                (FALSE == isJSONSyntaxIncorrect(&ps)) &&
+                ('\0' != (request->privateBuffer)[pos])
                 ) {
             ParseJSON(&pParser, ascii[(request->privateBuffer)[pos]], &((request->privateBuffer)[pos]), &ps);
             ++pos;
         }
 
-        ParseJSON(&pParser, 0, NULL, &ps);
+        /*ParseJSON(&pParser, 0, NULL, &ps);*/
 
-        --pos; /* Because of last ANY */
+        /* Because of last ANY */
+        /*--pos;
         request->body.data = &((request->privateBuffer)[pos]);
-        request->body.length -= pos;
+        request->body.length -= pos;*/
 
-        return (FALSE == isParseFailed(&ps)) ? ((FALSE == isSyntaxIncorrect(&ps)) ? LE_OK : LE_INCORRECT_SYNTAX) : LE_PARSING_IS_FAILED;
+        return (FALSE == isJSONParsed(&ps)) ? ((FALSE == isJSONSyntaxIncorrect(&ps)) ? LE_OK : LE_INCORRECT_SYNTAX) : LE_PARSING_IS_FAILED;
     }
 }

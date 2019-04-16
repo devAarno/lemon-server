@@ -17,31 +17,40 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef PARSER_H
-#define PARSER_H
+#ifndef LEMONSERVER_JSONPATH_H
+#define LEMONSERVER_JSONPATH_H
 
-#include <stddef.h>
-
+#include "../../string.h"
 #include "../../httpRequest.h"
-#include "../../../boolean.h"
 #include "../../lemonError.h"
+#include "./jsonPathQueryBuffer.h"
+
+typedef enum {
+    ROOT,
+    ANY,
+    ANYINDEX,
+    NAME,
+    INDEX,
+    RECURSIVE
+} ruleType;
 
 typedef struct {
-    httpRequest *request;
-    boolean isParsed;
-    boolean isParseFailed;
-    boolean isSyntaxIncorrect;
-} jsonParserState;
+    string value;
+    ruleType type;
+} jsonPathElement;
 
-const lemonError parseJSON(httpRequest *request);
+typedef struct {
+    jsonPathElement elements[MAX_ELEMENTS];
+    size_t elementsCount;
+} jsonPathRequest;
 
-const boolean isJSONParsed(const jsonParserState* ps);
+typedef struct {
+    string *value;
+    lemonError e;
+} jsonPromise;
 
-const lemonError markJSONAsParsed(jsonParserState* ps);
+const lemonError initJsonPathRequest(jsonPathRequest *r);
 
-const lemonError markJSONAsParseFailed(jsonParserState* ps);
+const jsonPromise createPromiseByJsonPath(jsonPathRequest *p, jsonPathQueryBuffer b[]);
 
-const lemonError markJSONAsIncorrect(jsonParserState* ps);
-
-#endif /* PARSER_H */
-
+#endif /* LEMONSERVER_JSONPATH_H */

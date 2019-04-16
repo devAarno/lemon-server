@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017, 2018 Parkhomenko Stanislav
+ * Copyright (C) 2017, 2018, 2019 Parkhomenko Stanislav
  *
  * This file is part of Lemon Server.
  *
@@ -29,12 +29,12 @@
 %token_type {char*}
 %token_prefix JSON_
 %extra_argument {jsonParserState *ps}
-%syntax_error  { /*if (FALSE == isParsed(ps) ) { puts("Systax error"); puts("---"); markAsSyntaxIncorrect(ps);}*/ }
-%parse_failure { /*markAsParseFailed(ps);*/ }
+%syntax_error  { if (FALSE == isJSONParsed(ps) ) { puts("Systax error"); puts("---"); markJSONAsIncorrect(ps);} }
+%parse_failure { markJSONAsParseFailed(ps); }
 
-/* Declare unusable token */
+/* Declare unusable token
 %token_class control CONTROL.
-%token_class ext EXT.
+%token_class ext EXT.*/
 
 %token_class digit ZERO|ONE|TWO|THREE|FOUR|FIVE|SIX|SEVEN|EIGHT|NINE.
 
@@ -45,9 +45,15 @@
 /* !#$%&'()*+,-./01234567890:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[]^_`abcdefghijklmnopqrstuvwxyz{|}~ */
 /* %token_class symbols_without_quotation_and_backslash EXCLAMATION|OCTOTHORPE|DOLLAR|PERCENT|AMPERSAND|APOSTROPHE|LPARENTHESIS|RPARENTHESIS|ASTERISK|PLUS|COMMA|MINUS|DOT|SLASH|ZERO|ONE|TWO|THREE|FOUR|FIVE|SIX|SEVEN|EIGHT|NINE|COLON|SEMICOLON|LESSTHAN|EQUALS|GREATERTHAN|QUESTION|AT|A|B|C|D|E|F|G|H|I|J|K|L|M|N|O|P|Q|R|S|T|U|V|W|X|Y|Z|LBRACKET|RBRACKET|CARET|UNDERSCORE|BACKQUOTE|LA|LB|LC|LD|LE|LF|LG|LH|LI|LJ|LK|LL|LM|LN|LO|LP|LQ|LR|LS|LT|LU|LV|LW|LX|LY|LZ|LBRACE|VBAR|RBRACE|TILDE.*/
 
-json ::= ows value ows.
+json ::= ows value ows. {markJSONAsParsed(ps); puts("DONE");}
 
-value ::= object array number string true false null.
+value ::= object.
+value ::= array.
+value ::= number.
+value ::= string.
+value ::= true.
+value ::= false.
+value ::= null.
 
 object ::= l_crl_brckt ows r_crl_brckt.
 object ::= l_crl_brckt ows object_content ows r_crl_brckt.
@@ -61,20 +67,23 @@ array ::= l_sqr_brckt ows array_content ows r_sqr_brckt.
 array_content ::= value.
 array_content ::= array_content ows COMMA ows value.
 
+number ::= MINUS mantissa.
+number ::= mantissa.
 number ::= MINUS mantissa exponent.
 number ::= mantissa exponent.
 
 mantissa ::= ZERO.
+mantissa ::= ZERO DOT digits.
 mantissa ::= digit_without_zero.
+mantissa ::= digit_without_zero DOT digits.
 mantissa ::= digit_without_zero digits.
 mantissa ::= digit_without_zero digits DOT digits.
 
-exponent ::= .
 exponent ::= exp sign digits.
 
 exp ::= LE.
 exp ::= E.
-        
+
 sign ::= .
 sign ::= PLUS.
 sign ::= MINUS.
@@ -83,6 +92,7 @@ digits ::= digit.
 digits ::= digits digit.
 
 string ::= QUOTATION chars QUOTATION.
+
 chars ::= .
 chars ::= chars char.
         
@@ -96,6 +106,23 @@ char ::= BACKSLASH LINEFEED.
 char ::= BACKSLASH CARRETURN.
 char ::= BACKSLASH CHARTAB.
 char ::= BACKSLASH LU hexdig hexdig hexdig hexdig.
+char ::= LT.
+char ::= LR.
+char ::= LU.
+char ::= LL.
+char ::= LS.
+char ::= LN.
+char ::= hexdig.
+char ::= SP.
+char ::= CHARTAB.
+char ::= COLON.
+char ::= COMMA.
+char ::= PLUS.
+char ::= MINUS.
+char ::= DOT.
+char ::= CONTROL.
+char ::= EXT.
+
 
 true ::= LT LR LU LE.
 false ::= LF LA LL LS LE.
@@ -103,12 +130,14 @@ null ::= LN LU LL LL.
 
 l_crl_brckt ::= LBRACE.
 
-r_sqr_brckt ::= RBRACE.
+r_crl_brckt ::= RBRACE.
 
 l_sqr_brckt ::= LBRACKET.
 
-r_crl_brckt ::= RBRACKET.
+r_sqr_brckt ::= RBRACKET.
 
 ows ::= .
 ows ::= ows SP.
 ows ::= ows CHARTAB.
+ows ::= ows LINEFEED.
+ows ::= ows CARRETURN.

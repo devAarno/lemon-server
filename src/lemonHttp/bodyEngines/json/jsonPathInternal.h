@@ -17,31 +17,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef PARSER_H
-#define PARSER_H
+#ifndef LEMONSERVER_JSONPATHINTERNAL_H
+#define LEMONSERVER_JSONPATHINTERNAL_H
 
-#include <stddef.h>
+#include "./jsonPath.h"
 
-#include "../../httpRequest.h"
-#include "../../../boolean.h"
-#include "../../lemonError.h"
+jsonPathElement *appendJsonPathElementOfHttpRequest(jsonPathRequest *r, const string *s, const ruleType type);
 
-typedef struct {
-    httpRequest *request;
-    boolean isParsed;
-    boolean isParseFailed;
-    boolean isSyntaxIncorrect;
-} jsonParserState;
+const string convertUtf16ToString(char *c1, char *c2, const char c3, const char c4);
 
-const lemonError parseJSON(httpRequest *request);
-
-const boolean isJSONParsed(const jsonParserState* ps);
-
-const lemonError markJSONAsParsed(jsonParserState* ps);
-
-const lemonError markJSONAsParseFailed(jsonParserState* ps);
-
-const lemonError markJSONAsIncorrect(jsonParserState* ps);
-
-#endif /* PARSER_H */
-
+#endif /* LEMONSERVER_JSONPATHINTERNAL_H */

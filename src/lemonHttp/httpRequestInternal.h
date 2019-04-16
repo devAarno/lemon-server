@@ -31,10 +31,9 @@ requestElement *appendElementOfHttpRequest(httpRequest *r, const string *s, cons
 
 const lemonError linkRequestElement(requestElement *key, const requestElement *value);
 
-const string getEmptyString();
-
 const requestElement *getEmptyValueElement(const httpRequest *r);
 
 const lemonError trim(string *s);
+
 #endif /* HTTP_REQUEST_INT_H */
 

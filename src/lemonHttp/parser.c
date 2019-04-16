@@ -26,8 +26,8 @@
 #include "httpRequest.h"
 #include "../boolean.h"
 
-#include "http11.h"
-#include "http11.c"
+#include "http11Lemon.h"
+#include "http11Lemon.c"
 
 const static lemonError appendHttpToParser(parserState* ps, httpRequest *http) {
     if ((NULL == ps) || (NULL == http)) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017, 2018 Parkhomenko Stanislav
+ * Copyright (C) 2017, 2018, 2019 Parkhomenko Stanislav
  *
  * This file is part of Lemon Server.
  *
@@ -22,6 +22,8 @@
 #include <string.h>
 #include <stddef.h>
 
+static const char *emptyString = "";
+
 string createString(char *chars) {
     string res;
     if (NULL == chars) {
@@ -32,4 +34,11 @@ string createString(char *chars) {
         res.length = strlen(chars);
     }
     return res;
+}
+
+const string getEmptyString() {
+    string s;
+    s.data = (char *)emptyString;
+    s.length = 0;
+    return s;
 }

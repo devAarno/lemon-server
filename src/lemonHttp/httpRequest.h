@@ -36,8 +36,7 @@ typedef enum {
     GET_QUERY_ELEMENT,
     VALUE,
     HTTP_VERSION,
-    HEADER,
-    HEADER_VALUE_AS_STRING_CHUNK
+    HEADER
 } elementType;
 
 typedef struct _linkedDataString {
@@ -59,8 +58,6 @@ typedef struct {
 } httpRequest;
 
 const lemonError initHttpRequest(httpRequest *r, const int fd);
-
-const lemonError finalizeHttpRequest(httpRequest *r);
 
 const string *getMethodOfHttpRequest(const httpRequest *r);
 

@@ -26,8 +26,6 @@
 #include "string.h"
 #include "lemonError.h"
 
-static const char *emptyString = "";
-
 /* inspired by https://stackoverflow.com/questions/2673207/c-c-url-decode-library */
 #undef NA
 #define NA 127
@@ -51,11 +49,12 @@ static const char tbl[256] = {
 };
 
 const lemonError decodeValue(string *s, boolean replacePlusWithSpace) {
+    const string emptyString = getEmptyString();
     if ((NULL == s) || (NULL == s->data)) {
         return LE_NULL_IN_INPUT_VALUES;
     }
-    if (((0 == s->length) && (emptyString != s->data)) ||
-            ((0 != s->length) && (emptyString == s->data))) {
+    if (((emptyString.length == s->length) && (emptyString.data != s->data)) ||
+            ((emptyString.length != s->length) && (emptyString.data == s->data))) {
         return LE_INCORRECT_INPUT_VALUES;
     }
     {
@@ -103,11 +102,12 @@ const lemonError decodeValue(string *s, boolean replacePlusWithSpace) {
 }
 
 requestElement *appendElementOfHttpRequest(httpRequest *r, const string *s, const elementType type) {
+    const string emptyString = getEmptyString();
     if ((NULL == r) || (NULL == s) || (NULL == s->data) ||
             (0 >= r->elementsCount) ||
-            (((0 == s->length) && (emptyString != s->data)) || ((0 != s->length) && (emptyString == s->data))) ||
-            ((0 == s->length) && (emptyString == s->data) && (VALUE != type)) ||
-            (0 > s->length)) {
+            (((emptyString.length == s->length) && (emptyString.data != s->data)) || ((emptyString.length != s->length) && (emptyString.data == s->data))) ||
+            ((emptyString.length == s->length) && (emptyString.data == s->data) && (VALUE != type)) ||
+            (emptyString.length > s->length)) {
         return NULL;
     }
     {
@@ -135,13 +135,6 @@ const lemonError linkRequestElement(requestElement *key, const requestElement *v
     }
 }
 
-const string getEmptyString() {
-    string s;
-    s.data = (char *)emptyString;
-    s.length = 0;
-    return s;
-}
-
 const requestElement *getEmptyValueElement(const httpRequest *r) {
     if ((NULL == r) || (0 >= r->elementsCount)) {
         return NULL;
@@ -150,11 +143,12 @@ const requestElement *getEmptyValueElement(const httpRequest *r) {
 }
 
 const lemonError trim(string *s) {
+    const string emptyString = getEmptyString();
     if ((NULL == s) || (NULL == s->data)) {
         return LE_NULL_IN_INPUT_VALUES;
     }
-    if (((0 == s->length) && (emptyString != s->data)) ||
-            ((0 != s->length) && (emptyString == s->data))) {
+    if (((emptyString.length == s->length) && (emptyString.data != s->data)) ||
+            ((emptyString.length != s->length) && (emptyString.data == s->data))) {
         return LE_INCORRECT_INPUT_VALUES;
     }
     while (((s->data)[0] == ' ') || ((s->data)[0] == '\t')) {

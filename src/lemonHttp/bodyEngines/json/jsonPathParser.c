@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017, 2018 Parkhomenko Stanislav
+ * Copyright (C) 2017, 2018, 2019 Parkhomenko Stanislav
  *
  * This file is part of Lemon Server.
  *
@@ -23,43 +23,43 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../../httpRequest.h"
+#include "./jsonPath.h"
 #include "../../../boolean.h"
 
-#include "jsonPath.h"
-#include "jsonPath.c"
+#include "jsonPathLemon.h"
+#include "jsonPathLemon.c"
 
-const static lemonError appendHttpToParser(jsonPathParserState* ps, httpRequest *http) {
+const static lemonError appendJsonPathToParser(jsonPathParserState* ps, jsonPathRequest *http) {
     if ((NULL == ps) || (NULL == http)) {
         return LE_NULL_IN_INPUT_VALUES;
     }
-    ps->request = http;
+    ps->jsonPathRequest = http;
     return LE_OK;
 }
 
 const boolean isJSONPathParsed(const jsonPathParserState* ps) {
-    if ((NULL == ps) || (NULL == ps->request)) {
+    if ((NULL == ps) || (NULL == ps->jsonPathRequest)) {
         return FALSE;
     }
     return ps->isParsed;
 }
 
-const static boolean isParseFailed(const jsonPathParserState* ps) {
-    if ((NULL == ps) || (NULL == ps->request)) {
+const static boolean isJsonPathParseFailed(const jsonPathParserState* ps) {
+    if ((NULL == ps) || (NULL == ps->jsonPathRequest)) {
         return FALSE;
     }
     return ps->isParseFailed;
 }
 
-const static boolean isSyntaxIncorrect(const jsonPathParserState* ps) {
-    if ((NULL == ps) || (NULL == ps->request)) {
+const static boolean isJsonPathSyntaxIncorrect(const jsonPathParserState* ps) {
+    if ((NULL == ps) || (NULL == ps->jsonPathRequest)) {
         return FALSE;
     }
     return ps->isSyntaxIncorrect;
 }
 
 const lemonError markJSONPathAsParsed(jsonPathParserState* ps) {
-    if ((NULL == ps) || (NULL == ps->request)) {
+    if ((NULL == ps) || (NULL == ps->jsonPathRequest)) {
         return LE_NULL_IN_INPUT_VALUES;
     }
     ps->isParsed = TRUE;
@@ -67,10 +67,10 @@ const lemonError markJSONPathAsParsed(jsonPathParserState* ps) {
 }
 
 const lemonError markJSONPathAsParseFailed(jsonPathParserState* ps) {
-    if ((NULL == ps) || (NULL == ps->request)) {
+    if ((NULL == ps) || (NULL == ps->jsonPathRequest)) {
         return LE_NULL_IN_INPUT_VALUES;
     }
-    if (0 >= ps->request->elementsCount) {
+    if (0 >= ps->jsonPathRequest->elementsCount) {
         return LE_INCORRECT_INPUT_VALUES;
     }
     ps->isParseFailed = TRUE;
@@ -78,21 +78,21 @@ const lemonError markJSONPathAsParseFailed(jsonPathParserState* ps) {
 }
 
 const lemonError markJSONPathAsSyntaxIncorrect(jsonPathParserState* ps) {
-    if ((NULL == ps) || (NULL == ps->request)) {
+    if ((NULL == ps) || (NULL == ps->jsonPathRequest)) {
         return LE_NULL_IN_INPUT_VALUES;
     }
-    if (0 >= ps->request->elementsCount) {
+    if (0 >= ps->jsonPathRequest->elementsCount) {
         return LE_INCORRECT_INPUT_VALUES;
     }
     ps->isSyntaxIncorrect = TRUE;
     return LE_OK;
 }
 
-const lemonError parseJSONPath(httpRequest *request, char *jsonPath) {
-    if (NULL == request) {
+const lemonError parseJSONPath(jsonPathRequest *jsonPathRequest, char *jsonPath) {
+    if (NULL == jsonPathRequest) {
         return LE_NULL_IN_INPUT_VALUES;
     }
-    if (0 >= request->elementsCount) {
+    if (0 > jsonPathRequest->elementsCount) {
         return LE_INCORRECT_INPUT_VALUES;
     }
     {
@@ -136,7 +136,7 @@ const lemonError parseJSONPath(httpRequest *request, char *jsonPath) {
         jsonPathParserState ps;
 
         {
-            const lemonError ret = appendHttpToParser(&ps, request);
+            const lemonError ret = appendJsonPathToParser(&ps, jsonPathRequest);
             if (LE_OK != ret) {
                 return ret;
             }
@@ -147,10 +147,10 @@ const lemonError parseJSONPath(httpRequest *request, char *jsonPath) {
 
         ps.isParsed = ps.isParseFailed = ps.isSyntaxIncorrect = FALSE;
         while (
-                (FALSE == isParsed(&ps)) &&
-                (FALSE == isParseFailed(&ps)) &&
-                (FALSE == isSyntaxIncorrect(&ps)) &&
-                (NULL != (jsonPath)[pos])
+                (FALSE == isJSONPathParsed(&ps)) &&
+                (FALSE == isJsonPathParseFailed(&ps)) &&
+                (FALSE == isJsonPathSyntaxIncorrect(&ps)) &&
+                ('\0' != (jsonPath)[pos])
                 ) {
             ParseJSONPath(&pParser, ascii[(jsonPath)[pos]], &((jsonPath)[pos]), &ps);
             ++pos;
@@ -158,6 +158,6 @@ const lemonError parseJSONPath(httpRequest *request, char *jsonPath) {
 
         ParseJSONPath(&pParser, 0, NULL, &ps);
 
-        return (FALSE == isParseFailed(&ps)) ? ((FALSE == isSyntaxIncorrect(&ps)) ? LE_OK : LE_INCORRECT_SYNTAX) : LE_PARSING_IS_FAILED;
+        return (FALSE == isJSONPathParsed(&ps)) ? ((FALSE == isJsonPathSyntaxIncorrect(&ps)) ? LE_OK : LE_INCORRECT_SYNTAX) : LE_PARSING_IS_FAILED;
     }
 }

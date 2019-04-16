@@ -31,5 +31,7 @@ typedef string buffer;
 
 string createString(char* chars);
 
+const string getEmptyString();
+
 #endif /* STRING_H */
 

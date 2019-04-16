@@ -17,31 +17,28 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef PARSER_H
-#define PARSER_H
+#include "./jsonPath.h"
 
-#include <stddef.h>
-
-#include "../../httpRequest.h"
-#include "../../../boolean.h"
 #include "../../lemonError.h"
+#include "./jsonPathQueryBuffer.h"
+#include "./jsonPathParser.h"
 
-typedef struct {
-    httpRequest *request;
-    boolean isParsed;
-    boolean isParseFailed;
-    boolean isSyntaxIncorrect;
-} jsonParserState;
+const lemonError initJsonPathRequest(jsonPathRequest *r) {
+    if (NULL == r) {
+        return LE_NULL_IN_INPUT_VALUES;
+    }
+    {
+        r->elementsCount = 0;
+        return LE_OK;
+    }
+}
 
-const lemonError parseJSON(httpRequest *request);
-
-const boolean isJSONParsed(const jsonParserState* ps);
-
-const lemonError markJSONAsParsed(jsonParserState* ps);
-
-const lemonError markJSONAsParseFailed(jsonParserState* ps);
-
-const lemonError markJSONAsIncorrect(jsonParserState* ps);
-
-#endif /* PARSER_H */
-
+const jsonPromise createPromiseByJsonPath(jsonPathRequest *p, jsonPathQueryBuffer b[]) {
+    if ((NULL == b) || (NULL == p)) {
+        jsonPromise res;
+        res.e = LE_NULL_IN_INPUT_VALUES;
+        res.value = NULL;
+        return res;
+    }
+    parseJSONPath(p, b);
+}

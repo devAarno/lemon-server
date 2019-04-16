@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017, 2018 Parkhomenko Stanislav
+ * Copyright (C) 2017, 2018, 2019 Parkhomenko Stanislav
  *
  * This file is part of Lemon Server.
  *
@@ -22,28 +22,13 @@
 #include <stdlib.h>
 
 #include "../3rdParty/unity/git/src/unity.h"
-#include "../src/lemonHttp/parser.h"
+#include "../src/lemonHttp/bodyEngines/json/jsonParser.h"
 #include "../src/lemonHttp/string.h"
-#include "../src/net/socket.h"
-#include "../src/lemonHttp/lemonError.h"
+#include "../src/lemonHttp/parser.h"
 
 #include "fakeDescriptor.h"
 
-#define TESTNAME TestJSONEngine
-
-static const char* rawRequest1 = "POST /test HTTP/1.1\r\n\r\n{ \
-    \"key\" : \"value\", \
-    \"array\" : [ \
-        { \"key\" : 1 }, \
-        { \"key\" : 2, \"dictionary\": { \
-                \"a\": \"Apple\", \
-                \"b\": \"Butterfly\", \
-                \"c\": \"Cat\", \
-                \"d\": \"Dog\" \
-            } }, \
-        { \"key\" : 3 } \
-    ] \
-}";
+#define TESTNAME TestJSON
 
 void setUp(void) {
 }
@@ -51,25 +36,58 @@ void setUp(void) {
 void tearDown(void) {
 }
 
-static void test_body(void) {
-    /*JsonPathPromise p1;
-    JsonPathPromise out;
-    
-    p1 = createPromise(&request, "$.array[1].dictionary.b");
-    while (out = scanBodyStream(&body, &promises)) {
-        switch (out) {
-            case p1:
-                printf("qqq");
-                break;
-            default:
-                printf("zzz");
-                break;
-        }
-    }*/
+static void test1(void) {
+    httpRequest request;
+    const char* rawRequest1 = "{}";
+    const char* rawRequest2 = "[]";
+    const char* rawRequest3 = "true";
+    const char* rawRequest4 = "false";
+    const char* rawRequest5 = "123";
+    const char* rawRequest6 = "3.1415926535897932384626433832795028841971693993751058209749445923078164062862089986280348253421170679821480865132823066470938446095505822317253594081284811174502841027019385211055596446229489549303819644288109756659334461284756482337867831652712019091456485669234603486104543266482133936072602491412737245870066063155881748815209209628292540917153643678925903600113305305488204665213841469519415116094330572703657595919530921861173819326117931051185480744623799627495673518857527248912279381830119491298336733624406566430860213949463952247371907021798609437027705392171762931767523846748184676694051320005681271452635608277857713427577896091736371787214684409012249534301465495853710507922796892589235420199561121290219608640344181598136297747713099605187072113499999983729780499510597317328160963185950244594553469083026425223082533446850352619311881710100031378387528865875332083814206171776691473035982534904287554687311595628638823537875937519577818577805321712268066130019278766111959092164201989";
+    const char* rawRequest7 = "0.3e10";
+    const char* rawRequest8 = "-1.3E-2";
+    const char* rawRequest9 = "\"true\"";
+    const char* rawRequest10 = "[\"true\", \"false\"]";
+    const char* rawRequest11 = "[true, false, \"true\", \"false\", -1.3E-2      \r  \n    , {   \"demo\" : [   \"hello\"   \n   , \"world\"    ]    } \r  , null   ]";
+
+    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request, FAKE_DESCRIPTOR));
+
+    strncpy(request.privateBuffer, rawRequest1, sizeof (request.privateBuffer));
+    TEST_ASSERT_EQUAL(LE_OK, parseJSON(&request));
+
+    strncpy(request.privateBuffer, rawRequest2, sizeof (request.privateBuffer));
+    TEST_ASSERT_EQUAL(LE_OK, parseJSON(&request));
+
+    strncpy(request.privateBuffer, rawRequest3, sizeof (request.privateBuffer));
+    TEST_ASSERT_EQUAL(LE_OK, parseJSON(&request));
+
+    strncpy(request.privateBuffer, rawRequest4, sizeof (request.privateBuffer));
+    TEST_ASSERT_EQUAL(LE_OK, parseJSON(&request));
+
+    strncpy(request.privateBuffer, rawRequest5, sizeof (request.privateBuffer));
+    TEST_ASSERT_EQUAL(LE_OK, parseJSON(&request));
+
+    strncpy(request.privateBuffer, rawRequest6, sizeof (request.privateBuffer));
+    TEST_ASSERT_EQUAL(LE_OK, parseJSON(&request));
+
+    strncpy(request.privateBuffer, rawRequest7, sizeof (request.privateBuffer));
+    TEST_ASSERT_EQUAL(LE_OK, parseJSON(&request));
+
+    strncpy(request.privateBuffer, rawRequest8, sizeof (request.privateBuffer));
+    TEST_ASSERT_EQUAL(LE_OK, parseJSON(&request));
+
+    strncpy(request.privateBuffer, rawRequest9, sizeof (request.privateBuffer));
+    TEST_ASSERT_EQUAL(LE_OK, parseJSON(&request));
+
+    strncpy(request.privateBuffer, rawRequest10, sizeof (request.privateBuffer));
+    TEST_ASSERT_EQUAL(LE_OK, parseJSON(&request));
+
+    strncpy(request.privateBuffer, rawRequest11, sizeof (request.privateBuffer));
+    TEST_ASSERT_EQUAL(LE_OK, parseJSON(&request));
 }
 
 int main() {
     UnityBegin(__FILE__);
-    RUN_TEST(test_body);
+    RUN_TEST(test1);
     return (UnityEnd());
 }
