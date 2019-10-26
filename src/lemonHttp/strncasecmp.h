@@ -35,4 +35,4 @@ int strncasecmp_internal(const char *s1, const char *s2, size_t n);
 #define STRNCASECMP strncasecmp
 #endif
 
-#endif //LEMONSERVER_STRNCASECMP_H
+#endif /* LEMONSERVER_STRNCASECMP_H */
