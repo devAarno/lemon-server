@@ -96,7 +96,7 @@ const lemonError parseHTTP(httpRequest *request) {
         return LE_INCORRECT_INPUT_VALUES;
     }
     {
-        char pParser[sizeof(yyParser)];
+        yyParser pParser;
         const unsigned char ascii[256] = {
             TOK_CONTROL, TOK_CONTROL, TOK_CONTROL, TOK_CONTROL, TOK_CONTROL, TOK_CONTROL, TOK_CONTROL, TOK_CONTROL,
             TOK_CONTROL, TOK_HTAB, TOK_CLF, TOK_CONTROL, TOK_CONTROL, TOK_CR, TOK_CONTROL, TOK_CONTROL,

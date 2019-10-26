@@ -19,9 +19,12 @@
 
 #include "./jsonPath.h"
 
+#include <stddef.h>
 #include "../../lemonError.h"
 #include "./jsonPathQueryBuffer.h"
 #include "./jsonPathParser.h"
+#include "../../../../3rdParty/unity/git/src/unity.h"
+#include "../../../net/socket.h"
 
 const lemonError initJsonPathRequest(jsonPathRequest *r) {
     if (NULL == r) {
@@ -33,12 +36,51 @@ const lemonError initJsonPathRequest(jsonPathRequest *r) {
     }
 }
 
-const jsonPromise createPromiseByJsonPath(jsonPathRequest *p, jsonPathQueryBuffer b[]) {
-    if ((NULL == b) || (NULL == p)) {
-        jsonPromise res;
-        res.e = LE_NULL_IN_INPUT_VALUES;
-        res.value = NULL;
-        return res;
+const lemonError appendJsonPathRequest(jsonPathRequest *p, jsonPathQueryBuffer *b, jsonPathExecutonHandler handler, changingData *data) {
+    if ((NULL == b) || (NULL == p) || (NULL == handler) || (NULL == data)) {
+        return LE_NULL_IN_INPUT_VALUES;
     }
-    parseJSONPath(p, b);
+    {
+        /*jsonPathElement *currRoot = &((p->elements)[0]);
+        size_t currArrayPosition = 0;
+        const lemonError err = parseJSONPath(p, b);
+
+        * err is not checked *
+
+        while (currArrayPosition < p->elementsCount) {
+            * handler+data assign to ROOT but last element may be more convenient *
+            if (ROOT == ((p->elements)[currArrayPosition]).type) {
+                currRoot = &((p->elements)[currArrayPosition]);
+            }
+            ++currArrayPosition;
+        }
+        currRoot->callback.handler = handler;
+        currRoot->callback.data = data;*/
+
+        const size_t newRootPlace = p->elementsCount;
+        const lemonError err = parseJSONPath(p, b);
+
+        if (LE_OK != err) {
+            return err;
+        }
+
+        if (0 != newRootPlace) {
+            size_t currArrayPosition = newRootPlace - 1;
+
+            while ((0 != currArrayPosition) && (((p->elements)[currArrayPosition]).type != ROOT)) {
+                --currArrayPosition;
+            }
+
+            if ((0 == currArrayPosition) && (((p->elements)[currArrayPosition]).type != ROOT)) {
+                return LE_INCORRECT_INPUT_VALUES;
+            }
+
+            (p->elements)[currArrayPosition].next = &((p->elements)[newRootPlace]);
+        }
+
+        (p->elements)[newRootPlace].callback.handler = handler;
+        (p->elements)[newRootPlace].callback.data = data;
+        (p->elements)[newRootPlace].next = NULL;
+    }
+    return LE_OK;
 }

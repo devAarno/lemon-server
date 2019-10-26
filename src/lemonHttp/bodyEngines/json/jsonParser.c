@@ -29,11 +29,15 @@
 #include "jsonLemon.h"
 #include "jsonLemon.c"
 
-const static lemonError appendHttpToParser(jsonParserState* ps, httpRequest *http) {
-    if ((NULL == ps) || (NULL == http)) {
+const static lemonError appendAdditionalInfoToParser(jsonParserState* ps, httpRequest *http, jsonPathRequest *jsonRequest) {
+    if ((NULL == ps) || (NULL == http) || (NULL == jsonRequest)) {
         return LE_NULL_IN_INPUT_VALUES;
     }
+    if ((0 >= http->elementsCount) || (0 >= jsonRequest->elementsCount)) {
+        return LE_INCORRECT_INPUT_VALUES;
+    }
     ps->request = http;
+    ps->jsonRequest = jsonRequest;
     return LE_OK;
 }
 
@@ -88,7 +92,7 @@ const lemonError markJSONAsIncorrect(jsonParserState* ps) {
     return LE_OK;
 }
 
-const lemonError parseJSON(httpRequest *request) {
+const lemonError parseJSON(httpRequest *request, jsonPathRequest *jsonRequest) {
     if (NULL == request) {
         return LE_NULL_IN_INPUT_VALUES;
     }
@@ -96,7 +100,7 @@ const lemonError parseJSON(httpRequest *request) {
         return LE_INCORRECT_INPUT_VALUES;
     }
     {
-        char pParser[sizeof(yyParser)];
+        yyParser pParser;
         const unsigned char ascii[256] = {
             JSON_CONTROL, JSON_CONTROL, JSON_CONTROL, JSON_CONTROL, JSON_CONTROL, JSON_CONTROL, JSON_CONTROL, JSON_CONTROL,
             JSON_BACKSPACE, JSON_CHARTAB, JSON_LINEFEED, JSON_CONTROL, JSON_FORMFEED, JSON_CARRETURN, JSON_CONTROL, JSON_CONTROL,
@@ -136,7 +140,7 @@ const lemonError parseJSON(httpRequest *request) {
         jsonParserState ps;
 
         {
-            const lemonError ret = appendHttpToParser(&ps, request);
+            const lemonError ret = appendAdditionalInfoToParser(&ps, request, jsonRequest);
             if (LE_OK != ret) {
                 return ret;
             }

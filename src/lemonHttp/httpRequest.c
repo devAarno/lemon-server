@@ -22,40 +22,11 @@
 #include <stddef.h>
 #include <string.h>
 
-#ifdef USE_STRINGS_H
-#include <strings.h>
-#endif
-
 #include "string.h"
 #include "../boolean.h"
 #include "lemonError.h"
 #include "httpRequestInternal.h"
-
-/** FreeBSD implementation
- * https://svnweb.freebsd.org/base/head/lib/libc/string/strcasecmp.c?view=markup
- */
-
-#undef STRNCASECMP
-
-#ifdef USE_INTERNAL_STRNCASECMP
-
-#include <ctype.h>
-
-static int strncasecmp_internal(const char *s1, const char *s2, size_t n) {
-    if (n != 0) {
-        do {
-            if (tolower(*s1) != tolower(*s2++))
-                return (tolower(*s1) - tolower(*--s2));
-            if (*s1++ == '\0')
-                break;
-        } while (--n != 0);
-    }
-    return (0);
-}
-#define STRNCASECMP strncasecmp_internal
-#else
-#define STRNCASECMP strncasecmp
-#endif
+#include "strncasecmp.h"
 
 const lemonError initHttpRequest(httpRequest *r, const int fd) {
     if (NULL == r) {
@@ -174,5 +145,4 @@ const boolean isStringEmpty(const string *s) {
         const string empty = getEmptyString();
         return ((empty.length == s->length) && (empty.data == s->data)) ? TRUE : FALSE;
     }
-    return TRUE;
 }

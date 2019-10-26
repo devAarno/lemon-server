@@ -34,8 +34,19 @@ typedef enum {
     RECURSIVE
 } ruleType;
 
+typedef void changingData;
+typedef const lemonError (*jsonPathExecutonHandler)(const string *value, changingData *data);
+
 typedef struct {
+    jsonPathExecutonHandler handler;
+    changingData *data;
+} jsonPathCallback;
+
+typedef struct jsonPathElement {
+    jsonPathCallback callback;
     string value;
+    size_t level;
+    struct jsonPathElement *next;
     ruleType type;
 } jsonPathElement;
 
@@ -44,13 +55,8 @@ typedef struct {
     size_t elementsCount;
 } jsonPathRequest;
 
-typedef struct {
-    string *value;
-    lemonError e;
-} jsonPromise;
-
 const lemonError initJsonPathRequest(jsonPathRequest *r);
 
-const jsonPromise createPromiseByJsonPath(jsonPathRequest *p, jsonPathQueryBuffer b[]);
+const lemonError appendJsonPathRequest(jsonPathRequest *p, jsonPathQueryBuffer *b, jsonPathExecutonHandler handler, changingData *data);
 
 #endif /* LEMONSERVER_JSONPATH_H */

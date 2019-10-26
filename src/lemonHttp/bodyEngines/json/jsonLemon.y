@@ -22,7 +22,9 @@
 #include <stddef.h>
 #include <assert.h>
 #include "jsonParser.h"
+#include "jsonPath.h"
 #include "../../../boolean.h"
+#include "./jsonPathInternal.h"
 }
 
 %name ParseJSON
@@ -47,10 +49,15 @@
 
 json ::= ows value ows. {markJSONAsParsed(ps); puts("DONE");}
 
+%type string {string}
+%type chars {string}
+%type char {string}
+%type key {string}
+
 value ::= object.
 value ::= array.
 value ::= number.
-value ::= string.
+value ::= string(s1). { printf("\nVALUE -- %.*s\n", s1.length, s1.data); executeJsonPathCallbackWithValue(ps->jsonRequest, &s1); }
 value ::= true.
 value ::= false.
 value ::= null.
@@ -58,8 +65,13 @@ value ::= null.
 object ::= l_crl_brckt ows r_crl_brckt.
 object ::= l_crl_brckt ows object_content ows r_crl_brckt.
 
-object_content ::= string ows COLON ows value.
-object_content ::= object_content ows COMMA ows string ows COLON ows value.
+key(s1) ::= string(s1). {
+  printf("\nKEY IN -- %.*s\n", s1.length, s1.data);
+  updateJsonPathRequestStatusByFieldName(ps->jsonRequest, &s1);
+}
+
+object_content ::= key(s1) ows COLON ows value. { rollbackJsonPathRequestStatusByFieldName(ps->jsonRequest, &s1); }
+object_content ::= object_content ows COMMA ows key(s1) ows COLON ows value. { rollbackJsonPathRequestStatusByFieldName(ps->jsonRequest, &s1); }
 
 array ::= l_sqr_brckt ows r_sqr_brckt.
 array ::= l_sqr_brckt ows array_content ows r_sqr_brckt.
@@ -91,46 +103,52 @@ sign ::= MINUS.
 digits ::= digit.
 digits ::= digits digit.
 
-string ::= QUOTATION chars QUOTATION.
+string(s) ::= QUOTATION QUOTATION. { s = getEmptyString(); }
+string(s) ::= QUOTATION chars(cs) QUOTATION. { s.data = cs.data; s.length = cs.length; }
 
-chars ::= .
-chars ::= chars char.
+chars(cs) ::= char(c). { cs.data = c.data; cs.length = c.length; }
+chars(cs) ::= chars char(c). {
+    while (c.length > 0) {
+        (cs.data)[cs.length++] = *(c.data++);
+        --(c.length);
+    }
+}
         
-char ::= SYM.
-char ::= BACKSLASH QUOTATION.
-char ::= BACKSLASH BACKSLASH.
-char ::= BACKSLASH SLASH.
-char ::= BACKSLASH BACKSPACE.
-char ::= BACKSLASH FORMFEED.
-char ::= BACKSLASH LINEFEED.
-char ::= BACKSLASH CARRETURN.
-char ::= BACKSLASH CHARTAB.
-char ::= BACKSLASH LU hexdig hexdig hexdig hexdig.
-char ::= LT.
-char ::= LR.
-char ::= LU.
-char ::= LL.
-char ::= LS.
-char ::= LN.
-char ::= hexdig.
-char ::= SP.
-char ::= CHARTAB.
-char ::= COLON.
-char ::= COMMA.
-char ::= PLUS.
-char ::= MINUS.
-char ::= DOT.
-char ::= CONTROL.
-char ::= EXT.
+char(c) ::= SYM(s). { c.data = s; c.length = 1; }
+char(c) ::= BACKSLASH QUOTATION(s). { c.data = s; c.length = 1; }
+char(c) ::= BACKSLASH BACKSLASH(s). { c.data = s; c.length = 1; }
+char(c) ::= BACKSLASH SLASH(s). { c.data = s; c.length = 1; }
+char(c) ::= BACKSLASH BACKSPACE(s). { c.data = s; c.length = 1; }
+char(c) ::= BACKSLASH FORMFEED(s). { c.data = s; c.length = 1; }
+char(c) ::= BACKSLASH LINEFEED(s). { c.data = s; c.length = 1; }
+char(c) ::= BACKSLASH CARRETURN(s). { c.data = s; c.length = 1; }
+char(c) ::= BACKSLASH CHARTAB(s). { c.data = s; c.length = 1; }
+char(c) ::= BACKSLASH LU hexdig(h1) hexdig(h2) hexdig(h3) hexdig(h4). { c = convertUtf16ToString(h1, h2, *h3, *h4); }
+char(c) ::= LT(s). { c.data = s; c.length = 1; }
+char(c) ::= LR(s). { c.data = s; c.length = 1; }
+char(c) ::= LU(s). { c.data = s; c.length = 1; }
+char(c) ::= LL(s). { c.data = s; c.length = 1; }
+char(c) ::= LS(s). { c.data = s; c.length = 1; }
+char(c) ::= LN(s). { c.data = s; c.length = 1; }
+char(c) ::= hexdig(s). { c.data = s; c.length = 1; }
+char(c) ::= SP(s). { c.data = s; c.length = 1; }
+char(c) ::= CHARTAB(s). { c.data = s; c.length = 1; }
+char(c) ::= COLON(s). { c.data = s; c.length = 1; }
+char(c) ::= COMMA(s). { c.data = s; c.length = 1; }
+char(c) ::= PLUS(s). { c.data = s; c.length = 1; }
+char(c) ::= MINUS(s). { c.data = s; c.length = 1; }
+char(c) ::= DOT(s). { c.data = s; c.length = 1; }
+char(c) ::= CONTROL(s). { c.data = s; c.length = 1; }
+char(c) ::= EXT(s). { c.data = s; c.length = 1; }
 
 
 true ::= LT LR LU LE.
 false ::= LF LA LL LS LE.
 null ::= LN LU LL LL.
 
-l_crl_brckt ::= LBRACE.
+l_crl_brckt ::= LBRACE(c). { puts("VAL_START"); puts(c); }
 
-r_crl_brckt ::= RBRACE.
+r_crl_brckt ::= RBRACE(c). { puts("VAL_END"); puts(c); }
 
 l_sqr_brckt ::= LBRACKET.
 
