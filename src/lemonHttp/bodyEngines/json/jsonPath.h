@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017, 2018, 2019 Parkhomenko Stanislav
+ * Copyright (C) 2017, 2018, 2019, 2020 Parkhomenko Stanislav
  *
  * This file is part of Lemon Server.
  *
@@ -47,6 +47,7 @@ typedef struct jsonPathElement {
     string value;
     size_t level;
     struct jsonPathElement *next;
+    char *containerStartPosition;
     ruleType type;
 } jsonPathElement;
 

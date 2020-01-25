@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017, 2018, 2019 Parkhomenko Stanislav
+ * Copyright (C) 2017, 2018, 2019, 2020 Parkhomenko Stanislav
  *
  * This file is part of Lemon Server.
  *
@@ -48,6 +48,29 @@ static const lemonError fakeExecute(const string *value, calledCallback *data) {
     ++(data->callCounter);
 }
 
+static const lemonError fakeExecuteForBuffer5(const string *value, calledCallback *data) {
+    puts("Rule 35");
+    switch (data->callCounter) {
+        case 0:
+            TEST_ASSERT_EQUAL(12, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("naist street", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        case 1:
+            TEST_ASSERT_EQUAL(4, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("Nara", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        case 2:
+            TEST_ASSERT_EQUAL(8, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("630-0192", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        default:
+            break;
+    }
+}
+
 static void test1(void) {
     const char* rawRequest1 = "{\n"
                               "  \"firstName\": \"John\",\n"
@@ -73,8 +96,14 @@ static void test1(void) {
     jsonPathRequest jsonRequest;
     jsonPathQueryBuffer jsonPathQueryBuffer1[] = "$.lastName";
     jsonPathQueryBuffer jsonPathQueryBuffer2[] = "$.firstName";
+    jsonPathQueryBuffer jsonPathQueryBuffer3[] = "$.*.city";
+    jsonPathQueryBuffer jsonPathQueryBuffer4[] = "$.*.type";
+    jsonPathQueryBuffer jsonPathQueryBuffer5[] = "$.address.*";
     calledCallback callData1;
     calledCallback callData2;
+    calledCallback callData3;
+    calledCallback callData4;
+    calledCallback callData5;
     /* Fake json path request */
     TEST_ASSERT_EQUAL(LE_OK, initJsonPathRequest(&jsonRequest));
 
@@ -86,16 +115,70 @@ static void test1(void) {
     callData2.expectedValue = "John";
     TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer2, fakeExecute, &callData2));
 
+    callData3.callCounter = 0;
+    callData3.expectedValue = "Nara";
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer3, fakeExecute, &callData3));
+
+    callData4.callCounter = 0;
+    callData4.expectedValue = "*** Not found (it's a fake message) ***";
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer4, fakeExecute, &callData4));
+
+
+    callData5.callCounter = 0;
+    callData5.expectedValue = NULL;
+    TEST_ASSERT_EQUAL(LE_OK,
+                      appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer5, fakeExecuteForBuffer5, &callData5));
+
     TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request, FAKE_DESCRIPTOR));
 
     strncpy(request.privateBuffer, rawRequest1, sizeof (request.privateBuffer));
     TEST_ASSERT_EQUAL(LE_OK, parseJSON(&request, &jsonRequest));
     TEST_ASSERT_EQUAL(1, callData1.callCounter);
     TEST_ASSERT_EQUAL(1, callData2.callCounter);
+    TEST_ASSERT_EQUAL(1, callData3.callCounter);
+    TEST_ASSERT_EQUAL(0, callData4.callCounter);
+    TEST_ASSERT_EQUAL(3, callData5.callCounter);
+}
+
+static void test2(void) {
+    const char* rawRequest1 = "{\n"
+                              "  \"a\": {\n"
+                              "    \"b\": \"c\",\n"
+                              "    \"d\": {\n"
+                              "      \"e\": {\n"
+                              "        \"f\": \"g\",\n"
+                              "        \"h\": \"i\"\n"
+                              "      },\n"
+                              "      \"j\": \"k\"\n"
+                              "    },\n"
+                              "    \"l\": \"m\"\n"
+                              "  },\n"
+                              "  \"n\": {\n"
+                              "    \"o\": \"p\",\n"
+                              "    \"q\": \"r\"\n"
+                              "  }\n"
+                              "}";
+    httpRequest request;
+    jsonPathRequest jsonRequest;
+    jsonPathQueryBuffer jsonPathQueryBuffer1[] = "$";
+    calledCallback callData1;
+    /* Fake json path request */
+    TEST_ASSERT_EQUAL(LE_OK, initJsonPathRequest(&jsonRequest));
+
+    callData1.callCounter = 0;
+    callData1.expectedValue = "";
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer1, fakeExecute, &callData1));
+
+    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request, FAKE_DESCRIPTOR));
+
+    strncpy(request.privateBuffer, rawRequest1, sizeof (request.privateBuffer));
+    TEST_ASSERT_EQUAL(LE_OK, parseJSON(&request, &jsonRequest));
+    TEST_ASSERT_EQUAL(1, callData1.callCounter);
 }
 
 int main() {
     UnityBegin(__FILE__);
     RUN_TEST(test1);
+    /*RUN_TEST(test2);*/
     return (UnityEnd());
 }

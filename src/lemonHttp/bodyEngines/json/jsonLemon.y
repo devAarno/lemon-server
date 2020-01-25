@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017, 2018, 2019 Parkhomenko Stanislav
+ * Copyright (C) 2017, 2018, 2019, 2020 Parkhomenko Stanislav
  *
  * This file is part of Lemon Server.
  *
@@ -47,7 +47,11 @@
 /* !#$%&'()*+,-./01234567890:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[]^_`abcdefghijklmnopqrstuvwxyz{|}~ */
 /* %token_class symbols_without_quotation_and_backslash EXCLAMATION|OCTOTHORPE|DOLLAR|PERCENT|AMPERSAND|APOSTROPHE|LPARENTHESIS|RPARENTHESIS|ASTERISK|PLUS|COMMA|MINUS|DOT|SLASH|ZERO|ONE|TWO|THREE|FOUR|FIVE|SIX|SEVEN|EIGHT|NINE|COLON|SEMICOLON|LESSTHAN|EQUALS|GREATERTHAN|QUESTION|AT|A|B|C|D|E|F|G|H|I|J|K|L|M|N|O|P|Q|R|S|T|U|V|W|X|Y|Z|LBRACKET|RBRACKET|CARET|UNDERSCORE|BACKQUOTE|LA|LB|LC|LD|LE|LF|LG|LH|LI|LJ|LK|LL|LM|LN|LO|LP|LQ|LR|LS|LT|LU|LV|LW|LX|LY|LZ|LBRACE|VBAR|RBRACE|TILDE.*/
 
-json ::= ows value ows. {markJSONAsParsed(ps); puts("DONE");}
+json ::= ows start_root value end_root ows. {markJSONAsParsed(ps); puts("DONE");}
+
+start_root ::= . { puts("ROOT_START"); updateJsonPathRequestStatusByRoot(ps->jsonRequest); }
+
+end_root ::= . { puts("ROOT_START"); rollbackJsonPathRequestStatusByRoot(ps->jsonRequest); }
 
 %type string {string}
 %type chars {string}
@@ -76,8 +80,10 @@ object_content ::= object_content ows COMMA ows key(s1) ows COLON ows value. { r
 array ::= l_sqr_brckt ows r_sqr_brckt.
 array ::= l_sqr_brckt ows array_content ows r_sqr_brckt.
 
-array_content ::= value.
-array_content ::= array_content ows COMMA ows value.
+array_content ::= array_inc value.
+array_content ::= array_content ows COMMA ows array_inc value.
+
+array_inc ::= . { puts("ARRAY ELEMENT"); updateJsonPathRequestStatusByArrayElement(ps->jsonRequest); }
 
 number ::= MINUS mantissa.
 number ::= mantissa.
@@ -146,13 +152,13 @@ true ::= LT LR LU LE.
 false ::= LF LA LL LS LE.
 null ::= LN LU LL LL.
 
-l_crl_brckt ::= LBRACE(c). { puts("VAL_START"); puts(c); }
+l_crl_brckt ::= LBRACE(c). { puts("VAL_START"); puts(c); updateJsonPathRequestStatusByObject(ps->jsonRequest, c); }
 
-r_crl_brckt ::= RBRACE(c). { puts("VAL_END"); puts(c); }
+r_crl_brckt ::= RBRACE(c). { puts("VAL_END"); puts(c); rollbackJsonPathRequestStatusByObject(ps->jsonRequest, c); }
 
-l_sqr_brckt ::= LBRACKET.
+l_sqr_brckt ::= LBRACKET(c). { puts("ARRAY_START"); puts(c); updateJsonPathRequestStatusByArray(ps->jsonRequest, c); }
 
-r_sqr_brckt ::= RBRACKET.
+r_sqr_brckt ::= RBRACKET(c). { puts("ARRAY_END"); puts(c); rollbackJsonPathRequestStatusByArray(ps->jsonRequest, c); }
 
 ows ::= .
 ows ::= ows SP.

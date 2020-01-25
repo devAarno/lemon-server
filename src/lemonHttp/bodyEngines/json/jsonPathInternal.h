@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017, 2018, 2019 Parkhomenko Stanislav
+ * Copyright (C) 2017, 2018, 2019, 2020 Parkhomenko Stanislav
  *
  * This file is part of Lemon Server.
  *
@@ -31,6 +31,22 @@ const lemonError updateJsonPathRequestStatusByFieldName(jsonPathRequest *jsonReq
 
 const lemonError rollbackJsonPathRequestStatusByFieldName(jsonPathRequest *jsonRequest, const string *key);
 
+const lemonError updateJsonPathRequestStatusByObject(jsonPathRequest *jsonRequest, const char *startObjectPosition);
+
+const lemonError rollbackJsonPathRequestStatusByObject(jsonPathRequest *jsonRequest, const char *endObjectPosition);
+
+const lemonError updateJsonPathRequestStatusByArray(jsonPathRequest *jsonRequest, const char *startArrayPosition);
+
+const lemonError rollbackJsonPathRequestStatusByArray(jsonPathRequest *jsonRequest, const char *endArrayPosition);
+
 const lemonError executeJsonPathCallbackWithValue(jsonPathRequest *jsonRequest, const string *s);
+
+const lemonError executeJsonPathCallbackByObject(jsonPathRequest *jsonRequest);
+
+const lemonError updateJsonPathRequestStatusByArrayElement(jsonPathRequest *jsonRequest);
+
+const lemonError updateJsonPathRequestStatusByRoot(jsonPathRequest *jsonRequest);
+
+const lemonError rollbackJsonPathRequestStatusByRoot(jsonPathRequest *jsonRequest);
 
 #endif /* LEMONSERVER_JSONPATHINTERNAL_H */
