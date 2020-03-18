@@ -119,7 +119,7 @@ static void test1(void) {
     callData3.expectedValue = "Nara";
     TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer3, fakeExecute, &callData3));
 
-    callData4.callCounter = 0;
+    /*callData4.callCounter = 0;
     callData4.expectedValue = "*** Not found (it's a fake message) ***";
     TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer4, fakeExecute, &callData4));
 
@@ -127,7 +127,7 @@ static void test1(void) {
     callData5.callCounter = 0;
     callData5.expectedValue = NULL;
     TEST_ASSERT_EQUAL(LE_OK,
-                      appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer5, fakeExecuteForBuffer5, &callData5));
+                      appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer5, fakeExecuteForBuffer5, &callData5));*/
 
     TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request, FAKE_DESCRIPTOR));
 
@@ -136,8 +136,8 @@ static void test1(void) {
     TEST_ASSERT_EQUAL(1, callData1.callCounter);
     TEST_ASSERT_EQUAL(1, callData2.callCounter);
     TEST_ASSERT_EQUAL(1, callData3.callCounter);
-    TEST_ASSERT_EQUAL(0, callData4.callCounter);
-    TEST_ASSERT_EQUAL(3, callData5.callCounter);
+    /*TEST_ASSERT_EQUAL(0, callData4.callCounter);
+    TEST_ASSERT_EQUAL(3, callData5.callCounter);*/
 }
 
 static void test2(void) {

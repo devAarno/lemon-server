@@ -51,7 +51,7 @@ json ::= ows start_root value end_root ows. {markJSONAsParsed(ps); puts("DONE");
 
 start_root ::= . { puts("ROOT_START"); updateJsonPathRequestStatusByRoot(ps->jsonRequest); }
 
-end_root ::= . { puts("ROOT_START"); rollbackJsonPathRequestStatusByRoot(ps->jsonRequest); }
+end_root ::= . { puts("ROOT_END"); rollbackJsonPathRequestStatusByRoot(ps->jsonRequest); }
 
 %type string {string}
 %type chars {string}

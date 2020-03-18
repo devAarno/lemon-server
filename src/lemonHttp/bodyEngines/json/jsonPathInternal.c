@@ -86,6 +86,39 @@ static const boolean ifItIsLastObserverChainOfRule(const jsonPathElement *currEl
     return FALSE;
 }
 
+static const jsonPathElement *getLastUnpassedRule(const jsonPathElement *root, const jsonPathElement *lastElement) {
+    if ((NULL == root) || (NULL == lastElement)) {
+        /* ERROR ? */
+    }
+    {
+        const jsonPathElement *end = (NULL == root->next) ? lastElement : root->next;
+        jsonPathElement *currElement = root;
+        while ((0 != currElement->level) && (currElement != end)) {
+            ++currElement;
+        }
+        if (0 == currElement->level) {
+            return currElement;
+        }
+    }
+    return NULL;
+}
+
+static const jsonPathElement *getLastPassedRule(const jsonPathElement *root, const jsonPathElement *lastElement) {
+    if ((NULL == root) || (NULL == lastElement)) {
+        /* ERROR ? */
+    }
+    {
+        const jsonPathElement *end = (NULL == root->next) ? lastElement : (root->next) - 1;
+        jsonPathElement *currElement = root;
+        while ((1 == currElement->level) && (currElement <= end)) {
+            ++currElement;
+        }
+        --currElement;
+        return currElement;
+    }
+    return NULL;
+}
+
 const lemonError updateJsonPathRequestStatusByFieldName(jsonPathRequest *jsonRequest, const string *key) {
     if ((NULL == jsonRequest) || (NULL == key)) {
         return LE_NULL_IN_INPUT_VALUES;
@@ -95,49 +128,24 @@ const lemonError updateJsonPathRequestStatusByFieldName(jsonPathRequest *jsonReq
         const jsonPathElement *lastElement = &((jsonRequest->elements)[jsonRequest->elementsCount - 1]);
         jsonPathElement *currRoot = &((jsonRequest->elements)[0]);
         jsonPathElement *currElement = currRoot;
-        jsonPathElement *nextElement = currRoot;
-        boolean isNextElementLast = FALSE;
+        jsonPathElement *unpassed = currRoot;
 
-        while ((NULL != currElement) && (lastElement >= currElement)) {
-
-            nextElement = currElement;
-            ++nextElement;
-
-            switch (currElement->type) {
-                case ROOT:
-                    currRoot = currElement; /* Callback is here */
-                    switch (currElement->level) {
-                        case 1:
-                            ++currElement; /* ROOT is passed, move on */
-                            break;
-                        case 0:
-                        default:
-                            return LE_INCORRECT_INPUT_VALUES;
-                    }
-                    break;
+        while ((NULL != currRoot) && (NULL != (unpassed = getLastUnpassedRule(currRoot, lastElement)))) {
+            switch (unpassed->type) {
                 case NAME:
-                    if ((currElement->value.length == key->length) && (0 == STRNCASECMP(currElement->value.data, key->data, key->length))) {
+                    if ((unpassed->value.length == key->length) && (0 == STRNCASECMP(unpassed->value.data, key->data, key->length))) {
                         /* A key has been found, so mark it*/
-                        currElement->level = 1;
-                        ++currElement;
-                    } else {
-                        /* Skip rule */
-                        currElement = currRoot->next;
+                        unpassed->level = 1;
                     }
                     break;
                 case ANY:
                     /* An any key has been found, so mark it*/
-                    currElement->level = 1;
-                    ++currElement;
-                    break;
-                case ANYINDEX:
-                case INDEX:
-                case RECURSIVE:
-                    /* NOTHING */
+                    unpassed->level = 1;
                     break;
                 default:
-                    return LE_INCORRECT_INPUT_VALUES;
+                    break;
             }
+            currRoot = currRoot->next;
         }
         return LE_OK;
     }
@@ -152,48 +160,24 @@ const lemonError rollbackJsonPathRequestStatusByFieldName(jsonPathRequest *jsonR
         const jsonPathElement *lastElement = &((jsonRequest->elements)[jsonRequest->elementsCount - 1]);
         jsonPathElement *currRoot = &((jsonRequest->elements)[0]);
         jsonPathElement *currElement = currRoot;
-        jsonPathElement *nextElement = currRoot;
-        boolean isNextRuleLast = FALSE;
+        jsonPathElement *passed = currRoot;
 
-        while (lastElement >= currElement) {
-
-            nextElement = currElement;
-            ++nextElement;
-
-            switch (currElement->type) {
-                case ROOT:
-                    currRoot = currElement; /* Callback is here */
-                    switch (currElement->level) {
-                        case 1:
-                            ++currElement; /* ROOT is passed, move on */
-                            break;
-                        case 0:
-                        default:
-                            return LE_INCORRECT_INPUT_VALUES;
-                    }
-                    break;
+        while ((NULL != currRoot) && (NULL != (passed = getLastPassedRule(currRoot, lastElement)))) {
+            switch (passed->type) {
                 case NAME:
-                    /* Unmark last NAME element, if it is possible */
-                    if ((currElement->value.length == key->length) && (0 == STRNCASECMP(currElement->value.data, key->data, key->length) && (TRUE == ifItIsLastObserverChainOfRule(currElement, lastElement)))) {
+                    if ((passed->value.length == key->length) && (0 == STRNCASECMP(passed->value.data, key->data, key->length))) {
                         /* A key has been found, so mark it*/
-                        currElement->level = 0;
-                    } else {
-                        /* May be skip ?? */
+                        passed->level = 0;
                     }
-                    ++currElement;
                     break;
                 case ANY:
-                    currElement->level = 0;
-                    ++currElement;
-                    break;
-                case ANYINDEX:
-                case INDEX:
-                case RECURSIVE:
-                    /* NOTHING */
+                    /* An any key has been found, so mark it*/
+                    passed->level = 0;
                     break;
                 default:
-                    return LE_INCORRECT_INPUT_VALUES;
+                    break;
             }
+            currRoot = currRoot->next;
         }
         return LE_OK;
     }
@@ -208,48 +192,26 @@ const lemonError updateJsonPathRequestStatusByObject(jsonPathRequest *jsonReques
         const jsonPathElement *lastElement = &((jsonRequest->elements)[jsonRequest->elementsCount - 1]);
         jsonPathElement *currRoot = &((jsonRequest->elements)[0]);
         jsonPathElement *currElement = currRoot;
-        jsonPathElement *nextElement = currRoot;
-        boolean isNextElementLast = FALSE;
+        jsonPathElement *unpassed = currRoot;
 
-        while (lastElement >= currElement) {
-
-            nextElement = currElement;
-            ++nextElement;
-
-            switch (currElement->type) {
-                case ROOT:
-                    currRoot = currElement; /* Callback is here */
-                    switch (currElement->level) {
-                        case 1:
-                            ++currElement; /* ROOT is passed, move on */
-                            break;
-                        case 0:
-                        default:
-                            return LE_INCORRECT_INPUT_VALUES;
-                    }
-                    break;
-                case ANYINDEX:
-
+        while ((NULL != currRoot) && (NULL != (unpassed = getLastUnpassedRule(currRoot, lastElement)))) {
+            switch (unpassed->type) {
                 case ANY:
                 case NAME:
                     /* The NAME/ANY is last chain of rule and it has been found already, so let's return entire object. */
-                    if ((TRUE == ifItIsLastRule(currElement, lastElement)) && (0 != currElement->level)) {
+                    if ((TRUE == ifItIsLastRule(unpassed, lastElement)) && (0 != unpassed->level)) {
                         /* The object may be complex,
                          * so let's increment level if an inner object would be found and decrease otherwise. */
-                        if (1 == currElement->level) {
-                            currElement->containerStartPosition = startObjectPosition;
+                        if (1 == unpassed->level) {
+                            unpassed->containerStartPosition = startObjectPosition;
                         }
-                        ++(currElement->level);
+                        ++(unpassed->level);
                     }
-                    ++currElement;
-                    break;
-                case INDEX:
-                case RECURSIVE:
-                    /* NOTHING */
                     break;
                 default:
-                    return LE_INCORRECT_INPUT_VALUES;
+                    break;
             }
+            currRoot = currRoot->next;
         }
         return LE_OK;
     }
@@ -264,25 +226,10 @@ const lemonError rollbackJsonPathRequestStatusByObject(jsonPathRequest *jsonRequ
         const jsonPathElement *lastElement = &((jsonRequest->elements)[jsonRequest->elementsCount - 1]);
         jsonPathElement *currRoot = &((jsonRequest->elements)[0]);
         jsonPathElement *currElement = currRoot;
-        jsonPathElement *nextElement = currRoot;
+        jsonPathElement *passed = currRoot;
 
-        while (lastElement >= currElement) {
-
-            nextElement = currElement;
-            ++nextElement;
-
-            switch (currElement->type) {
-                case ROOT:
-                    currRoot = currElement; /* Callback is here */
-                    switch (currElement->level) {
-                        case 1:
-                            ++currElement; /* ROOT is passed, move on */
-                            break;
-                        case 0:
-                        default:
-                            return LE_INCORRECT_INPUT_VALUES;
-                    }
-                    break;
+        while ((NULL != currRoot) && (NULL != (passed = getLastPassedRule(currRoot, lastElement)))) {
+            switch (passed->type) {
                 case ANY:
                 case NAME:
                     /* The NAME/ANY is last chain of rule and it has been found already, so let's return entire object. */
@@ -300,14 +247,13 @@ const lemonError rollbackJsonPathRequestStatusByObject(jsonPathRequest *jsonRequ
                                     return err;
                                 }
                             }
-
                         }
                     }
-                    ++currElement;
                     break;
                 default:
-                    return LE_INCORRECT_INPUT_VALUES;
+                    break;
             }
+            currRoot = currRoot->next;
         }
         return LE_OK;
     }
@@ -322,43 +268,26 @@ const lemonError updateJsonPathRequestStatusByArray(jsonPathRequest *jsonRequest
         const jsonPathElement *lastElement = &((jsonRequest->elements)[jsonRequest->elementsCount - 1]);
         jsonPathElement *currRoot = &((jsonRequest->elements)[0]);
         jsonPathElement *currElement = currRoot;
-        jsonPathElement *nextElement = currRoot;
-        boolean isNextElementLast = FALSE;
+        jsonPathElement *unpassed = currRoot;
 
-        while (lastElement >= currElement) {
-
-            nextElement = currElement;
-            ++nextElement;
-
-            switch (currElement->type) {
-                case ROOT:
-                    currRoot = currElement; /* Callback is here */
-                    switch (currElement->level) {
-                        case 1:
-                            ++currElement; /* ROOT is passed, move on */
-                            break;
-                        case 0:
-                        default:
-                            return LE_INCORRECT_INPUT_VALUES;
-                    }
-                    break;
-                case ANYINDEX:
+        while ((NULL != currRoot) && (NULL != (unpassed = getLastUnpassedRule(currRoot, lastElement)))) {
+            switch (unpassed->type) {
                 case ANY:
                 case NAME:
-                    /* Skip all with level > 0 */
-
-                    /* We are waiting NAME but ARRAY has come. */
-                    /* Skip rule */
-                    currElement = currRoot->next;
-                    break;
-                case INDEX:
-                    break;
-                case RECURSIVE:
-                    /* NOTHING */
+                    /* The NAME/ANY is last chain of rule and it has been found already, so let's return entire object. */
+                    if ((TRUE == ifItIsLastRule(unpassed, lastElement)) && (0 != unpassed->level)) {
+                        /* The object may be complex,
+                         * so let's increment level if an inner object would be found and decrease otherwise. */
+                        if (1 == unpassed->level) {
+                            unpassed->containerStartPosition = startArrayPosition;
+                        }
+                        ++(unpassed->level);
+                    }
                     break;
                 default:
-                    return LE_INCORRECT_INPUT_VALUES;
+                    break;
             }
+            currRoot = currRoot->next;
         }
         return LE_OK;
     }
@@ -373,20 +302,34 @@ const lemonError rollbackJsonPathRequestStatusByArray(jsonPathRequest *jsonReque
         const jsonPathElement *lastElement = &((jsonRequest->elements)[jsonRequest->elementsCount - 1]);
         jsonPathElement *currRoot = &((jsonRequest->elements)[0]);
         jsonPathElement *currElement = currRoot;
-        jsonPathElement *nextElement = currRoot;
+        jsonPathElement *passed = currRoot;
 
-        while (lastElement >= currElement) {
-
-            nextElement = currElement;
-            ++nextElement;
-
-            switch (currElement->type) {
-                case ROOT:
+        while ((NULL != currRoot) && (NULL != (passed = getLastPassedRule(currRoot, lastElement)))) {
+            switch (passed->type) {
                 case ANY:
                 case NAME:
+                    /* The NAME/ANY is last chain of rule and it has been found already, so let's return entire object. */
+                    if ((TRUE == ifItIsLastRule(currElement, lastElement)) && (0 != currElement->level)) {
+                        /* The object may be complex,
+                         * so let's increment level if an inner object would be found and decrease otherwise. */
+                        --(currElement->level);
+                        if (1 == currElement->level) {
+                            string s;
+                            s.data = currElement->containerStartPosition;
+                            s.length = endArrayPosition - currElement->value.data;
+                            {
+                                const lemonError err = (currRoot->callback.handler)(&s, currRoot->callback.data);
+                                if (LE_OK != err) {
+                                    return err;
+                                }
+                            }
+                        }
+                    }
+                    break;
                 default:
-                    return LE_INCORRECT_INPUT_VALUES;
+                    break;
             }
+            currRoot = currRoot->next;
         }
         return LE_OK;
     }
@@ -400,25 +343,13 @@ const lemonError executeJsonPathCallbackWithValue(jsonPathRequest *jsonRequest, 
     {
         const jsonPathElement *lastElement = &((jsonRequest->elements)[jsonRequest->elementsCount - 1]);
         jsonPathElement *currRoot = &((jsonRequest->elements)[0]);
-        jsonPathElement *currElement = currRoot;
-        jsonPathElement *nextElement = currRoot;
+        jsonPathElement *passed = currRoot;
 
-        while ((NULL != currElement) && (lastElement >= currElement)) {
-
-            if (0 != currElement->level) {
-
-                nextElement = currElement;
-                ++nextElement;
-
-                if (TRUE == ifItIsLastRule(currElement, lastElement)) {
-                    return (currRoot->callback.handler)(s, currRoot->callback.data);
-                }
-
-                ++currElement;
-            } else {
-                currElement = currRoot->next;
-                currRoot = currElement;
+        while ((NULL != currRoot) && (NULL != (passed = getLastPassedRule(currRoot, lastElement)))) {
+            if (TRUE == ifItIsLastRule(passed, lastElement)) {
+                (currRoot->callback.handler)(s, currRoot->callback.data); /* Check return */
             }
+            currRoot = currRoot->next;
         }
         return LE_OK;
     }
@@ -497,35 +428,17 @@ const lemonError updateJsonPathRequestStatusByRoot(jsonPathRequest *jsonRequest)
         const jsonPathElement *lastElement = &((jsonRequest->elements)[jsonRequest->elementsCount - 1]);
         jsonPathElement *currRoot = &((jsonRequest->elements)[0]);
         jsonPathElement *currElement = currRoot;
-        jsonPathElement *nextElement = currRoot;
-        boolean isNextElementLast = FALSE;
+        jsonPathElement *unpassed = currRoot;
 
-        while ((NULL != currElement) && (lastElement >= currElement)) {
-
-            nextElement = currElement;
-            ++nextElement;
-
-            switch (currElement->type) {
+        while ((NULL != currRoot) && (NULL != (unpassed = getLastUnpassedRule(currRoot, lastElement)))) {
+            switch (unpassed->type) {
                 case ROOT:
-                    currRoot = currElement; /* Callback is here */
-                    switch (currElement->level) {
-                        case 0:
-                            currElement->level = 1;
-                            currElement = currRoot->next;
-                            break;
-                        case 1:
-                        default:
-                            return LE_INCORRECT_INPUT_VALUES;
-                    }
+                    unpassed->level = 1;
                     break;
-                case ANY:
-                case ANYINDEX:
-                case NAME:
-                case INDEX:
-                case RECURSIVE:
                 default:
-                    return LE_INCORRECT_INPUT_VALUES;
+                    break;
             }
+            currRoot = currRoot->next;
         }
         return LE_OK;
     }
@@ -540,35 +453,17 @@ const lemonError rollbackJsonPathRequestStatusByRoot(jsonPathRequest *jsonReques
         const jsonPathElement *lastElement = &((jsonRequest->elements)[jsonRequest->elementsCount - 1]);
         jsonPathElement *currRoot = &((jsonRequest->elements)[0]);
         jsonPathElement *currElement = currRoot;
-        jsonPathElement *nextElement = currRoot;
-        boolean isNextElementLast = FALSE;
+        jsonPathElement *passed = currRoot;
 
-        while ((NULL != currElement) && (lastElement >= currElement)) {
-
-            nextElement = currElement;
-            ++nextElement;
-
-            switch (currElement->type) {
+        while ((NULL != currRoot) && (NULL != (passed = getLastPassedRule(currRoot, lastElement)))) {
+            switch (passed->type) {
                 case ROOT:
-                    currRoot = currElement; /* Callback is here */
-                    switch (currElement->level) {
-                        case 1:
-                            currElement->level = 0;
-                            currElement = currRoot->next;
-                            break;
-                        case 0:
-                        default:
-                            return LE_INCORRECT_INPUT_VALUES;
-                    }
+                    passed->level = 0;
                     break;
-                case ANY:
-                case ANYINDEX:
-                case NAME:
-                case INDEX:
-                case RECURSIVE:
                 default:
-                    return LE_INCORRECT_INPUT_VALUES;
+                    break;
             }
+            currRoot = currRoot->next;
         }
         return LE_OK;
     }
