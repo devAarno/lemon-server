@@ -141,6 +141,7 @@ const lemonError updateJsonPathRequestStatusByFieldName(jsonPathRequest *jsonReq
                 case ANY:
                     /* An any key has been found, so mark it*/
                     unpassed->level = 1;
+                    unpassed->value = *key;
                     break;
                 default:
                     break;
@@ -172,7 +173,9 @@ const lemonError rollbackJsonPathRequestStatusByFieldName(jsonPathRequest *jsonR
                     break;
                 case ANY:
                     /* An any key has been found, so mark it*/
-                    passed->level = 0;
+                    if (0 == STRNCASECMP(passed->value.data, key->data, key->length)) {
+                        passed->level = 0;
+                    }
                     break;
                 default:
                     break;
