@@ -99,11 +99,15 @@ static void test1(void) {
     jsonPathQueryBuffer jsonPathQueryBuffer3[] = "$.*.city";
     jsonPathQueryBuffer jsonPathQueryBuffer4[] = "$.*.type";
     jsonPathQueryBuffer jsonPathQueryBuffer5[] = "$.address.*";
+    jsonPathQueryBuffer jsonPathQueryBuffer6[] = "$.phoneNumbers[0].type";
+    jsonPathQueryBuffer jsonPathQueryBuffer7[] = "$.phoneNumbers[1].number";
     calledCallback callData1;
     calledCallback callData2;
     calledCallback callData3;
     calledCallback callData4;
     calledCallback callData5;
+    calledCallback callData6;
+    calledCallback callData7;
     /* Fake json path request */
     TEST_ASSERT_EQUAL(LE_OK, initJsonPathRequest(&jsonRequest));
 
@@ -119,7 +123,7 @@ static void test1(void) {
     callData3.expectedValue = "Nara";
     TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer3, fakeExecute, &callData3));
 
-    /*callData4.callCounter = 0;
+    callData4.callCounter = 0;
     callData4.expectedValue = "*** Not found (it's a fake message) ***";
     TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer4, fakeExecute, &callData4));
 
@@ -127,7 +131,15 @@ static void test1(void) {
     callData5.callCounter = 0;
     callData5.expectedValue = NULL;
     TEST_ASSERT_EQUAL(LE_OK,
-                      appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer5, fakeExecuteForBuffer5, &callData5));*/
+                      appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer5, fakeExecuteForBuffer5, &callData5));
+
+    callData6.callCounter = 0;
+    callData6.expectedValue = "iPhone";
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer6, fakeExecute, &callData6));
+
+    callData7.callCounter = 0;
+    callData7.expectedValue = "0123-4567-8910";
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer7, fakeExecute, &callData7));
 
     TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request, FAKE_DESCRIPTOR));
 
@@ -136,8 +148,10 @@ static void test1(void) {
     TEST_ASSERT_EQUAL(1, callData1.callCounter);
     TEST_ASSERT_EQUAL(1, callData2.callCounter);
     TEST_ASSERT_EQUAL(1, callData3.callCounter);
-    /*TEST_ASSERT_EQUAL(0, callData4.callCounter);
-    TEST_ASSERT_EQUAL(3, callData5.callCounter);*/
+    TEST_ASSERT_EQUAL(0, callData4.callCounter);
+    TEST_ASSERT_EQUAL(3, callData5.callCounter);
+    TEST_ASSERT_EQUAL(1, callData6.callCounter);
+    TEST_ASSERT_EQUAL(1, callData7.callCounter);
 }
 
 static void test2(void) {
