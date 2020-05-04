@@ -81,6 +81,9 @@ const lemonError appendJsonPathRequest(jsonPathRequest *p, jsonPathQueryBuffer *
         (p->elements)[newRootPlace].callback.handler = handler;
         (p->elements)[newRootPlace].callback.data = data;
         (p->elements)[newRootPlace].next = NULL;
+        (p->elements)[newRootPlace].level = 0;
+        (p->elements)[newRootPlace].index = 0;
+        (p->elements)[newRootPlace].containerStartPosition = NULL;
     }
     return LE_OK;
 }

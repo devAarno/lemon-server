@@ -17,6 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <stdlib.h>
 #include "jsonPathInternal.h"
 
 #include "../../string.h"
@@ -89,7 +90,7 @@ static const searchResult getLastUnpassedRule(const jsonPathElement *root, const
         jsonPathElement *currElement = root;
 
         result.level = 0;
-        while ((((INDEX != currElement->type) && (0 != currElement->level)) || ((INDEX == currElement->type) && (strtol(currElement->value.data, NULL, 10) == currElement->level - 1))) && (currElement != end)) {
+        while ((0 != currElement->level) && (currElement != end)) {
             ++currElement;
             ++(result.level);
         }
@@ -114,7 +115,7 @@ static const searchResult getLastPassedRule(const jsonPathElement *root, const j
         jsonPathElement *currElement = root;
 
         result.level = 0;
-        while ((((INDEX != currElement->type) && (0 != currElement->level)) || ((INDEX == currElement->type) && (strtol(currElement->value.data, NULL, 10) == currElement->level - 1))) && (currElement <= end)) {
+        while ((0 != currElement->level) && (currElement <= end)) {
             ++currElement;
             ++(result.level);
         }
@@ -205,8 +206,9 @@ const lemonError updateJsonPathRequestStatusByObject(jsonPathRequest *jsonReques
         jsonPathElement *currRoot = &((jsonRequest->elements)[0]);
         searchResult unpassed;
 
-        while ((NULL != currRoot) && (NULL != (unpassed = getLastUnpassedRule(currRoot, lastElement)).rule)) {
-            if (currRoot->level - 1 == unpassed.level) {
+        while (NULL != currRoot) {
+            ++(currRoot->level);
+            if ((NULL != (unpassed = getLastUnpassedRule(currRoot, lastElement)).rule) && (currRoot->level - 1 == unpassed.level)) {
                 switch (unpassed.rule->type) {
                     case ANY:
                     case NAME:
@@ -224,7 +226,6 @@ const lemonError updateJsonPathRequestStatusByObject(jsonPathRequest *jsonReques
                         break;
                 }
             }
-            ++(currRoot->level);
             currRoot = currRoot->next;
         }
         return LE_OK;
@@ -241,8 +242,8 @@ const lemonError rollbackJsonPathRequestStatusByObject(jsonPathRequest *jsonRequ
         jsonPathElement *currRoot = &((jsonRequest->elements)[0]);
         searchResult passed;
 
-        while ((NULL != currRoot) && (NULL != (passed = getLastPassedRule(currRoot, lastElement)).rule)) {
-            if (currRoot->level - 1 == passed.level) {
+        while (NULL != currRoot) {
+            if ((NULL != (passed = getLastPassedRule(currRoot, lastElement)).rule) && (currRoot->level - 1 == passed.level)) {
                 switch (passed.rule->type) {
                     case ANY:
                     case NAME:
@@ -285,8 +286,9 @@ const lemonError updateJsonPathRequestStatusByArray(jsonPathRequest *jsonRequest
         jsonPathElement *currRoot = &((jsonRequest->elements)[0]);
         searchResult unpassed;
 
-        while ((NULL != currRoot) && (NULL != (unpassed = getLastUnpassedRule(currRoot, lastElement)).rule)) {
-            if (currRoot->level - 1 == unpassed.level) {
+        while (NULL != currRoot) {
+            ++(currRoot->level);
+            if ((NULL != (unpassed = getLastUnpassedRule(currRoot, lastElement)).rule) && (currRoot->level - 1 == unpassed.level)) {
                 switch (unpassed.rule->type) {
                     case ANY:
                     case NAME:
@@ -302,13 +304,13 @@ const lemonError updateJsonPathRequestStatusByArray(jsonPathRequest *jsonRequest
                         break;
                     case ANYINDEX:
                     case INDEX:
-                        unpassed.rule->level = 1;
+                        unpassed.rule->index = 0;
                         break;
                     default:
                         break;
                 }
             }
-            ++(currRoot->level);
+
             currRoot = currRoot->next;
         }
         return LE_OK;
@@ -325,8 +327,9 @@ const lemonError rollbackJsonPathRequestStatusByArray(jsonPathRequest *jsonReque
         jsonPathElement *currRoot = &((jsonRequest->elements)[0]);
         searchResult passed;
 
-        while ((NULL != currRoot) && (NULL != (passed = getLastPassedRule(currRoot, lastElement)).rule)) {
-            if (currRoot->level - 1 == passed.level) {
+        /*while ((NULL != currRoot) && (NULL != (passed = getLastPassedRule(currRoot, lastElement)).rule)) {*/
+        while (NULL != currRoot) {
+            if ((NULL != (passed = getLastPassedRule(currRoot, lastElement)).rule) && (currRoot->level - 1 == passed.level)) {
                 switch (passed.rule->type) {
                     case ANY:
                     case NAME:
@@ -350,6 +353,7 @@ const lemonError rollbackJsonPathRequestStatusByArray(jsonPathRequest *jsonReque
                         break;
                     case ANYINDEX:
                     case INDEX:
+                        passed.rule->index = 0;
                         passed.rule->level = 0;
                         break;
                     default:
@@ -426,16 +430,47 @@ const lemonError updateJsonPathRequestStatusByArrayElement(jsonPathRequest *json
         searchResult passed;
 
         while ((NULL != currRoot) && (NULL != (passed = getLastPassedRule(currRoot, lastElement)).rule)) {
-            if (currRoot->level - 1 == passed.level) {
+
+            if ((INDEX == passed.rule->type) && (1 == passed.rule->level)) {
+                /* If it has been passed already it can't be passed with another value */
+                passed.rule->level = 0;
+                ++(passed.rule->index);
+            }
+
+            if ((ANYINDEX == passed.rule->type) && (1 == passed.rule->level)) {
+                ++(passed.rule->index);
+            }
+
+            if (INDEX == ((passed.rule) + 1)->type) {
+                ++(passed.rule);
+                ++(passed.level);
+
+                if ((currRoot->level - 1 == passed.level) && (passed.rule->index == atoi(passed.rule->value.data))) {
+                    passed.rule->level = 1;
+                }
+                ++(passed.rule->index);
+            }
+
+            if (ANYINDEX == ((passed.rule) + 1)->type) {
+                ++(passed.rule);
+                ++(passed.level);
+
+                if (currRoot->level - 1 == passed.level) {
+                    passed.rule->level = 1;
+                }
+                ++(passed.rule->index);
+            }
+
+            /*if (currRoot->level - 1 == passed.level) {
                 switch (passed.rule->type) {
                     case ANYINDEX:
                     case INDEX:
-                        ++(passed.rule->level);
+
                         break;
                     default:
                         break;
                 }
-            }
+            }*/
             currRoot = currRoot->next;
         }
         return LE_OK;
@@ -488,4 +523,16 @@ const lemonError rollbackJsonPathRequestStatusByRoot(jsonPathRequest *jsonReques
         }
         return LE_OK;
     }
+}
+
+const lemonError executeJsonPathCallbackByRoot(jsonPathRequest *jsonRequest) {
+    /* Checks */
+    {
+        const jsonPathElement *lastElement = &((jsonRequest->elements)[jsonRequest->elementsCount - 1]);
+        jsonPathElement *currRoot = &((jsonRequest->elements)[0]);
+        searchResult passed;
+
+        return LE_OK;
+    }
+
 }

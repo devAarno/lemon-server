@@ -46,6 +46,7 @@ typedef struct jsonPathElement {
     jsonPathCallback callback;
     string value;
     size_t level;
+    size_t index;
     struct jsonPathElement *next;
     char *containerStartPosition;
     ruleType type;

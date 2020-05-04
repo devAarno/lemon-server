@@ -49,4 +49,6 @@ const lemonError updateJsonPathRequestStatusByRoot(jsonPathRequest *jsonRequest)
 
 const lemonError rollbackJsonPathRequestStatusByRoot(jsonPathRequest *jsonRequest);
 
+const lemonError executeJsonPathCallbackByRoot(jsonPathRequest *jsonRequest);
+
 #endif /* LEMONSERVER_JSONPATHINTERNAL_H */

@@ -102,7 +102,7 @@ const lemonError parseJSON(httpRequest *request, jsonPathRequest *jsonRequest) {
     {
         yyParser pParser;
         const unsigned char ascii[256] = {
-            JSON_CONTROL, JSON_CONTROL, JSON_CONTROL, JSON_CONTROL, JSON_CONTROL, JSON_CONTROL, JSON_CONTROL, JSON_CONTROL,
+            JSON_NULL, JSON_CONTROL, JSON_CONTROL, JSON_CONTROL, JSON_CONTROL, JSON_CONTROL, JSON_CONTROL, JSON_CONTROL,
             JSON_BACKSPACE, JSON_CHARTAB, JSON_LINEFEED, JSON_CONTROL, JSON_FORMFEED, JSON_CARRETURN, JSON_CONTROL, JSON_CONTROL,
             JSON_CONTROL, JSON_CONTROL, JSON_CONTROL, JSON_CONTROL, JSON_CONTROL, JSON_CONTROL, JSON_CONTROL, JSON_CONTROL,
             JSON_CONTROL, JSON_CONTROL, JSON_CONTROL, JSON_CONTROL, JSON_CONTROL, JSON_CONTROL, JSON_CONTROL, JSON_CONTROL,
@@ -153,8 +153,8 @@ const lemonError parseJSON(httpRequest *request, jsonPathRequest *jsonRequest) {
         while (
                 (FALSE == isJSONParsed(&ps)) &&
                 (FALSE == isJSONParseFailed(&ps)) &&
-                (FALSE == isJSONSyntaxIncorrect(&ps)) &&
-                ('\0' != (request->privateBuffer)[pos])
+                (FALSE == isJSONSyntaxIncorrect(&ps)) /*&&
+                ('\0' != (request->privateBuffer)[pos])*/
                 ) {
             ParseJSON(&pParser, ascii[(request->privateBuffer)[pos]], &((request->privateBuffer)[pos]), &ps);
             ++pos;
@@ -167,6 +167,6 @@ const lemonError parseJSON(httpRequest *request, jsonPathRequest *jsonRequest) {
         request->body.data = &((request->privateBuffer)[pos]);
         request->body.length -= pos;*/
 
-        return (FALSE == isJSONParsed(&ps)) ? ((FALSE == isJSONSyntaxIncorrect(&ps)) ? LE_OK : LE_INCORRECT_SYNTAX) : LE_PARSING_IS_FAILED;
+        return (TRUE == isJSONParsed(&ps)) ? ((FALSE == isJSONSyntaxIncorrect(&ps)) ? LE_OK : LE_INCORRECT_SYNTAX) : LE_PARSING_IS_FAILED;
     }
 }

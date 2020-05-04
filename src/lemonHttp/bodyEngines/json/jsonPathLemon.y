@@ -42,7 +42,9 @@
 
 %token_class hexdig ZERO|ONE|TWO|THREE|FOUR|FIVE|SIX|SEVEN|EIGHT|NINE|A|B|C|D|E|F|LA|LB|LC|LD|LE|LF.
 
-main ::= jsonpath.
+mainn ::= main NULL.
+
+main ::= jsonpath. { markJSONPathAsParsed(ps); puts("DONE"); }
 
 jsonpath ::= DOLLAR. {
     const string emptyString = getEmptyString();

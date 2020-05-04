@@ -98,7 +98,7 @@ const lemonError parseJSONPath(jsonPathRequest *jsonPathRequest, char *jsonPath)
     {
         char pParser[sizeof(yyParser)];
         const unsigned char ascii[256] = {
-            JSONPATH_CONTROL, JSONPATH_CONTROL, JSONPATH_CONTROL, JSONPATH_CONTROL, JSONPATH_CONTROL, JSONPATH_CONTROL, JSONPATH_CONTROL, JSONPATH_CONTROL,
+            JSONPATH_NULL, JSONPATH_CONTROL, JSONPATH_CONTROL, JSONPATH_CONTROL, JSONPATH_CONTROL, JSONPATH_CONTROL, JSONPATH_CONTROL, JSONPATH_CONTROL,
             JSONPATH_BACKSPACE, JSONPATH_CHARTAB, JSONPATH_LINEFEED, JSONPATH_CONTROL, JSONPATH_FORMFEED, JSONPATH_CARRETURN, JSONPATH_CONTROL, JSONPATH_CONTROL,
             JSONPATH_CONTROL, JSONPATH_CONTROL, JSONPATH_CONTROL, JSONPATH_CONTROL, JSONPATH_CONTROL, JSONPATH_CONTROL, JSONPATH_CONTROL, JSONPATH_CONTROL,
             JSONPATH_CONTROL, JSONPATH_CONTROL, JSONPATH_CONTROL, JSONPATH_CONTROL, JSONPATH_CONTROL, JSONPATH_CONTROL, JSONPATH_CONTROL, JSONPATH_CONTROL,
@@ -149,8 +149,8 @@ const lemonError parseJSONPath(jsonPathRequest *jsonPathRequest, char *jsonPath)
         while (
                 (FALSE == isJSONPathParsed(&ps)) &&
                 (FALSE == isJsonPathParseFailed(&ps)) &&
-                (FALSE == isJsonPathSyntaxIncorrect(&ps)) &&
-                ('\0' != (jsonPath)[pos])
+                (FALSE == isJsonPathSyntaxIncorrect(&ps)) /*&&
+                ('\0' != (jsonPath)[pos])*/
                 ) {
             ParseJSONPath(&pParser, ascii[(jsonPath)[pos]], &((jsonPath)[pos]), &ps);
             ++pos;
@@ -158,6 +158,6 @@ const lemonError parseJSONPath(jsonPathRequest *jsonPathRequest, char *jsonPath)
 
         ParseJSONPath(&pParser, 0, NULL, &ps);
 
-        return (FALSE == isJSONPathParsed(&ps)) ? ((FALSE == isJsonPathSyntaxIncorrect(&ps)) ? LE_OK : LE_INCORRECT_SYNTAX) : LE_PARSING_IS_FAILED;
+        return (TRUE == isJSONPathParsed(&ps)) ? ((FALSE == isJsonPathSyntaxIncorrect(&ps)) ? LE_OK : LE_INCORRECT_SYNTAX) : LE_PARSING_IS_FAILED;
     }
 }

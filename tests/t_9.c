@@ -42,14 +42,12 @@ void tearDown(void) {
 }
 
 static const lemonError fakeExecute(const string *value, calledCallback *data) {
-    puts("Rule 34");
     printf("OOOUUUTTT %.*s\r\n", value->length, value->data);
     TEST_ASSERT_EQUAL_STRING_LEN(data->expectedValue, value->data, value->length);
     ++(data->callCounter);
 }
 
 static const lemonError fakeExecuteForBuffer5(const string *value, calledCallback *data) {
-    puts("Rule 35");
     switch (data->callCounter) {
         case 0:
             TEST_ASSERT_EQUAL(12, value->length);
@@ -67,6 +65,25 @@ static const lemonError fakeExecuteForBuffer5(const string *value, calledCallbac
             ++(data->callCounter);
             break;
         default:
+            TEST_FAIL_MESSAGE("Incorrect callCounter");
+            break;
+    }
+}
+
+static const lemonError fakeExecuteForBuffer8(const string *value, calledCallback *data) {
+    switch (data->callCounter) {
+        case 0:
+            TEST_ASSERT_EQUAL(14, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("0123-4567-8888", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        case 1:
+            TEST_ASSERT_EQUAL(14, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("0123-4567-8910", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        default:
+            TEST_FAIL_MESSAGE("Incorrect callCounter");
             break;
     }
 }
@@ -90,6 +107,16 @@ static void test1(void) {
                               "      \"type\"  : \"home\",\n"
                               "      \"number\": \"0123-4567-8910\"\n"
                               "    }\n"
+                              "  ],\n"
+                              "  \"workNumbers\": [\n"
+                              "    {\n"
+                              "      \"type\"  : \"iPhone\",\n"
+                              "      \"number\": \"1123-4567-8888\"\n"
+                              "    },\n"
+                              "    {\n"
+                              "      \"type\"  : \"home\",\n"
+                              "      \"number\": \"1123-4567-8910\"\n"
+                              "    }\n"
                               "  ]\n"
                               "}";
     httpRequest request;
@@ -101,6 +128,7 @@ static void test1(void) {
     jsonPathQueryBuffer jsonPathQueryBuffer5[] = "$.address.*";
     jsonPathQueryBuffer jsonPathQueryBuffer6[] = "$.phoneNumbers[0].type";
     jsonPathQueryBuffer jsonPathQueryBuffer7[] = "$.phoneNumbers[1].number";
+    jsonPathQueryBuffer jsonPathQueryBuffer8[] = "$.phoneNumbers[*].number";
     calledCallback callData1;
     calledCallback callData2;
     calledCallback callData3;
@@ -108,6 +136,7 @@ static void test1(void) {
     calledCallback callData5;
     calledCallback callData6;
     calledCallback callData7;
+    calledCallback callData8;
     /* Fake json path request */
     TEST_ASSERT_EQUAL(LE_OK, initJsonPathRequest(&jsonRequest));
 
@@ -141,6 +170,10 @@ static void test1(void) {
     callData7.expectedValue = "0123-4567-8910";
     TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer7, fakeExecute, &callData7));
 
+    callData8.callCounter = 0;
+    callData8.expectedValue = NULL;
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer8, fakeExecuteForBuffer8, &callData8));
+
     TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request, FAKE_DESCRIPTOR));
 
     strncpy(request.privateBuffer, rawRequest1, sizeof (request.privateBuffer));
@@ -152,6 +185,7 @@ static void test1(void) {
     TEST_ASSERT_EQUAL(3, callData5.callCounter);
     TEST_ASSERT_EQUAL(1, callData6.callCounter);
     TEST_ASSERT_EQUAL(1, callData7.callCounter);
+    TEST_ASSERT_EQUAL(2, callData8.callCounter);
 }
 
 static void test2(void) {
