@@ -22,6 +22,8 @@
 
 #include <stddef.h>
 
+#include "../boolean.h"
+
 typedef struct {
     char *data;
     size_t length;
@@ -32,6 +34,20 @@ typedef string buffer;
 string createString(char* chars);
 
 const string getEmptyString();
+
+const boolean isEmptyString(const string s);
+
+const string getTrueString();
+
+const boolean isTrueString(const string s);
+
+const string getFalseString();
+
+const boolean isFalseString(const string s);
+
+const string getNullString();
+
+const boolean isNullString(const string s);
 
 #endif /* STRING_H */
 

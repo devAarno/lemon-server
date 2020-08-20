@@ -31,7 +31,7 @@
 #define TESTNAME TestJSONPathByCallbacks
 
 typedef struct {
-    char *expectedValue;
+    string expectedValue;
     char callCounter;
 } calledCallback;
 
@@ -43,7 +43,8 @@ void tearDown(void) {
 
 static const lemonError fakeExecute(const string *value, calledCallback *data) {
     printf("OOOUUUTTT %.*s\r\n", value->length, value->data);
-    TEST_ASSERT_EQUAL_STRING_LEN(data->expectedValue, value->data, value->length);
+    TEST_ASSERT_EQUAL(data->expectedValue.length, value->length);
+    TEST_ASSERT_EQUAL_STRING_LEN(data->expectedValue.data, value->data, value->length);
     ++(data->callCounter);
 }
 
@@ -88,6 +89,30 @@ static const lemonError fakeExecuteForBuffer8(const string *value, calledCallbac
     }
 }
 
+static const lemonError fakeExecuteForTrueValue(const string *value, calledCallback *data) {
+    printf("OOOUUUTTT %.*s\r\n", value->length, value->data);
+    TEST_ASSERT_EQUAL(data->expectedValue.length, value->length);
+    TEST_ASSERT_EQUAL_STRING_LEN(data->expectedValue.data, value->data, value->length);
+    TEST_ASSERT_EQUAL(TRUE, isTrueString(*value));
+    ++(data->callCounter);
+}
+
+static const lemonError fakeExecuteForFalseValue(const string *value, calledCallback *data) {
+    printf("OOOUUUTTT %.*s\r\n", value->length, value->data);
+    TEST_ASSERT_EQUAL(data->expectedValue.length, value->length);
+    TEST_ASSERT_EQUAL_STRING_LEN(data->expectedValue.data, value->data, value->length);
+    TEST_ASSERT_EQUAL(TRUE, isFalseString(*value));
+    ++(data->callCounter);
+}
+
+static const lemonError fakeExecuteForNullValue(const string *value, calledCallback *data) {
+    printf("OOOUUUTTT %.*s\r\n", value->length, value->data);
+    TEST_ASSERT_EQUAL(data->expectedValue.length, value->length);
+    TEST_ASSERT_EQUAL_STRING_LEN(data->expectedValue.data, value->data, value->length);
+    TEST_ASSERT_EQUAL(TRUE, isNullString(*value));
+    ++(data->callCounter);
+}
+
 static void test1(void) {
     const char* rawRequest1 = "{\n"
                               "  \"firstName\": \"John\",\n"
@@ -101,21 +126,29 @@ static void test1(void) {
                               "  \"phoneNumbers\": [\n"
                               "    {\n"
                               "      \"type\"  : \"iPhone\",\n"
-                              "      \"number\": \"0123-4567-8888\"\n"
+                              "      \"number\": \"0123-4567-8888\",\n"
+                              "      \"isPrimary\": false,\n"
+                              "      \"comments\": null\n"
                               "    },\n"
                               "    {\n"
+                              "      \"isPrimary\": false,\n"
+                              "      \"comments\": \"Do not disturb at night!\",\n"
                               "      \"type\"  : \"home\",\n"
                               "      \"number\": \"0123-4567-8910\"\n"
                               "    }\n"
                               "  ],\n"
                               "  \"workNumbers\": [\n"
                               "    {\n"
+                              "      \"comments\": null,\n"
                               "      \"type\"  : \"iPhone\",\n"
+                              "      \"isPrimary\": true,\n"
                               "      \"number\": \"1123-4567-8888\"\n"
                               "    },\n"
                               "    {\n"
-                              "      \"type\"  : \"home\",\n"
-                              "      \"number\": \"1123-4567-8910\"\n"
+                              "      \"type\"  : \"WhatsApp\",\n"
+                              "      \"comments\": null,\n"
+                              "      \"isPrimary\": false,\n"
+                              "      \"number\": \"+91797744784\"\n"
                               "    }\n"
                               "  ]\n"
                               "}";
@@ -129,6 +162,10 @@ static void test1(void) {
     jsonPathQueryBuffer jsonPathQueryBuffer6[] = "$.phoneNumbers[0].type";
     jsonPathQueryBuffer jsonPathQueryBuffer7[] = "$.phoneNumbers[1].number";
     jsonPathQueryBuffer jsonPathQueryBuffer8[] = "$.phoneNumbers[*].number";
+    jsonPathQueryBuffer jsonPathQueryBuffer9[] = "$.workNumbers[0].isPrimary";
+    jsonPathQueryBuffer jsonPathQueryBuffer10[] = "$.workNumbers[1].isPrimary";
+    jsonPathQueryBuffer jsonPathQueryBuffer11[] = "$.workNumbers[1].comments";
+    jsonPathQueryBuffer jsonPathQueryBuffer12[] = "$.workNumbers[0]";
     calledCallback callData1;
     calledCallback callData2;
     calledCallback callData3;
@@ -137,42 +174,75 @@ static void test1(void) {
     calledCallback callData6;
     calledCallback callData7;
     calledCallback callData8;
+    calledCallback callData9;
+    calledCallback callData10;
+    calledCallback callData11;
+    calledCallback callData12;
     /* Fake json path request */
     TEST_ASSERT_EQUAL(LE_OK, initJsonPathRequest(&jsonRequest));
 
     callData1.callCounter = 0;
-    callData1.expectedValue = "doe";
+    callData1.expectedValue.data = "doe";
+    callData1.expectedValue.length = strlen(callData1.expectedValue.data);
     TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer1, fakeExecute, &callData1));
 
     callData2.callCounter = 0;
-    callData2.expectedValue = "John";
+    callData2.expectedValue.data = "John";
+    callData2.expectedValue.length = strlen(callData2.expectedValue.data);
     TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer2, fakeExecute, &callData2));
 
     callData3.callCounter = 0;
-    callData3.expectedValue = "Nara";
+    callData3.expectedValue.data = "Nara";
+    callData3.expectedValue.length = strlen(callData3.expectedValue.data);
     TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer3, fakeExecute, &callData3));
 
     callData4.callCounter = 0;
-    callData4.expectedValue = "*** Not found (it's a fake message) ***";
+    callData4.expectedValue.data = "*** Not found (it's a fake message) ***";
+    callData4.expectedValue.length = strlen(callData4.expectedValue.data);
     TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer4, fakeExecute, &callData4));
 
-
     callData5.callCounter = 0;
-    callData5.expectedValue = NULL;
+    callData5.expectedValue.data = NULL;
+    callData5.expectedValue.length = 0;
     TEST_ASSERT_EQUAL(LE_OK,
                       appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer5, fakeExecuteForBuffer5, &callData5));
 
     callData6.callCounter = 0;
-    callData6.expectedValue = "iPhone";
+    callData6.expectedValue.data = "iPhone";
+    callData6.expectedValue.length = strlen(callData6.expectedValue.data);
     TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer6, fakeExecute, &callData6));
 
     callData7.callCounter = 0;
-    callData7.expectedValue = "0123-4567-8910";
+    callData7.expectedValue.data = "0123-4567-8910";
+    callData7.expectedValue.length = strlen(callData7.expectedValue.data);
     TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer7, fakeExecute, &callData7));
 
     callData8.callCounter = 0;
-    callData8.expectedValue = NULL;
+    callData8.expectedValue.data = NULL;
+    callData8.expectedValue.length = 0;
     TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer8, fakeExecuteForBuffer8, &callData8));
+
+    callData9.callCounter = 0;
+    callData9.expectedValue = getTrueString();
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer9, fakeExecuteForTrueValue, &callData9));
+
+    callData10.callCounter = 0;
+    callData10.expectedValue = getFalseString();
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer10, fakeExecuteForFalseValue, &callData10));
+
+    callData11.callCounter = 0;
+    callData11.expectedValue = getNullString();
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer11, fakeExecuteForNullValue, &callData11));
+
+    /*callData12.callCounter = 0;
+    callData12.expectedValue.data = "{\n"
+                                    "      \"comments\": null,\n"
+                                    "      \"type\"  : \"iPhone\",\n"
+                                    "      \"isPrimary\": true,\n"
+                                    "      \"number\": \"1123-4567-8888\"\n"
+                                    "    }"; * Be careful with spaces! *
+    callData12.expectedValue.length = strlen(callData12.expectedValue.data);
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer12, fakeExecute, &callData12));*/
 
     TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request, FAKE_DESCRIPTOR));
 
@@ -186,47 +256,14 @@ static void test1(void) {
     TEST_ASSERT_EQUAL(1, callData6.callCounter);
     TEST_ASSERT_EQUAL(1, callData7.callCounter);
     TEST_ASSERT_EQUAL(2, callData8.callCounter);
-}
-
-static void test2(void) {
-    const char* rawRequest1 = "{\n"
-                              "  \"a\": {\n"
-                              "    \"b\": \"c\",\n"
-                              "    \"d\": {\n"
-                              "      \"e\": {\n"
-                              "        \"f\": \"g\",\n"
-                              "        \"h\": \"i\"\n"
-                              "      },\n"
-                              "      \"j\": \"k\"\n"
-                              "    },\n"
-                              "    \"l\": \"m\"\n"
-                              "  },\n"
-                              "  \"n\": {\n"
-                              "    \"o\": \"p\",\n"
-                              "    \"q\": \"r\"\n"
-                              "  }\n"
-                              "}";
-    httpRequest request;
-    jsonPathRequest jsonRequest;
-    jsonPathQueryBuffer jsonPathQueryBuffer1[] = "$";
-    calledCallback callData1;
-    /* Fake json path request */
-    TEST_ASSERT_EQUAL(LE_OK, initJsonPathRequest(&jsonRequest));
-
-    callData1.callCounter = 0;
-    callData1.expectedValue = "";
-    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer1, fakeExecute, &callData1));
-
-    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request, FAKE_DESCRIPTOR));
-
-    strncpy(request.privateBuffer, rawRequest1, sizeof (request.privateBuffer));
-    TEST_ASSERT_EQUAL(LE_OK, parseJSON(&request, &jsonRequest));
-    TEST_ASSERT_EQUAL(1, callData1.callCounter);
+    TEST_ASSERT_EQUAL(1, callData9.callCounter);
+    TEST_ASSERT_EQUAL(1, callData10.callCounter);
+    TEST_ASSERT_EQUAL(1, callData11.callCounter);
+    /*TEST_ASSERT_EQUAL(1, callData12.callCounter);*/
 }
 
 int main() {
     UnityBegin(__FILE__);
     RUN_TEST(test1);
-    /*RUN_TEST(test2);*/
     return (UnityEnd());
 }

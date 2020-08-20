@@ -60,13 +60,25 @@ end_root ::= . { puts("ROOT_END"); rollbackJsonPathRequestStatusByRoot(ps->jsonR
 %type char {string}
 %type key {string}
 
+%type number {string}
+
 value ::= object.
 value ::= array.
-value ::= number.
+
+value ::= number(s1). { printf("\nVALUE -- %.*s\n", s1.length, s1.data); executeJsonPathCallbackWithValue(ps->jsonRequest, &s1); }
 value ::= string(s1). { printf("\nVALUE -- %.*s\n", s1.length, s1.data); executeJsonPathCallbackWithValue(ps->jsonRequest, &s1); }
-value ::= true.
-value ::= false.
-value ::= null.
+value ::= true. {
+  const string s = getTrueString();
+  executeJsonPathCallbackWithValue(ps->jsonRequest, &s);
+}
+value ::= false. {
+  const string s = getFalseString();
+  executeJsonPathCallbackWithValue(ps->jsonRequest, &s);
+}
+value ::= null. {
+  const string s = getNullString();
+  executeJsonPathCallbackWithValue(ps->jsonRequest, &s);
+}
 
 object ::= l_crl_brckt ows r_crl_brckt.
 object ::= l_crl_brckt ows object_content ows r_crl_brckt.
@@ -87,29 +99,42 @@ array_content ::= array_content ows COMMA ows array_inc value.
 
 array_inc ::= . { puts("ARRAY ELEMENT"); updateJsonPathRequestStatusByArrayElement(ps->jsonRequest); }
 
-number ::= MINUS mantissa.
-number ::= mantissa.
-number ::= MINUS mantissa exponent.
-number ::= mantissa exponent.
+%type mantissa {string}
+%type exponent {string}
 
-mantissa ::= ZERO.
-mantissa ::= ZERO DOT digits.
-mantissa ::= digit_without_zero.
-mantissa ::= digit_without_zero DOT digits.
-mantissa ::= digit_without_zero digits.
-mantissa ::= digit_without_zero digits DOT digits.
+number(n) ::= MINUS(minus) mantissa(mantissa). { n.data = minus; n.length = 1 + mantissa.length; }
+number(n) ::= mantissa(mantissa). { n.data = mantissa.data; n.length = mantissa.length; }
+number(n) ::= MINUS(minus) mantissa(mantissa) exponent(exponent). {
+  n.data = minus;
+  n.length = 1 + mantissa.length + exponent.length;
+}
+number(n) ::= mantissa(mantissa) exponent(exponent). {
+  n.data = mantissa.data;
+  n.length = mantissa.length + exponent.length;
+}
 
-exponent ::= exp sign digits.
+mantissa(m) ::= ZERO(z). { m.data = z; m.length = 1; }
+mantissa(m) ::= ZERO(z) DOT digits(d). { m.data = z; m.length = 2 + d.length; }
+mantissa(m) ::= digit_without_zero(d). { m.data = d; m.length = 1; }
+mantissa(m) ::= digit_without_zero(d) DOT digits(ds). { m.data = d; m.length = 2 + ds.length; }
+mantissa(m) ::= digit_without_zero(d) digits(ds). { m.data = d; m.length = 1 + ds.length; }
+mantissa(m) ::= digit_without_zero(d) digits(ds1) DOT digits(ds2). { m.data = d; m.length = 2 + ds1.length + ds2.length; }
+
+exponent(exp) ::= exp(e) sign(s) digits(d). { exp.data = e; exp.length = 1 + s.length + d.length; }
 
 exp ::= LE.
 exp ::= E.
 
-sign ::= .
-sign ::= PLUS.
-sign ::= MINUS.
+%type sign {string}
 
-digits ::= digit.
-digits ::= digits digit.
+sign(s) ::= . { s = getEmptyString(); }
+sign(s) ::= PLUS(p). { s.data = p; s.length = 1; }
+sign(s) ::= MINUS(m). { s.data = m; s.length = 1; }
+
+%type digits {string}
+
+digits(ds) ::= digit(d). { ds.data = d; ds.length = 1; }
+digits(ds) ::= digits digit. { ++(ds.length); }
 
 string(s) ::= QUOTATION QUOTATION. { s = getEmptyString(); }
 string(s) ::= QUOTATION chars(cs) QUOTATION. { s.data = cs.data; s.length = cs.length; }

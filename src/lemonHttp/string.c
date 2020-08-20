@@ -22,7 +22,12 @@
 #include <string.h>
 #include <stddef.h>
 
+#include "../boolean.h"
+
 static const char *emptyString = "";
+static const char *trueString = "true";
+static const char *falseString = "false";
+static const char *nullString = "null";
 
 string createString(char *chars) {
     string res;
@@ -41,4 +46,41 @@ const string getEmptyString() {
     s.data = (char *)emptyString;
     s.length = 0;
     return s;
+}
+
+const boolean isEmptyString(const string s) {
+    return ((emptyString == s.data) && (0 == s.length)) ? TRUE : FALSE;
+}
+
+const string getTrueString() {
+    string s;
+    s.data = (char *)trueString;
+    s.length = 4;
+    return s;
+}
+
+const boolean isTrueString(const string s) {
+    return ((trueString == s.data) && (4 == s.length)) ? TRUE : FALSE;
+}
+
+const string getFalseString() {
+    string s;
+    s.data = (char *)falseString;
+    s.length = 5;
+    return s;
+}
+
+const boolean isFalseString(const string s) {
+    return ((falseString == s.data) && (5 == s.length)) ? TRUE : FALSE;
+}
+
+const string getNullString() {
+    string s;
+    s.data = (char *)nullString;
+    s.length = 4;
+    return s;
+}
+
+const boolean isNullString(const string s) {
+    return ((nullString == s.data) && (4 == s.length)) ? TRUE : FALSE;
 }
