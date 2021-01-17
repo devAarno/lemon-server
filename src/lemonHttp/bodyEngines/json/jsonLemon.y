@@ -94,8 +94,8 @@ object_content ::= object_content ows COMMA ows key(s1) ows COLON ows value. { r
 array ::= l_sqr_brckt ows r_sqr_brckt.
 array ::= l_sqr_brckt ows array_content ows r_sqr_brckt.
 
-array_content ::= array_inc value.
-array_content ::= array_content ows COMMA ows array_inc value.
+array_content ::= value array_inc.
+array_content ::= array_content ows COMMA ows value array_inc.
 
 array_inc ::= . { puts("ARRAY ELEMENT"); updateJsonPathRequestStatusByArrayElement(ps->jsonRequest); }
 

@@ -46,6 +46,7 @@ static const lemonError fakeExecute(const string *value, calledCallback *data) {
     TEST_ASSERT_EQUAL(data->expectedValue.length, value->length);
     TEST_ASSERT_EQUAL_STRING_LEN(data->expectedValue.data, value->data, value->length);
     ++(data->callCounter);
+    return LE_OK;
 }
 
 static void commonTest(const char* rawRequest, const char* expected) {
