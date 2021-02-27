@@ -367,11 +367,11 @@ static const lemonError fakeExecuteForTest3Buffer11(const string *value, calledC
             TEST_ASSERT_EQUAL_STRING_LEN("a12", value->data, value->length);
             ++(data->callCounter);
             break;
-        /*case 2:
+        case 2:
             TEST_ASSERT_EQUAL(23, value->length);
             TEST_ASSERT_EQUAL_STRING_LEN("{\"a\":{\"a\":[\"a1\",\"a2\"]}}", value->data, value->length);
             ++(data->callCounter);
-            break;*/
+            break;
         default:
             TEST_FAIL_MESSAGE("Incorrect callCounter");
             break;
@@ -485,7 +485,7 @@ static void test3(void) {
     TEST_ASSERT_EQUAL(1, callData8.callCounter);
     TEST_ASSERT_EQUAL(1, callData9.callCounter);
     TEST_ASSERT_EQUAL(1, callData10.callCounter);
-    TEST_ASSERT_EQUAL(2, callData11.callCounter);
+    TEST_ASSERT_EQUAL(3, callData11.callCounter);
     TEST_ASSERT_EQUAL(1, callData12.callCounter);
 }
 
