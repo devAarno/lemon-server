@@ -309,7 +309,7 @@ const lemonError updateJsonPathRequestStatusByArray(jsonPathRequest *jsonRequest
                 }
             }
 
-            if (ANYINDEX == ((passed.rule) + 1)->type) {
+            if ((ANYINDEX == ((passed.rule) + 1)->type) || (ANY == ((passed.rule) + 1)->type)) {
                 ++(passed.rule);
                 ++(passed.level);
 
@@ -392,7 +392,7 @@ const lemonError rollbackJsonPathRequestStatusByArray(jsonPathRequest *jsonReque
                     }
                 }
 
-                if (ANYINDEX == ((passed.rule) + 1)->type) {
+                if ((ANYINDEX == ((passed.rule) + 1)->type) || (ANY == ((passed.rule) + 1)->type)) {
                     ++(passed.rule);
                     ++(passed.level);
 
@@ -476,7 +476,7 @@ const lemonError updateJsonPathRequestStatusByArrayElement(jsonPathRequest *json
                 }
             }
 
-            if (ANYINDEX == ((passed.rule) + 1)->type) {
+            if ((ANYINDEX == ((passed.rule) + 1)->type) || (ANY == ((passed.rule) + 1)->type)) {
                 ++(passed.rule);
                 ++(passed.level);
 
