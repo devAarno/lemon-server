@@ -26,7 +26,9 @@
 #include "../boolean.h"
 #include "lemonError.h"
 
+#ifndef MAX_ELEMENTS
 #define MAX_ELEMENTS 128
+#endif
 
 #define PRIVATE_BUFFER_SIZE 2048
 

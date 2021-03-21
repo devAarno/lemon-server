@@ -396,18 +396,6 @@ static void test3(void) {
     jsonPathQueryBuffer jsonPathQueryBuffer10[] = "$[*][0].a.a";
     jsonPathQueryBuffer jsonPathQueryBuffer11[] = "$[*][0][*]";
     jsonPathQueryBuffer jsonPathQueryBuffer12[] = "$[2]";
-    jsonPathQueryBuffer jsonPathQueryBuffer13[] = "$[*][0][*].*[*][1]";
-    jsonPathQueryBuffer jsonPathQueryBuffer14[] = "$[*][0][*][*][*][1]";
-    jsonPathQueryBuffer jsonPathQueryBuffer15[] = "$.*[*][*][*][*][1]";
-    jsonPathQueryBuffer jsonPathQueryBuffer16[] = "$.*[*].*[*].*[1]";
-    jsonPathQueryBuffer jsonPathQueryBuffer17[] = "$[*][*][*][*][*][1]";
-    jsonPathQueryBuffer jsonPathQueryBuffer18[] = "$[*].*[*].*[*][1]";
-    jsonPathQueryBuffer jsonPathQueryBuffer19[] = "$.*[*][*][*].*[1]";
-    jsonPathQueryBuffer jsonPathQueryBuffer20[] = "$.*[0][*][*].*[1]";
-    jsonPathQueryBuffer jsonPathQueryBuffer21[] = "$[3][0][*][*].*[1]";
-    jsonPathQueryBuffer jsonPathQueryBuffer22[] = "$[3][*][*][*].*[1]";
-    jsonPathQueryBuffer jsonPathQueryBuffer23[] = "$[3].*[*][*].*[1]";
-    /* jsonPathQueryBuffer jsonPathQueryBuffer24[] = "$[3].*.*[*].*[1]"; */
     calledCallback callData1;
     calledCallback callData2;
     calledCallback callData3;
@@ -420,18 +408,6 @@ static void test3(void) {
     calledCallback callData10;
     calledCallback callData11;
     calledCallback callData12;
-    calledCallback callData13;
-    calledCallback callData14;
-    calledCallback callData15;
-    calledCallback callData16;
-    calledCallback callData17;
-    calledCallback callData18;
-    calledCallback callData19;
-    calledCallback callData20;
-    calledCallback callData21;
-    calledCallback callData22;
-    calledCallback callData23;
-    /* calledCallback callData24; */
     /* Fake json path request */
     TEST_ASSERT_EQUAL(LE_OK, initJsonPathRequest(&jsonRequest));
 
@@ -494,66 +470,6 @@ static void test3(void) {
     callData12.expectedValue.length = 2;
     TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer12, fakeExecute, &callData12));
 
-    callData13.callCounter = 0;
-    callData13.expectedValue.data = callData7.expectedValue.data;
-    callData13.expectedValue.length = callData7.expectedValue.length;
-    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer13, fakeExecute, &callData13));
-
-    callData14.callCounter = 0;
-    callData14.expectedValue.data = callData7.expectedValue.data;
-    callData14.expectedValue.length = callData7.expectedValue.length;
-    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer14, fakeExecute, &callData14));
-
-    callData15.callCounter = 0;
-    callData15.expectedValue.data = callData7.expectedValue.data;
-    callData15.expectedValue.length = callData7.expectedValue.length;
-    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer15, fakeExecute, &callData15));
-
-    callData16.callCounter = 0;
-    callData16.expectedValue.data = callData7.expectedValue.data;
-    callData16.expectedValue.length = callData7.expectedValue.length;
-    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer16, fakeExecute, &callData16));
-
-    callData17.callCounter = 0;
-    callData17.expectedValue.data = callData7.expectedValue.data;
-    callData17.expectedValue.length = callData7.expectedValue.length;
-    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer17, fakeExecute, &callData17));
-
-    callData18.callCounter = 0;
-    callData18.expectedValue.data = callData7.expectedValue.data;
-    callData18.expectedValue.length = callData7.expectedValue.length;
-    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer18, fakeExecute, &callData18));
-
-    callData19.callCounter = 0;
-    callData19.expectedValue.data = callData7.expectedValue.data;
-    callData19.expectedValue.length = callData7.expectedValue.length;
-    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer19, fakeExecute, &callData19));
-
-    callData20.callCounter = 0;
-    callData20.expectedValue.data = callData7.expectedValue.data;
-    callData20.expectedValue.length = callData7.expectedValue.length;
-    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer20, fakeExecute, &callData20));
-
-    callData21.callCounter = 0;
-    callData21.expectedValue.data = callData7.expectedValue.data;
-    callData21.expectedValue.length = callData7.expectedValue.length;
-    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer21, fakeExecute, &callData21));
-
-    callData22.callCounter = 0;
-    callData22.expectedValue.data = callData7.expectedValue.data;
-    callData22.expectedValue.length = callData7.expectedValue.length;
-    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer22, fakeExecute, &callData22));
-
-    callData23.callCounter = 0;
-    callData23.expectedValue.data = callData7.expectedValue.data;
-    callData23.expectedValue.length = callData7.expectedValue.length;
-    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer23, fakeExecute, &callData23));
-
-    /* callData24.callCounter = 0;
-    callData24.expectedValue.data = callData7.expectedValue.data;
-    callData24.expectedValue.length = callData7.expectedValue.length;
-    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer24, fakeExecute, &callData24));*/
-
     TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request, FAKE_DESCRIPTOR));
 
     strncpy(request.privateBuffer, rawRequest1, sizeof (request.privateBuffer));
@@ -571,6 +487,105 @@ static void test3(void) {
     TEST_ASSERT_EQUAL(1, callData10.callCounter);
     TEST_ASSERT_EQUAL(3, callData11.callCounter);
     TEST_ASSERT_EQUAL(1, callData12.callCounter);
+}
+
+static void test4(void) {
+    /* [false,[["a11", "a12"],["a21","a22"]],[],[{"a":{"a":{"a":["a1","a2"]}}}]] */
+    const char* rawRequest1 = "[false, [[\"a11\", \"a12\"],[\"a21\",\"a22\"]],[],[{\"a\":{\"a\":{\"a\":[\"a1\",\"a2\"]}}}]]";
+    httpRequest request;
+    jsonPathRequest jsonRequest;
+    jsonPathQueryBuffer jsonPathQueryBuffer13[] = "$[*][0][*].*[*][1]";
+    jsonPathQueryBuffer jsonPathQueryBuffer14[] = "$[*][0][*][*][*][1]";
+    jsonPathQueryBuffer jsonPathQueryBuffer15[] = "$.*[*][*][*][*][1]";
+    jsonPathQueryBuffer jsonPathQueryBuffer16[] = "$.*[*].*[*].*[1]";
+    jsonPathQueryBuffer jsonPathQueryBuffer17[] = "$[*][*][*][*][*][1]";
+    jsonPathQueryBuffer jsonPathQueryBuffer18[] = "$[*].*[*].*[*][1]";
+    jsonPathQueryBuffer jsonPathQueryBuffer19[] = "$.*[*][*][*].*[1]";
+    jsonPathQueryBuffer jsonPathQueryBuffer20[] = "$.*[0][*][*].*[1]";
+    jsonPathQueryBuffer jsonPathQueryBuffer21[] = "$[3][0][*][*].*[1]";
+    jsonPathQueryBuffer jsonPathQueryBuffer22[] = "$[3][*][*][*].*[1]";
+    jsonPathQueryBuffer jsonPathQueryBuffer23[] = "$[3].*[*][*].*[1]";
+    jsonPathQueryBuffer jsonPathQueryBuffer24[] = "$[3].*.*[*].*[1]";
+    calledCallback callData13;
+    calledCallback callData14;
+    calledCallback callData15;
+    calledCallback callData16;
+    calledCallback callData17;
+    calledCallback callData18;
+    calledCallback callData19;
+    calledCallback callData20;
+    calledCallback callData21;
+    calledCallback callData22;
+    calledCallback callData23;
+    calledCallback callData24;
+    /* Fake json path request */
+    TEST_ASSERT_EQUAL(LE_OK, initJsonPathRequest(&jsonRequest));
+
+    callData13.callCounter = 0;
+    callData13.expectedValue.data = "a2";
+    callData13.expectedValue.length = 2;
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer13, fakeExecute, &callData13));
+
+    callData14.callCounter = 0;
+    callData14.expectedValue.data = callData13.expectedValue.data;
+    callData14.expectedValue.length = callData13.expectedValue.length;
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer14, fakeExecute, &callData14));
+
+    callData15.callCounter = 0;
+    callData15.expectedValue.data = callData13.expectedValue.data;
+    callData15.expectedValue.length = callData13.expectedValue.length;
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer15, fakeExecute, &callData15));
+
+    callData16.callCounter = 0;
+    callData16.expectedValue.data = callData13.expectedValue.data;
+    callData16.expectedValue.length = callData13.expectedValue.length;
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer16, fakeExecute, &callData16));
+
+    callData17.callCounter = 0;
+    callData17.expectedValue.data = callData13.expectedValue.data;
+    callData17.expectedValue.length = callData13.expectedValue.length;
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer17, fakeExecute, &callData17));
+
+    callData18.callCounter = 0;
+    callData18.expectedValue.data = callData13.expectedValue.data;
+    callData18.expectedValue.length = callData13.expectedValue.length;
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer18, fakeExecute, &callData18));
+
+    callData19.callCounter = 0;
+    callData19.expectedValue.data = callData13.expectedValue.data;
+    callData19.expectedValue.length = callData13.expectedValue.length;
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer19, fakeExecute, &callData19));
+
+    callData20.callCounter = 0;
+    callData20.expectedValue.data = callData13.expectedValue.data;
+    callData20.expectedValue.length = callData13.expectedValue.length;
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer20, fakeExecute, &callData20));
+
+    callData21.callCounter = 0;
+    callData21.expectedValue.data = callData13.expectedValue.data;
+    callData21.expectedValue.length = callData13.expectedValue.length;
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer21, fakeExecute, &callData21));
+
+    callData22.callCounter = 0;
+    callData22.expectedValue.data = callData13.expectedValue.data;
+    callData22.expectedValue.length = callData13.expectedValue.length;
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer22, fakeExecute, &callData22));
+
+    callData23.callCounter = 0;
+    callData23.expectedValue.data = callData13.expectedValue.data;
+    callData23.expectedValue.length = callData13.expectedValue.length;
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer23, fakeExecute, &callData23));
+
+    callData24.callCounter = 0;
+    callData24.expectedValue.data = callData13.expectedValue.data;
+    callData24.expectedValue.length = callData13.expectedValue.length;
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer24, fakeExecute, &callData24));
+
+    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request, FAKE_DESCRIPTOR));
+
+    strncpy(request.privateBuffer, rawRequest1, sizeof (request.privateBuffer));
+    TEST_ASSERT_EQUAL(LE_OK, parseJSON(&request, &jsonRequest));
+
     TEST_ASSERT_EQUAL(1, callData13.callCounter);
     TEST_ASSERT_EQUAL(1, callData14.callCounter);
     TEST_ASSERT_EQUAL(1, callData15.callCounter);
@@ -582,14 +597,17 @@ static void test3(void) {
     TEST_ASSERT_EQUAL(1, callData21.callCounter);
     TEST_ASSERT_EQUAL(1, callData22.callCounter);
     TEST_ASSERT_EQUAL(1, callData23.callCounter);
-    /* TEST_ASSERT_EQUAL(1, callData24.callCounter); */
+    TEST_ASSERT_EQUAL(1, callData24.callCounter);
 }
 
 int main() {
     UnityBegin(__FILE__);
     RUN_TEST(test1);
     RUN_TEST(test2);
+
+    /* `test3` and `test4` have been split due to MAX_ELEMENTS limit */
     RUN_TEST(test3);
+    RUN_TEST(test4);
     /* need more tests with deep json */
 
     return (UnityEnd());
