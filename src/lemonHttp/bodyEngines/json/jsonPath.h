@@ -35,10 +35,10 @@ typedef enum {
 } ruleType;
 
 typedef void changingData;
-typedef const lemonError (*jsonPathExecutonHandler)(const string *value, changingData *data);
+typedef const lemonError (*jsonPathExecutionHandler)(const string *value, changingData *data);
 
 typedef struct {
-    jsonPathExecutonHandler handler;
+    jsonPathExecutionHandler handler;
     changingData *data;
 } jsonPathCallback;
 
@@ -59,6 +59,6 @@ typedef struct {
 
 const lemonError initJsonPathRequest(jsonPathRequest *r);
 
-const lemonError appendJsonPathRequest(jsonPathRequest *p, jsonPathQueryBuffer *b, jsonPathExecutonHandler handler, changingData *data);
+const lemonError appendJsonPathRequest(jsonPathRequest *p, jsonPathQueryBuffer *b, jsonPathExecutionHandler handler, changingData *data);
 
 #endif /* LEMONSERVER_JSONPATH_H */

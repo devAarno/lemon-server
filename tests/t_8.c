@@ -42,7 +42,7 @@ static const lemonError fakeExecute(const string *value, changingData *data) {
 
 static void test1(void) {
     httpRequest request;
-    jsonPathRequest jsonRequest;
+    jsonPathRequest jsonRequest, jsonRequest_backup;
     jsonPathQueryBuffer fakeRequest[] = "$.*";
     const char* rawRequest1 = "{}";
     const char* rawRequest2 = "[]";
@@ -60,44 +60,57 @@ static void test1(void) {
     /* Fake json path request */
     TEST_ASSERT_EQUAL(LE_OK, initJsonPathRequest(&jsonRequest));
     TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, fakeRequest, fakeExecute, ""));
+    memcpy(&jsonRequest_backup, &jsonRequest, sizeof(jsonRequest));
 
     TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request, FAKE_DESCRIPTOR));
 
     strncpy(request.privateBuffer, rawRequest1, sizeof (request.privateBuffer));
     TEST_ASSERT_EQUAL(LE_OK, parseJSON(&request, &jsonRequest));
+    TEST_ASSERT_EQUAL_MEMORY(&jsonRequest_backup, &jsonRequest, sizeof(jsonRequest));
 
     strncpy(request.privateBuffer, rawRequest2, sizeof (request.privateBuffer));
     TEST_ASSERT_EQUAL(LE_OK, parseJSON(&request, &jsonRequest));
+    TEST_ASSERT_EQUAL_MEMORY(&jsonRequest_backup, &jsonRequest, sizeof(jsonRequest));
 
     strncpy(request.privateBuffer, rawRequest3, sizeof (request.privateBuffer));
     TEST_ASSERT_EQUAL(LE_OK, parseJSON(&request, &jsonRequest));
+    TEST_ASSERT_EQUAL_MEMORY(&jsonRequest_backup, &jsonRequest, sizeof(jsonRequest));
 
     strncpy(request.privateBuffer, rawRequest4, sizeof (request.privateBuffer));
     TEST_ASSERT_EQUAL(LE_OK, parseJSON(&request, &jsonRequest));
+    TEST_ASSERT_EQUAL_MEMORY(&jsonRequest_backup, &jsonRequest, sizeof(jsonRequest));
 
     strncpy(request.privateBuffer, rawRequest5, sizeof (request.privateBuffer));
     TEST_ASSERT_EQUAL(LE_OK, parseJSON(&request, &jsonRequest));
+    TEST_ASSERT_EQUAL_MEMORY(&jsonRequest_backup, &jsonRequest, sizeof(jsonRequest));
 
     strncpy(request.privateBuffer, rawRequest6, sizeof (request.privateBuffer));
     TEST_ASSERT_EQUAL(LE_OK, parseJSON(&request, &jsonRequest));
+    TEST_ASSERT_EQUAL_MEMORY(&jsonRequest_backup, &jsonRequest, sizeof(jsonRequest));
 
     strncpy(request.privateBuffer, rawRequest7, sizeof (request.privateBuffer));
     TEST_ASSERT_EQUAL(LE_OK, parseJSON(&request, &jsonRequest));
+    TEST_ASSERT_EQUAL_MEMORY(&jsonRequest_backup, &jsonRequest, sizeof(jsonRequest));
 
     strncpy(request.privateBuffer, rawRequest8, sizeof (request.privateBuffer));
     TEST_ASSERT_EQUAL(LE_OK, parseJSON(&request, &jsonRequest));
+    TEST_ASSERT_EQUAL_MEMORY(&jsonRequest_backup, &jsonRequest, sizeof(jsonRequest));
 
     strncpy(request.privateBuffer, rawRequest9, sizeof (request.privateBuffer));
     TEST_ASSERT_EQUAL(LE_OK, parseJSON(&request, &jsonRequest));
+    TEST_ASSERT_EQUAL_MEMORY(&jsonRequest_backup, &jsonRequest, sizeof(jsonRequest));
 
     strncpy(request.privateBuffer, rawRequest10, sizeof (request.privateBuffer));
     TEST_ASSERT_EQUAL(LE_OK, parseJSON(&request, &jsonRequest));
+    TEST_ASSERT_EQUAL_MEMORY(&jsonRequest_backup, &jsonRequest, sizeof(jsonRequest));
 
     strncpy(request.privateBuffer, rawRequest11, sizeof (request.privateBuffer));
     TEST_ASSERT_EQUAL(LE_OK, parseJSON(&request, &jsonRequest));
+    TEST_ASSERT_EQUAL_MEMORY(&jsonRequest_backup, &jsonRequest, sizeof(jsonRequest));
 
     strncpy(request.privateBuffer, rawRequest12, sizeof (request.privateBuffer));
     TEST_ASSERT_EQUAL(LE_OK, parseJSON(&request, &jsonRequest));
+    TEST_ASSERT_EQUAL_MEMORY(&jsonRequest_backup, &jsonRequest, sizeof(jsonRequest));
 }
 
 int main() {

@@ -138,23 +138,23 @@ const lemonError updateJsonPathRequestStatusByFieldName(jsonPathRequest *jsonReq
     {
         const jsonPathElement *lastElement = &((jsonRequest->elements)[jsonRequest->elementsCount - 1]);
         jsonPathElement *currRoot = &((jsonRequest->elements)[0]);
-        searchResult unpassed;
+        jsonPathElement *currElement;
 
         while (NULL != currRoot) {
-            unpassed = getLastUnpassedRule(currRoot, lastElement);
-            if (((NULL != unpassed.rule)) && (currRoot->level - 1 == unpassed.level)) {
-                switch (unpassed.rule->type) {
+            if (currRoot->level <= currRoot->index) {
+                currElement = &(currRoot[currRoot->level - 1]);
+                switch (currElement->type) {
                     case NAME:
-                        if ((unpassed.rule->value.length == key->length) && (0 == STRNCASECMP(unpassed.rule->value.data, key->data, key->length))) {
+                        if ((currElement->value.length == key->length) && (0 == STRNCASECMP(currElement->value.data, key->data, key->length))) {
                             /* A key has been found, so mark it*/
-                            unpassed.rule->level = 1;
+                            currElement->level = 1;
                         }
                         break;
                     case ANY:
                     case ANYINDEX:
                         /* An any key has been found, so mark it*/
-                        unpassed.rule->level = 1;
-                        unpassed.rule->value = *key;
+                        currElement->level = 1;
+                        currElement->value = *key;
                         break;
                     default:
                         break;
@@ -174,23 +174,25 @@ const lemonError rollbackJsonPathRequestStatusByFieldName(jsonPathRequest *jsonR
     {
         const jsonPathElement *lastElement = &((jsonRequest->elements)[jsonRequest->elementsCount - 1]);
         jsonPathElement *currRoot = &((jsonRequest->elements)[0]);
-        searchResult passed;
+        jsonPathElement *currElement;
 
-        while ((NULL != currRoot) && (NULL != (passed = getLastPassedRule(currRoot, lastElement)).rule)) {
-            if (currRoot->level - 1 == passed.level) {
-                switch (passed.rule->type) {
+        while (NULL != currRoot) {
+            if (currRoot->level <= currRoot->index) {
+                currElement = &(currRoot[currRoot->level - 1]);
+                switch (currElement->type) {
                     case NAME:
-                        if ((passed.rule->value.length == key->length) &&
-                            (0 == STRNCASECMP(passed.rule->value.data, key->data, key->length))) {
+                        if ((currElement->value.length == key->length) &&
+                            (0 == STRNCASECMP(currElement->value.data, key->data, key->length))) {
                             /* A key has been found, so mark it*/
-                            passed.rule->level = 0;
+                            currElement->level = 0;
                         }
                         break;
                     case ANY:
                     case ANYINDEX:
                         /* An any key has been found, so mark it*/
-                        if (0 == STRNCASECMP(passed.rule->value.data, key->data, key->length)) {
-                            passed.rule->level = 0;
+                        if (0 == STRNCASECMP(currElement->value.data, key->data, key->length)) {
+                            currElement->level = 0;
+                            currElement->value = getEmptyString();
                         }
                         break;
                     default:
@@ -211,15 +213,61 @@ const lemonError updateJsonPathRequestStatusByObject(jsonPathRequest *jsonReques
     {
         const jsonPathElement *lastElement = &((jsonRequest->elements)[jsonRequest->elementsCount - 1]);
         jsonPathElement *currRoot = &((jsonRequest->elements)[0]);
-        searchResult passed;
+        jsonPathElement *currElement;
 
         while (NULL != currRoot) {
-            if ((NULL != (passed = getLastPassedRule(currRoot, lastElement)).rule) && (currRoot->level - 1 == passed.level)) {
-                if ((TRUE == ifItIsLastRule(passed.rule, lastElement)) && (0 != passed.rule->level)) {
-                    passed.rule->containerStartPosition = startObjectPosition;
+            if (currRoot->level <= currRoot->index) {
+                currElement = &(currRoot[currRoot->level - 1]);
+                switch (currElement->type) {
+                    case ANY:
+                    case NAME:
+                        /* The NAME/ANY is last chain of rule and it has been found already, so let's return entire object. */
+                        if ((TRUE == ifItIsLastRule(currElement, lastElement)) && (0 != currElement->level)) {
+                            /* The object may be complex,
+                             * so let's increment level if an inner object would be found and decrease otherwise. */
+                            if (1 == currElement->level) {
+                                currElement->containerStartPosition = startObjectPosition;
+                            }
+                            ++(currElement->level);
+                        }
+                        break;
+                    case ROOT:
+                    case ANYINDEX:
+                        currElement->level = 1;
+                        currElement->containerStartPosition = startObjectPosition;
+                        break;
+                    case INDEX:
+                        /*passed.rule->index = 0;*/
+                        if (currElement->index == atoi(currElement->value.data)) {
+                            currElement->level = 1;
+                            currElement->containerStartPosition = startObjectPosition;
+                        }
+                        break;
+                    default:
+                        break;
                 }
             }
+
             ++(currRoot->level);
+            if (currRoot->level <= currRoot->index) {
+                /* Let's see forward rule. INDEX, ANY, ANYINDEX may be here. */
+                /* Try to resolve zero indexed element */
+                ++(currElement);
+                switch (currElement->type) {
+                    case ANYINDEX:
+                    case ANY:
+                        currElement->level = 1;
+                        break;
+                    case INDEX:
+                        if (currElement->index == atoi(currElement->value.data)) {
+                            currElement->level = 1;
+                            currElement->containerStartPosition = startObjectPosition;
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
             currRoot = currRoot->next;
         }
         return LE_OK;
@@ -235,13 +283,31 @@ const lemonError rollbackJsonPathRequestStatusByObject(jsonPathRequest *jsonRequ
         const jsonPathElement *lastElement = &((jsonRequest->elements)[jsonRequest->elementsCount - 1]);
         jsonPathElement *currRoot = &((jsonRequest->elements)[0]);
         searchResult passed;
+        jsonPathElement *currElement;
 
         while (NULL != currRoot) {
-            /*if (((NULL != (passed = getLastPassedRule(currRoot, lastElement)).rule) && (currRoot->level - 1 == passed.level)) || ((ROOT == passed.rule->type) && (2 == currRoot->level))) {*/
-            if ((NULL != (passed = getLastPassedRule(currRoot, lastElement)).rule) && (((currRoot->level - 1 == passed.level) && (NULL == passed.rule->containerStartPosition)) || ((currRoot->level - 2 == passed.level) && (NULL != passed.rule->containerStartPosition)))) {
-                if ((TRUE == ifItIsLastRule(passed.rule, lastElement)) && (0 != passed.rule->level)) {
+            if (currRoot->level <= currRoot->index) {
+                currElement = &(currRoot[currRoot->level - 1]);
+                switch (currElement->type) {
+                    case ANY:
+                    case ANYINDEX:
+                    case INDEX:
+                    case NAME: /* Research it */
+                        currElement->index = currElement->level = 0;
+                        currElement->containerStartPosition = NULL;
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            --(currRoot->level);
+            if (currRoot->level <= currRoot->index) {
+                currElement = &(currRoot[currRoot->level - 1]);
+
+                if ((NULL != (passed = getLastPassedRule(currRoot, lastElement)).rule) && (TRUE == ifItIsLastRule(passed.rule, lastElement)) && (passed.rule == currElement) && (0 != currElement->level)) {
                     string s;
-                    s.data = passed.rule->containerStartPosition;
+                    s.data = currElement->containerStartPosition;
                     s.length = endObjectPosition - s.data + 1;
                     {
                         const lemonError err = (currRoot->callback.handler)(&s, currRoot->callback.data);
@@ -251,7 +317,6 @@ const lemonError rollbackJsonPathRequestStatusByObject(jsonPathRequest *jsonRequ
                     }
                 }
             }
-            --(currRoot->level);
             currRoot = currRoot->next;
         }
         return LE_OK;
@@ -259,155 +324,13 @@ const lemonError rollbackJsonPathRequestStatusByObject(jsonPathRequest *jsonRequ
 }
 
 const lemonError updateJsonPathRequestStatusByArray(jsonPathRequest *jsonRequest, const char *startArrayPosition) {
-    if (NULL == jsonRequest) {
-        return LE_NULL_IN_INPUT_VALUES;
-    }
-    /* empty string is not checked ! */
-    {
-        const jsonPathElement *lastElement = &((jsonRequest->elements)[jsonRequest->elementsCount - 1]);
-        jsonPathElement *currRoot = &((jsonRequest->elements)[0]);
-        searchResult passed;
-
-        while (NULL != currRoot) {
-            if ((NULL != (passed = getLastPassedRule(currRoot, lastElement)).rule) && (currRoot->level - 1 == passed.level)) {
-                switch (passed.rule->type) {
-                    case ANY:
-                    case NAME:
-                        /* The NAME/ANY is last chain of rule and it has been found already, so let's return entire object. */
-                        if ((TRUE == ifItIsLastRule(passed.rule, lastElement)) && (0 != passed.rule->level)) {
-                            /* The object may be complex,
-                             * so let's increment level if an inner object would be found and decrease otherwise. */
-                            if (1 == passed.rule->level) {
-                                passed.rule->containerStartPosition = startArrayPosition;
-                            }
-                            ++(passed.rule->level);
-                        }
-                        break;
-                    case ROOT:
-                    case ANYINDEX:
-                    case INDEX:
-                        /*passed.rule->index = 0;*/
-                        passed.rule->containerStartPosition = startArrayPosition;
-                        break;
-                    default:
-                        break;
-                }
-            }
-            ++(currRoot->level);
-
-            if (INDEX == ((passed.rule) + 1)->type) {
-                /* passed should become INDEX */
-                ++(passed.rule);
-
-                /* `level` here means the position in the JSON path */
-                ++(passed.level);
-
-                if (currRoot->level - 1 == passed.level) {
-                    if (passed.rule->index == atoi(passed.rule->value.data)) {
-                        passed.rule->level = 1;
-                    }
-                }
-            }
-
-            if ((ANYINDEX == ((passed.rule) + 1)->type) || (ANY == ((passed.rule) + 1)->type)) {
-                ++(passed.rule);
-                ++(passed.level);
-
-                if (currRoot->level - 1 == passed.level) {
-                    passed.rule->level = 1;
-                }
-            }
-
-            currRoot = currRoot->next;
-        }
-        return LE_OK;
-    }
+    /* May be collapse ? */
+    return updateJsonPathRequestStatusByObject(jsonRequest, startArrayPosition);
 }
 
 const lemonError rollbackJsonPathRequestStatusByArray(jsonPathRequest *jsonRequest, const char *endArrayPosition) {
-    if (NULL == jsonRequest) {
-        return LE_NULL_IN_INPUT_VALUES;
-    }
-    /* empty string is not checked ! */
-    {
-        const jsonPathElement *lastElement = &((jsonRequest->elements)[jsonRequest->elementsCount - 1]);
-        jsonPathElement *currRoot = &((jsonRequest->elements)[0]);
-        searchResult passed;
-
-        /*while ((NULL != currRoot) && (NULL != (passed = getLastPassedRule(currRoot, lastElement)).rule)) {*/
-        while (NULL != currRoot) {
-            /*if (((NULL != (passed = getLastPassedRule(currRoot, lastElement)).rule) && (currRoot->level - 1 == passed.level)) || ((ROOT == passed.rule->type) && (2 == currRoot->level))) {*/
-            if (NULL != (passed = getLastPassedRule(currRoot, lastElement)).rule) {
-                if (((currRoot->level - 1 == passed.level) && (NULL == passed.rule->containerStartPosition)) ||
-                    ((currRoot->level - 2 == passed.level) && (NULL != passed.rule->containerStartPosition))) {
-                    switch (passed.rule->type) {
-                        case ANY:
-                        case NAME:
-                            /* The NAME/ANY is last chain of rule and it has been found already, so let's return entire object. */
-                            if ((TRUE == ifItIsLastRule(passed.rule, lastElement)) && (0 != passed.rule->level)) {
-                                string s;
-                                s.data = passed.rule->containerStartPosition;
-                                s.length = endArrayPosition - s.data + 1;
-                                {
-                                    const lemonError err = (currRoot->callback.handler)(&s, currRoot->callback.data);
-                                    if (LE_OK != err) {
-                                        return err;
-                                    }
-                                }
-                            }
-                            break;
-                        case ROOT:
-                        case ANYINDEX:
-                        case INDEX:
-                            /*passed.rule->index = 0;*/
-                            if ((TRUE == ifItIsLastRule(passed.rule, lastElement)) && (0 != passed.rule->level) && (NULL != passed.rule->containerStartPosition)) {
-                                string s;
-                                s.data = passed.rule->containerStartPosition;
-                                s.length = endArrayPosition - s.data + 1;
-                                {
-                                    /* Bug here */
-                                    const lemonError err = (currRoot->callback.handler)(&s, currRoot->callback.data);
-                                    if (LE_OK != err) {
-                                        return err;
-                                    }
-                                }
-                            }
-                            passed.rule->level = 0;
-                            break;
-                        default:
-                            break;
-                    }
-                }
-
-                if (INDEX == ((passed.rule) + 1)->type) {
-                    /* passed should become INDEX */
-                    ++(passed.rule);
-
-                    /* `level` here means the position in the JSON path */
-                    ++(passed.level);
-
-                    if (currRoot->level - 1 == passed.level) {
-                        passed.rule->index = 0;
-                        passed.rule->level = 0;
-                    }
-                }
-
-                if ((ANYINDEX == ((passed.rule) + 1)->type) || (ANY == ((passed.rule) + 1)->type)) {
-                    ++(passed.rule);
-                    ++(passed.level);
-
-                    if (currRoot->level - 1 == passed.level) {
-                        passed.rule->index = 0;
-                        passed.rule->level = 0;
-
-                    }
-                }
-            }
-            --(currRoot->level);
-            currRoot = currRoot->next;
-        }
-        return LE_OK;
-    }
+    /* May be collapse ? */
+    return rollbackJsonPathRequestStatusByObject(jsonRequest, endArrayPosition);
 }
 
 const lemonError executeJsonPathCallbackWithValue(jsonPathRequest *jsonRequest, const string *s) {
@@ -419,9 +342,26 @@ const lemonError executeJsonPathCallbackWithValue(jsonPathRequest *jsonRequest, 
         const jsonPathElement *lastElement = &((jsonRequest->elements)[jsonRequest->elementsCount - 1]);
         jsonPathElement *currRoot = &((jsonRequest->elements)[0]);
         searchResult passed;
+        jsonPathElement *currElement;
 
-        while ((NULL != currRoot) && (NULL != (passed = getLastPassedRule(currRoot, lastElement)).rule)) {
-            if ((TRUE == ifItIsLastRule(passed.rule, lastElement)) && (currRoot->level - 1 == passed.level)) {
+        while (NULL != currRoot) {
+            if (currRoot->level <= currRoot->index) {
+                currElement = &(currRoot[currRoot->level - 1]);
+                switch (currElement->type) {
+                    case ANYINDEX:
+                        /* Useless but fine */
+                        currElement->level = 1;
+                        break;
+                    case INDEX:
+                        if (currElement->index == atoi(currElement->value.data)) {
+                            currElement->level = 1;
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
+            if ((NULL != (passed = getLastPassedRule(currRoot, lastElement)).rule) && (TRUE == ifItIsLastRule(passed.rule, lastElement)) && (currRoot->level - 1 == passed.level)) {
                 (currRoot->callback.handler)(s, currRoot->callback.data); /* Check return */
             }
             currRoot = currRoot->next;
@@ -436,53 +376,25 @@ const lemonError updateJsonPathRequestStatusByArrayElement(jsonPathRequest *json
     }
     /* empty string is not checked ! */
     {
-        const jsonPathElement *lastElement = &((jsonRequest->elements)[jsonRequest->elementsCount - 1]);
         jsonPathElement *currRoot = &((jsonRequest->elements)[0]);
-        searchResult passed;
+        jsonPathElement *currElement;
 
-        while ((NULL != currRoot) && (NULL != (passed = getLastPassedRule(currRoot, lastElement)).rule)) {
-
-            switch (passed.rule->type) {
-                /*case ANYINDEX:
-                    if (currRoot->level - 1 != passed.level) {
-                        passed.rule->level = 0;
-                    }
-                    break;*/
-                case INDEX:
-                    if (currRoot->level - 1 == passed.level) {
-                        if (passed.rule->index == atoi(passed.rule->value.data)) {
-                            passed.rule->level = 0;
+        while (NULL != currRoot) {
+            if (currRoot->level <= currRoot->index) {
+                currElement = &(currRoot[currRoot->level - 1]);
+                switch (currElement->type) {
+                    case ANYINDEX:
+                        /* Useless but fine */
+                        ++(currElement->index);
+                        break;
+                    case INDEX:
+                        if (currElement->index == atoi(currElement->value.data)) {
+                            currElement->level = 0;
                         }
-                    }
-                    break;
-                default:
-                    break;
-            }
-
-            if (INDEX == ((passed.rule) + 1)->type) {
-                /* passed should become INDEX */
-                ++(passed.rule);
-
-                /* `level` here means the position in the JSON path */
-                ++(passed.level);
-
-                if (currRoot->level - 1 == passed.level) {
-                    ++(passed.rule->index);
-                    if (passed.rule->index == atoi(passed.rule->value.data)) {
-                        passed.rule->level = 1;
-                    } else {
-                        passed.rule->level = 0;
-                    }
-                }
-            }
-
-            if ((ANYINDEX == ((passed.rule) + 1)->type) || (ANY == ((passed.rule) + 1)->type)) {
-                ++(passed.rule);
-                ++(passed.level);
-
-                if (currRoot->level - 1 == passed.level) {
-                    ++(passed.rule->index);
-                    passed.rule->level = 1;
+                        ++(currElement->index);
+                        break;
+                    default:
+                        break;
                 }
             }
             currRoot = currRoot->next;
@@ -497,20 +409,15 @@ const lemonError updateJsonPathRequestStatusByRoot(jsonPathRequest *jsonRequest)
     }
     /* empty string is not checked ! */
     {
-        const jsonPathElement *lastElement = &((jsonRequest->elements)[jsonRequest->elementsCount - 1]);
         jsonPathElement *currRoot = &((jsonRequest->elements)[0]);
-        searchResult unpassed;
 
         while (NULL != currRoot) {
-            unpassed = getLastUnpassedRule(currRoot, lastElement);
-            if (NULL != unpassed.rule) {
-                switch (unpassed.rule->type) {
-                    case ROOT:
-                        unpassed.rule->level = 1;
-                        break;
-                    default:
-                        break;
-                }
+            switch (currRoot->type) {
+                case ROOT:
+                    currRoot->level = 1;
+                    break;
+                default:
+                    break;
             }
             currRoot = currRoot->next;
         }
@@ -524,14 +431,13 @@ const lemonError rollbackJsonPathRequestStatusByRoot(jsonPathRequest *jsonReques
     }
     /* empty string is not checked ! */
     {
-        const jsonPathElement *lastElement = &((jsonRequest->elements)[jsonRequest->elementsCount - 1]);
         jsonPathElement *currRoot = &((jsonRequest->elements)[0]);
-        searchResult passed;
 
-        while ((NULL != currRoot) && (NULL != (passed = getLastPassedRule(currRoot, lastElement)).rule)) {
-            switch (passed.rule->type) {
+        while (NULL != currRoot) {
+            switch (currRoot->type) {
                 case ROOT:
-                    passed.rule->level = 0;
+                    currRoot->level = 0;
+                    currRoot->containerStartPosition = NULL;
                     break;
                 default:
                     break;

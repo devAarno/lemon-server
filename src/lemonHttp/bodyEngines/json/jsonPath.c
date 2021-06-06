@@ -36,7 +36,7 @@ const lemonError initJsonPathRequest(jsonPathRequest *r) {
     }
 }
 
-const lemonError appendJsonPathRequest(jsonPathRequest *p, jsonPathQueryBuffer *b, jsonPathExecutonHandler handler, changingData *data) {
+const lemonError appendJsonPathRequest(jsonPathRequest *p, jsonPathQueryBuffer *b, jsonPathExecutionHandler handler, changingData *data) {
     if ((NULL == b) || (NULL == p) || (NULL == handler) || (NULL == data)) {
         return LE_NULL_IN_INPUT_VALUES;
     }
@@ -82,7 +82,9 @@ const lemonError appendJsonPathRequest(jsonPathRequest *p, jsonPathQueryBuffer *
         (p->elements)[newRootPlace].callback.data = data;
         (p->elements)[newRootPlace].next = NULL;
         (p->elements)[newRootPlace].level = 0;
-        (p->elements)[newRootPlace].index = 0;
+
+        /* The INDEX of a ROOT shows the elements count of the current JSONPath. */
+        (p->elements)[newRootPlace].index = p->elementsCount - newRootPlace;
         (p->elements)[newRootPlace].containerStartPosition = NULL;
     }
     return LE_OK;
