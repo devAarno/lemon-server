@@ -84,7 +84,7 @@ const lemonError appendJsonPathRequest(jsonPathRequest *p, jsonPathQueryBuffer *
         (p->elements)[newRootPlace].level = 0;
 
         /* The INDEX of a ROOT shows the elements count of the current JSONPath. */
-        (p->elements)[newRootPlace].index = p->elementsCount - newRootPlace;
+        (p->elements)[newRootPlace].index = (p->elements)[newRootPlace].realRootSize = p->elementsCount - newRootPlace;
         (p->elements)[newRootPlace].containerStartPosition = NULL;
     }
     return LE_OK;
