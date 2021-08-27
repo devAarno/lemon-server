@@ -107,19 +107,46 @@ static void test1(void) {
     TEST_ASSERT_EQUAL_MEMORY(&jsonRequest_backup, &jsonRequest, sizeof(jsonRequest));
 }
 
+static const lemonError fakeExecuteForTest2(const string *value, calledCallback *data) {
+    switch (data->callCounter) {
+        case 0:
+            TEST_ASSERT_EQUAL(3, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("123", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        case 1:
+            TEST_ASSERT_EQUAL(19, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("{\"c\" : {\"a\" : 123}}", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        default:
+            TEST_FAIL_MESSAGE("Incorrect callCounter");
+            break;
+    }
+    return LE_OK;
+}
+
 static void test2(void) {
     const char* rawRequest = "{\"b\" : {\"a\" : 123}}";
     httpRequest request;
     jsonPathRequest jsonRequest, jsonRequest_backup;
-    jsonPathQueryBuffer jsonPathQueryBuffer1[] = "$..a";
+    /* jsonPathQueryBuffer jsonPathQueryBuffer1[] = "$..a"; */
+    jsonPathQueryBuffer jsonPathQueryBuffer2[] = "$..";
     calledCallback callData1;
+    calledCallback callData2;
     /* Fake json path request */
     TEST_ASSERT_EQUAL(LE_OK, initJsonPathRequest(&jsonRequest));
 
-    callData1.callCounter = 0;
+    /*callData1.callCounter = 0;
     callData1.expectedValue.data = "123";
     callData1.expectedValue.length = 3;
     TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer1, fakeExecute, &callData1));
+    memcpy(&jsonRequest_backup, &jsonRequest, sizeof(jsonRequest));*/
+
+    callData2.callCounter = 0;
+    callData2.expectedValue.data = NULL;
+    callData2.expectedValue.length = 0;
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer2, fakeExecuteForTest2, &callData2));
     memcpy(&jsonRequest_backup, &jsonRequest, sizeof(jsonRequest));
 
     TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request, FAKE_DESCRIPTOR));
@@ -127,7 +154,8 @@ static void test2(void) {
     strncpy(request.privateBuffer, rawRequest, sizeof (request.privateBuffer));
     TEST_ASSERT_EQUAL(LE_OK, parseJSON(&request, &jsonRequest));
 
-    TEST_ASSERT_EQUAL(1, callData1.callCounter);
+    /* TEST_ASSERT_EQUAL(1, callData1.callCounter); */
+    TEST_ASSERT_EQUAL(2, callData1.callCounter);
     /* TEST_ASSERT_EQUAL_MEMORY(&jsonRequest_backup, &jsonRequest, sizeof(jsonRequest)); */
 }
 

@@ -34,6 +34,12 @@ static char jsonPath4[] = "$.book[2].zzz.xxx.yyy";
 static char jsonPath5[] = "$['store']['book'][0]['title']";
 static char jsonPath6[] = "$[*].*[*].*[*].tool";
 static char jsonPath7[] = "$..horse..[*]..*[2]";
+static char jsonPath8[] = "$..";
+static char jsonPath9[] = "$..horse..[*]..";
+static char jsonPath10[] = "$..horse..[*]";
+static char jsonPath11[] = "$..horse..";
+static char jsonPath12[] = "$..horse..*";
+static char jsonPath13[] = "$..*";
 
 void setUp(void) {
 }
@@ -251,6 +257,166 @@ static void test7(void) {
     TEST_ASSERT_EQUAL(1, fakeRequest.elements[7].value.length);
 }
 
+static void test8(void) {
+    jsonPathRequest fakeRequest;
+
+    initJsonPathRequest(&fakeRequest);
+
+    TEST_ASSERT_EQUAL(LE_OK, parseJSONPath(&fakeRequest, jsonPath8));
+
+    TEST_ASSERT_EQUAL(2, fakeRequest.elementsCount);
+
+    TEST_ASSERT_EQUAL(ROOT, fakeRequest.elements[0].type);
+    TEST_ASSERT_EQUAL_PTR(getEmptyString().data, fakeRequest.elements[0].value.data);
+    TEST_ASSERT_EQUAL(getEmptyString().length, fakeRequest.elements[0].value.length);
+
+    TEST_ASSERT_EQUAL(RECURSIVE, fakeRequest.elements[1].type);
+    TEST_ASSERT_EQUAL_PTR(getEmptyString().data, fakeRequest.elements[1].value.data);
+    TEST_ASSERT_EQUAL(getEmptyString().length, fakeRequest.elements[1].value.length);
+}
+
+static void test9(void) {
+    jsonPathRequest fakeRequest;
+
+    initJsonPathRequest(&fakeRequest);
+
+    TEST_ASSERT_EQUAL(LE_OK, parseJSONPath(&fakeRequest, jsonPath9));
+
+    TEST_ASSERT_EQUAL(6, fakeRequest.elementsCount);
+
+    TEST_ASSERT_EQUAL(ROOT, fakeRequest.elements[0].type);
+    TEST_ASSERT_EQUAL_PTR(getEmptyString().data, fakeRequest.elements[0].value.data);
+    TEST_ASSERT_EQUAL(getEmptyString().length, fakeRequest.elements[0].value.length);
+
+    TEST_ASSERT_EQUAL(RECURSIVE, fakeRequest.elements[1].type);
+    TEST_ASSERT_EQUAL_PTR(getEmptyString().data, fakeRequest.elements[1].value.data);
+    TEST_ASSERT_EQUAL(getEmptyString().length, fakeRequest.elements[1].value.length);
+
+    TEST_ASSERT_EQUAL(NAME, fakeRequest.elements[2].type);
+    TEST_ASSERT_EQUAL_STRING_LEN("horse", fakeRequest.elements[2].value.data, fakeRequest.elements[2].value.length);
+    TEST_ASSERT_EQUAL(5, fakeRequest.elements[2].value.length);
+
+    TEST_ASSERT_EQUAL(RECURSIVE, fakeRequest.elements[3].type);
+    TEST_ASSERT_EQUAL_PTR(getEmptyString().data, fakeRequest.elements[3].value.data);
+    TEST_ASSERT_EQUAL(getEmptyString().length, fakeRequest.elements[3].value.length);
+
+    TEST_ASSERT_EQUAL(ANYINDEX, fakeRequest.elements[4].type);
+    TEST_ASSERT_EQUAL_PTR(getEmptyString().data, fakeRequest.elements[4].value.data);
+    TEST_ASSERT_EQUAL(getEmptyString().length, fakeRequest.elements[4].value.length);
+
+    TEST_ASSERT_EQUAL(RECURSIVE, fakeRequest.elements[5].type);
+    TEST_ASSERT_EQUAL_PTR(getEmptyString().data, fakeRequest.elements[5].value.data);
+    TEST_ASSERT_EQUAL(getEmptyString().length, fakeRequest.elements[5].value.length);
+}
+
+static void test10(void) {
+    jsonPathRequest fakeRequest;
+
+    initJsonPathRequest(&fakeRequest);
+
+    TEST_ASSERT_EQUAL(LE_OK, parseJSONPath(&fakeRequest, jsonPath10));
+
+    TEST_ASSERT_EQUAL(5, fakeRequest.elementsCount);
+
+    TEST_ASSERT_EQUAL(ROOT, fakeRequest.elements[0].type);
+    TEST_ASSERT_EQUAL_PTR(getEmptyString().data, fakeRequest.elements[0].value.data);
+    TEST_ASSERT_EQUAL(getEmptyString().length, fakeRequest.elements[0].value.length);
+
+    TEST_ASSERT_EQUAL(RECURSIVE, fakeRequest.elements[1].type);
+    TEST_ASSERT_EQUAL_PTR(getEmptyString().data, fakeRequest.elements[1].value.data);
+    TEST_ASSERT_EQUAL(getEmptyString().length, fakeRequest.elements[1].value.length);
+
+    TEST_ASSERT_EQUAL(NAME, fakeRequest.elements[2].type);
+    TEST_ASSERT_EQUAL_STRING_LEN("horse", fakeRequest.elements[2].value.data, fakeRequest.elements[2].value.length);
+    TEST_ASSERT_EQUAL(5, fakeRequest.elements[2].value.length);
+
+    TEST_ASSERT_EQUAL(RECURSIVE, fakeRequest.elements[3].type);
+    TEST_ASSERT_EQUAL_PTR(getEmptyString().data, fakeRequest.elements[3].value.data);
+    TEST_ASSERT_EQUAL(getEmptyString().length, fakeRequest.elements[3].value.length);
+
+    TEST_ASSERT_EQUAL(ANYINDEX, fakeRequest.elements[4].type);
+    TEST_ASSERT_EQUAL_PTR(getEmptyString().data, fakeRequest.elements[4].value.data);
+    TEST_ASSERT_EQUAL(getEmptyString().length, fakeRequest.elements[4].value.length);
+}
+
+static void test11(void) {
+    jsonPathRequest fakeRequest;
+
+    initJsonPathRequest(&fakeRequest);
+
+    TEST_ASSERT_EQUAL(LE_OK, parseJSONPath(&fakeRequest, jsonPath11));
+
+    TEST_ASSERT_EQUAL(4, fakeRequest.elementsCount);
+
+    TEST_ASSERT_EQUAL(ROOT, fakeRequest.elements[0].type);
+    TEST_ASSERT_EQUAL_PTR(getEmptyString().data, fakeRequest.elements[0].value.data);
+    TEST_ASSERT_EQUAL(getEmptyString().length, fakeRequest.elements[0].value.length);
+
+    TEST_ASSERT_EQUAL(RECURSIVE, fakeRequest.elements[1].type);
+    TEST_ASSERT_EQUAL_PTR(getEmptyString().data, fakeRequest.elements[1].value.data);
+    TEST_ASSERT_EQUAL(getEmptyString().length, fakeRequest.elements[1].value.length);
+
+    TEST_ASSERT_EQUAL(NAME, fakeRequest.elements[2].type);
+    TEST_ASSERT_EQUAL_STRING_LEN("horse", fakeRequest.elements[2].value.data, fakeRequest.elements[2].value.length);
+    TEST_ASSERT_EQUAL(5, fakeRequest.elements[2].value.length);
+
+    TEST_ASSERT_EQUAL(RECURSIVE, fakeRequest.elements[3].type);
+    TEST_ASSERT_EQUAL_PTR(getEmptyString().data, fakeRequest.elements[3].value.data);
+    TEST_ASSERT_EQUAL(getEmptyString().length, fakeRequest.elements[3].value.length);
+}
+
+static void test12(void) {
+    jsonPathRequest fakeRequest;
+
+    initJsonPathRequest(&fakeRequest);
+
+    TEST_ASSERT_EQUAL(LE_OK, parseJSONPath(&fakeRequest, jsonPath12));
+
+    TEST_ASSERT_EQUAL(5, fakeRequest.elementsCount);
+
+    TEST_ASSERT_EQUAL(ROOT, fakeRequest.elements[0].type);
+    TEST_ASSERT_EQUAL_PTR(getEmptyString().data, fakeRequest.elements[0].value.data);
+    TEST_ASSERT_EQUAL(getEmptyString().length, fakeRequest.elements[0].value.length);
+
+    TEST_ASSERT_EQUAL(RECURSIVE, fakeRequest.elements[1].type);
+    TEST_ASSERT_EQUAL_PTR(getEmptyString().data, fakeRequest.elements[1].value.data);
+    TEST_ASSERT_EQUAL(getEmptyString().length, fakeRequest.elements[1].value.length);
+
+    TEST_ASSERT_EQUAL(NAME, fakeRequest.elements[2].type);
+    TEST_ASSERT_EQUAL_STRING_LEN("horse", fakeRequest.elements[2].value.data, fakeRequest.elements[2].value.length);
+    TEST_ASSERT_EQUAL(5, fakeRequest.elements[2].value.length);
+
+    TEST_ASSERT_EQUAL(RECURSIVE, fakeRequest.elements[3].type);
+    TEST_ASSERT_EQUAL_PTR(getEmptyString().data, fakeRequest.elements[3].value.data);
+    TEST_ASSERT_EQUAL(getEmptyString().length, fakeRequest.elements[3].value.length);
+
+    TEST_ASSERT_EQUAL(ANY, fakeRequest.elements[4].type);
+    TEST_ASSERT_EQUAL_PTR(getEmptyString().data, fakeRequest.elements[4].value.data);
+    TEST_ASSERT_EQUAL(getEmptyString().length, fakeRequest.elements[4].value.length);
+}
+
+static void test13(void) {
+    jsonPathRequest fakeRequest;
+
+    initJsonPathRequest(&fakeRequest);
+
+    TEST_ASSERT_EQUAL(LE_OK, parseJSONPath(&fakeRequest, jsonPath13));
+
+    TEST_ASSERT_EQUAL(3, fakeRequest.elementsCount);
+
+    TEST_ASSERT_EQUAL(ROOT, fakeRequest.elements[0].type);
+    TEST_ASSERT_EQUAL_PTR(getEmptyString().data, fakeRequest.elements[0].value.data);
+    TEST_ASSERT_EQUAL(getEmptyString().length, fakeRequest.elements[0].value.length);
+
+    TEST_ASSERT_EQUAL(RECURSIVE, fakeRequest.elements[1].type);
+    TEST_ASSERT_EQUAL_PTR(getEmptyString().data, fakeRequest.elements[1].value.data);
+    TEST_ASSERT_EQUAL(getEmptyString().length, fakeRequest.elements[1].value.length);
+
+    TEST_ASSERT_EQUAL(ANY, fakeRequest.elements[2].type);
+    TEST_ASSERT_EQUAL_PTR(getEmptyString().data, fakeRequest.elements[2].value.data);
+    TEST_ASSERT_EQUAL(getEmptyString().length, fakeRequest.elements[2].value.length);
+}
+
 int main() {
     UnityBegin(__FILE__);
     RUN_TEST(test1);
@@ -260,5 +426,9 @@ int main() {
     RUN_TEST(test5);
     RUN_TEST(test6);
     RUN_TEST(test7);
+    RUN_TEST(test8);
+    RUN_TEST(test9);
+    RUN_TEST(test10);
+    RUN_TEST(test11);
     return (UnityEnd());
 }
