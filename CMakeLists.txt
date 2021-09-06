@@ -20,8 +20,8 @@ cmake_minimum_required (VERSION 2.4...3.18)
 project (lemonServer C)
 
 set(CMAKE_VERBOSE_MAKEFILE on)
-add_definitions(-gdwarf-4 -ggdb -g3 -fvar-tracking-assignments -ginline-points -O0 -ansi -pedantic)
-#add_definitions(-O3 -flto -march=broadwell)
+add_definitions(-gdwarf-4 -ggdb -g3 -fvar-tracking-assignments -ginline-points -O0 -ansi -pedantic -Wall -Wpedantic -Wextra)
+# add_definitions(-O3 -flto -march=broadwell -s)
 set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -Wall -Wpedantic -Wextra")
 
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -gdwarf-4 -ggdb -g3 -fvar-tracking-assignments -ginline-points")

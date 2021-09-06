@@ -31,7 +31,18 @@ typedef enum {
     ANYINDEX,
     NAME,
     INDEX,
-    RECURSIVE
+    RECURSIVE,
+    PARSED_ROOT,
+    PARSED_OBJECT,
+    PARSED_INDEX,
+    PARSED_FIELD,
+    /* PARSED_VALUE,
+    PARSED_ANY,
+    PARSED_ANYINDEX,
+    PARSED_NAME,
+    PARSED_INDEX,
+    PARSED_RECURSIVE, */
+    NONE
 } ruleType;
 
 typedef void changingData;
@@ -42,7 +53,7 @@ typedef struct {
     changingData *data;
 } jsonPathCallback;
 
-typedef struct jsonPathElement {
+/*typedef struct jsonPathElement {
     jsonPathCallback callback;
     string value;
     size_t level;
@@ -53,11 +64,32 @@ typedef struct jsonPathElement {
     struct jsonPathElement *recursivePrevious;
     char *containerStartPosition;
     ruleType type;
+} jsonPathElement;*/
+
+typedef struct {
+    jsonPathCallback callback;
+    size_t ruleSize;
+} rootRule;
+
+typedef struct {
+    char *containerStartPosition;
+    size_t index;
+} indexRule;
+
+typedef struct {
+    union {
+        rootRule root;
+        string name;
+        indexRule index;
+        char *containerStartPosition;
+    } data;
+    ruleType type;
 } jsonPathElement;
 
 typedef struct {
     jsonPathElement elements[MAX_ELEMENTS];
     size_t elementsCount;
+    size_t parsedStackSize;
 } jsonPathRequest;
 
 const lemonError initJsonPathRequest(jsonPathRequest *r);

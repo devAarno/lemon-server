@@ -47,7 +47,7 @@ void setUp(void) {
 void tearDown(void) {
 }
 
-static void test1(void) {
+/* static void test1(void) {
     jsonPathRequest fakeRequest;
 
     initJsonPathRequest(&fakeRequest);
@@ -415,11 +415,11 @@ static void test13(void) {
     TEST_ASSERT_EQUAL(ANY, fakeRequest.elements[2].type);
     TEST_ASSERT_EQUAL_PTR(getEmptyString().data, fakeRequest.elements[2].value.data);
     TEST_ASSERT_EQUAL(getEmptyString().length, fakeRequest.elements[2].value.length);
-}
+}*/
 
 int main() {
     UnityBegin(__FILE__);
-    RUN_TEST(test1);
+    /* RUN_TEST(test1);
     RUN_TEST(test2);
     RUN_TEST(test3);
     RUN_TEST(test4);
@@ -429,6 +429,6 @@ int main() {
     RUN_TEST(test8);
     RUN_TEST(test9);
     RUN_TEST(test10);
-    RUN_TEST(test11);
+    RUN_TEST(test11); */
     return (UnityEnd());
 }

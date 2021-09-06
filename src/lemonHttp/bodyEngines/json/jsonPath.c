@@ -32,6 +32,7 @@ const lemonError initJsonPathRequest(jsonPathRequest *r) {
     }
     {
         r->elementsCount = 0;
+        r->parsedStackSize = 0;
         return LE_OK;
     }
 }
@@ -41,22 +42,6 @@ const lemonError appendJsonPathRequest(jsonPathRequest *p, jsonPathQueryBuffer *
         return LE_NULL_IN_INPUT_VALUES;
     }
     {
-        /*jsonPathElement *currRoot = &((p->elements)[0]);
-        size_t currArrayPosition = 0;
-        const lemonError err = parseJSONPath(p, b);
-
-        * err is not checked *
-
-        while (currArrayPosition < p->elementsCount) {
-            * handler+data assign to ROOT but last element may be more convenient *
-            if (ROOT == ((p->elements)[currArrayPosition]).type) {
-                currRoot = &((p->elements)[currArrayPosition]);
-            }
-            ++currArrayPosition;
-        }
-        currRoot->callback.handler = handler;
-        currRoot->callback.data = data;*/
-
         const size_t newRootPlace = p->elementsCount;
         const lemonError err = parseJSONPath(p, b);
 
@@ -64,28 +49,9 @@ const lemonError appendJsonPathRequest(jsonPathRequest *p, jsonPathQueryBuffer *
             return err;
         }
 
-        if (0 != newRootPlace) {
-            size_t currArrayPosition = newRootPlace - 1;
-
-            while ((0 != currArrayPosition) && (((p->elements)[currArrayPosition]).type != ROOT)) {
-                --currArrayPosition;
-            }
-
-            if ((0 == currArrayPosition) && (((p->elements)[currArrayPosition]).type != ROOT)) {
-                return LE_INCORRECT_INPUT_VALUES;
-            }
-
-            (p->elements)[currArrayPosition].next = &((p->elements)[newRootPlace]);
-        }
-
-        (p->elements)[newRootPlace].callback.handler = handler;
-        (p->elements)[newRootPlace].callback.data = data;
-        (p->elements)[newRootPlace].next = NULL;
-        (p->elements)[newRootPlace].level = 0;
-
-        /* The INDEX of a ROOT shows the elements count of the current JSONPath. */
-        (p->elements)[newRootPlace].index = (p->elements)[newRootPlace].realRootSize = p->elementsCount - newRootPlace;
-        (p->elements)[newRootPlace].containerStartPosition = NULL;
+        (p->elements)[newRootPlace].data.root.callback.handler = handler;
+        (p->elements)[newRootPlace].data.root.callback.data = data;
+        (p->elements)[newRootPlace].data.root.ruleSize = p->elementsCount - newRootPlace;
     }
     return LE_OK;
 }

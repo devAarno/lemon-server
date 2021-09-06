@@ -18,6 +18,7 @@
  */
 
 #include <stdlib.h>
+#include <stdio.h>
 #include "jsonPathInternal.h"
 
 #include "../../string.h"
@@ -41,17 +42,19 @@ jsonPathElement *appendJsonPathElementOfHttpRequest(jsonPathRequest *r, const st
     {
         const size_t elementNo = (r->elementsCount)++;
         ((r->elements)[elementNo]).type = type;
-        ((r->elements)[elementNo]).value.data = s->data;
-        ((r->elements)[elementNo]).value.length = s->length;
-        ((r->elements)[elementNo]).next = NULL;
-        ((r->elements)[elementNo]).level = 0;
-        ((r->elements)[elementNo]).index = 0;
-        ((r->elements)[elementNo]).realRootSize = 0;
-        ((r->elements)[elementNo]).containerStartPosition = NULL;
-        ((r->elements)[elementNo]).recursiveRoot = NULL;
-        ((r->elements)[elementNo]).recursivePrevious = NULL;
-        if (RECURSIVE == ((r->elements)[elementNo]).type) {
-            ((r->elements)[elementNo]).recursiveRoot = &((r->elements)[elementNo]);
+
+        switch (type) {
+            case NAME:
+                ((r->elements)[elementNo]).data.name.data = s->data;
+                ((r->elements)[elementNo]).data.name.length = s->length;
+                break;
+            case INDEX:
+                /* Not C89 */
+                ((r->elements)[elementNo]).data.index.containerStartPosition = NULL;
+                sscanf(s->data, "%zu", &(((r->elements)[elementNo]).data.index.index));
+                break;
+            default:
+                break;
         }
         return &((r->elements)[elementNo]);
     }
@@ -79,404 +82,187 @@ const string convertUtf16ToString(char *c1, char *c2, const char c3, const char 
     }
 }
 
-static const boolean ifItIsLastRule2(const jsonPathElement *currElement, const jsonPathElement *currRoot) {
-    if (RECURSIVE == currElement->type) {
-        return ((NULL == currElement->next) && (currElement->recursiveRoot == &(currRoot[currRoot->realRootSize - 1]))) ? TRUE : FALSE;
-    } else {
-        return &(currRoot[currRoot->realRootSize - 1]) == currElement ? TRUE : FALSE;
-    }
-}
-
-static const searchResult getLastPassedRule(const jsonPathElement *root) {
-    if (NULL == root) {
-        /* ERROR ? */
-    }
-    {
-        searchResult result;
-        jsonPathElement *currElement = root;
-        jsonPathElement *recursionElement = NULL;
-
-        /*
-         * ROOT
-         * ANY
-         * RECURSIVE -> RECURSIVE -> RECURSIVE -> NULL
-         * ANY
-         */
-        result.level = 0;
-        while ((0 != currElement->level) && (result.level < root->index)) {
-            if (RECURSIVE != currElement->type) {
-                result.rule = currElement;
-                ++currElement;
-            } else {
-                if (NULL == currElement->next) {
-                    result.rule = currElement;
-                    ++currElement;
-                } else {
-                    if (NULL == recursionElement) {
-                        result.rule = currElement;
-                        recursionElement = currElement->next;
-                    } else {
-                        if (NULL == recursionElement->next) {
-                            result.rule = recursionElement;
-                            recursionElement = NULL;
-                            ++currElement;
-                        } else {
-                            result.rule = recursionElement;
-                            recursionElement = recursionElement->next;
-                        }
-                    }
+static size_t isJsonPathResolved(jsonPathElement *currRule, jsonPathElement *currStack) {
+    size_t r = 0;
+    while ((ROOT != currRule->type) || (PARSED_ROOT != currStack->type)) {
+        switch (currRule->type) {
+            case ROOT:
+                switch (currStack->type) {
+                    case PARSED_OBJECT:
+                        --(currStack);
+                        break;
+                    default:
+                        return 0;
                 }
-            }
-            ++(result.level);
-        }
-        --(result.level);
-        return result;
-    }
-}
-
-static const jsonPathElement *getNextElement(const jsonPathElement *currRoot, const jsonPathElement *currElement) {
-    if ((ROOT == currElement->type) && (currRoot != currElement)) {
-        return NULL;
-    }
-
-    switch (currElement->type) {
-        case RECURSIVE:
-            if (NULL == currElement->next) {
-                return 1 + (currElement->recursiveRoot);
-            } else {
-                return currElement->next;
-            }
-        default:
-            return 1 + currElement;
-    }
-}
-
-/*static const jsonPathElement *getElement(const jsonPathElement *currRoot, const size_t parsingLevel) {
-    jsonPathElement *result = currRoot;
-    jsonPathElement *currentRecursionElement = currRoot;
-    size_t ruleLevel = 0;
-
-    while (ruleLevel < parsingLevel) {
-        switch (result->type) {
+                break;
+            case ANY:
+                switch (currStack->type) {
+                    case PARSED_OBJECT:
+                        --(currStack);
+                        break;
+                    case PARSED_INDEX:
+                    case PARSED_FIELD:
+                        --(currRule);
+                        --(currStack);
+                        break;
+                    case PARSED_ROOT:
+                        return 0;
+                    default:
+                        break;
+                }
+                break;
+            case NAME:
+                switch (currStack->type) {
+                    case PARSED_FIELD:
+                        if (
+                                (currRule->data.name.length == currStack->data.name.length) &&
+                                (0 == STRNCASECMP(currStack->data.name.data, currRule->data.name.data,
+                                                  currStack->data.name.length))
+                                ) {
+                            --(currRule);
+                            --(currStack);
+                        } else {
+                            return 0;
+                        }
+                        break;
+                    case PARSED_INDEX:
+                    case PARSED_ROOT:
+                        return 0;
+                    case PARSED_OBJECT:
+                        --(currStack);
+                        break;
+                    default:
+                        /* ERROR */
+                        break;
+                }
+                break;
+            case INDEX:
+                switch (currStack->type) {
+                    case PARSED_OBJECT:
+                        --(currStack);
+                        break;
+                    case PARSED_INDEX:
+                        if (currRule->data.index.index == currStack->data.index.index) {
+                            --(currRule);
+                            --(currStack);
+                        } else {
+                            return 0;
+                        }
+                        break;
+                    default:
+                        return 0;
+                }
+                break;
+            case ANYINDEX:
+                switch (currStack->type) {
+                    case PARSED_OBJECT:
+                        --(currStack);
+                        break;
+                    case PARSED_INDEX:
+                    case PARSED_FIELD:
+                        --(currRule);
+                        --(currStack);
+                        break;
+                    default:
+                        return 0;
+                }
+                break;
             case RECURSIVE:
-                if (NULL == result->next) {
-                    ++result;
-                } else {
-                    result = result->next;
+                --(currRule);
+                switch (currRule->type) {
+                    case ANY:
+                        break;
+                    case ANYINDEX:
+                        break;
+                    case NAME:
+                        while (
+                                (PARSED_ROOT != currStack->type) &&
+                                !(
+                                        (PARSED_FIELD == currStack->type) &&
+                                        (currRule->data.name.length == currStack->data.name.length) &&
+                                        (0 == STRNCASECMP(currStack->data.name.data, currRule->data.name.data,
+                                                          currStack->data.name.length))
+                                        )
+                                ) {
+                            --(currStack);
+                        }
+                        break;
+                    case INDEX:
+                        break;
+                    case ROOT:
+                        while (PARSED_ROOT != currStack->type) {
+                            --(currStack);
+                        }
+                        break;
+                    default:
+                        /* ERROR */
+                        break;
                 }
                 break;
             default:
-                ++result;
+                /* ERROR */
                 break;
         }
-        ++ruleLevel;
     }
-    --result;
-    return result;
-}*/
 
-static const jsonPathElement *getElement(const jsonPathElement *currRoot, const size_t parsingLevel) {
-    jsonPathElement *result = currRoot;
-    jsonPathElement *recursionElement = NULL;
-    size_t ruleLevel = 0;
-
-    while (ruleLevel < parsingLevel - 1) {
-        if (RECURSIVE != result->type) {
-            ++result;
-        } else {
-            if (NULL == result->next) {
-                ++result;
-            } else {
-                if (NULL == recursionElement) {
-                    recursionElement = result->next;
-                } else {
-                    if (NULL == recursionElement->next) {
-                        recursionElement = NULL;
-                        ++result;
-                    } else {
-                        recursionElement = recursionElement->next;
-                    }
-                }
-            }
-        }
-        ++ruleLevel;
-    }
-    return (NULL == recursionElement) ? result : recursionElement;
+    return ((ROOT == currRule->type) && (PARSED_ROOT == currStack->type)) ? 1 : 0;
 }
 
 const lemonError updateJsonPathRequestStatusByFieldName(jsonPathRequest *jsonRequest, const string *key) {
-    if ((NULL == jsonRequest) || (NULL == key)) {
-        return LE_NULL_IN_INPUT_VALUES;
-    }
-    /* empty string is not checked ! */
-    {
-        const jsonPathElement *lastElement = &((jsonRequest->elements)[jsonRequest->elementsCount - 1]);
-        jsonPathElement *currRoot = &((jsonRequest->elements)[0]);
-        jsonPathElement *currElement;
-        jsonPathElement *nextElement;
-
-        while (NULL != currRoot) {
-            if (currRoot->level <= currRoot->index) {
-                currElement = getElement(currRoot, currRoot->level);
-                switch (currElement->type) {
-                    case NAME:
-                        if ((currElement->value.length == key->length) && (0 == STRNCASECMP(currElement->value.data, key->data, key->length))) {
-                            /* A key has been found, so mark it*/
-                            currElement->level = 1;
-                        }
-                        break;
-                    case ANY:
-                    case ANYINDEX:
-                        /* An any key has been found, so mark it*/
-                        currElement->level = 1;
-                        currElement->value = *key;
-                        break;
-                    case RECURSIVE:
-                        nextElement = getNextElement(currRoot, currElement);
-                        if (NULL != nextElement) {
-                            switch (nextElement->type) {
-                                case NAME:
-                                    if ((nextElement->value.length == key->length) && (0 == STRNCASECMP(nextElement->value.data, key->data, key->length))) {
-                                        /* A key has been found, so mark it*/
-                                        nextElement->level = 1;
-                                        ++(currRoot->level);
-                                    }
-                                    break;
-                                default:
-                                    /*(jsonRequest->elements)[jsonRequest->elementsCount].type = RECURSIVE;
-                                    (jsonRequest->elements)[jsonRequest->elementsCount].level = 1;
-                                    (jsonRequest->elements)[jsonRequest->elementsCount].index = 0;
-                                    (jsonRequest->elements)[jsonRequest->elementsCount].next = NULL;
-                                    (jsonRequest->elements)[jsonRequest->elementsCount].containerStartPosition = NULL;
-                                    (jsonRequest->elements)[jsonRequest->elementsCount].recursiveRoot = currElement->recursiveRoot;
-                                    (jsonRequest->elements)[jsonRequest->elementsCount].recursivePrevious = currElement;
-                                    currElement->next = &((jsonRequest->elements)[jsonRequest->elementsCount]);
-                                    ++(currRoot->index);
-                                    ++(jsonRequest->elementsCount);*/
-                                    break;
-                            }
-                        }
-                        break;
-                    default:
-                        break;
-                }
-            }
-            currRoot = currRoot->next;
-        }
-        return LE_OK;
-    }
+    jsonPathElement *currentElement = &(jsonRequest->elements[jsonRequest->elementsCount + jsonRequest->parsedStackSize]);
+    currentElement->type = PARSED_FIELD;
+    currentElement->data.name.data = key->data;
+    currentElement->data.name.length = key->length;
+    ++(jsonRequest->parsedStackSize);
+    return LE_OK;
 }
 
 const lemonError rollbackJsonPathRequestStatusByFieldName(jsonPathRequest *jsonRequest, const string *key) {
-    if (NULL == jsonRequest) {
-        return LE_NULL_IN_INPUT_VALUES;
-    }
-    /* empty string is not checked ! */
-    {
-        const jsonPathElement *lastElement = &((jsonRequest->elements)[jsonRequest->elementsCount - 1]);
-        jsonPathElement *currRoot = &((jsonRequest->elements)[0]);
-        jsonPathElement *currElement;
-
-        while (NULL != currRoot) {
-            if (currRoot->level <= currRoot->index) {
-                currElement = getElement(currRoot, currRoot->level);
-                switch (currElement->type) {
-                    case NAME:
-                        if ((currElement->value.length == key->length) &&
-                            (0 == STRNCASECMP(currElement->value.data, key->data, key->length))) {
-                            /* A key has been found, so mark it*/
-                            currElement->level = 0;
-                        }
-                        break;
-                    case ANY:
-                    case ANYINDEX:
-                        /* An any key has been found, so mark it*/
-                        if (0 == STRNCASECMP(currElement->value.data, key->data, key->length)) {
-                            currElement->level = 0;
-                            currElement->value = getEmptyString();
-                        }
-                        break;
-                    default:
-                        break;
-                }
-            }
-            currRoot = currRoot->next;
-        }
-        return LE_OK;
-    }
+    jsonPathElement *currentElement = &(jsonRequest->elements[jsonRequest->elementsCount + (--(jsonRequest->parsedStackSize))]);
+    currentElement->type = NONE;
+    return LE_OK;
 }
 
 const lemonError updateJsonPathRequestStatusByObject(jsonPathRequest *jsonRequest, const char *startObjectPosition) {
-    if (NULL == jsonRequest) {
-        return LE_NULL_IN_INPUT_VALUES;
-    }
-    /* empty string is not checked ! */
-    {
-        const jsonPathElement *lastElement = &((jsonRequest->elements)[jsonRequest->elementsCount - 1]);
-        jsonPathElement *currRoot = &((jsonRequest->elements)[0]);
-        jsonPathElement *currElement;
-        jsonPathElement *nextElement;
-
-        while (NULL != currRoot) {
-            if (currRoot->level <= currRoot->index) {
-                currElement = getElement(currRoot, currRoot->level);
-                switch (currElement->type) {
-                    case ANY:
-                    case NAME:
-                        /* The NAME/ANY is last chain of rule and it has been found already, so let's return entire object. */
-                        if ((TRUE == ifItIsLastRule2(currElement, currRoot)) && (0 != currElement->level)) {
-                            /* The object may be complex,
-                             * so let's increment level if an inner object would be found and decrease otherwise. */
-                            if (1 == currElement->level) {
-                                currElement->containerStartPosition = startObjectPosition;
-                            }
-                            ++(currElement->level);
-                        }
-                        break;
-                    case ROOT:
-                    case ANYINDEX:
-                        currElement->level = 1;
-                        currElement->containerStartPosition = startObjectPosition;
-                        break;
-                    case INDEX:
-                        /*passed.rule->index = 0;*/
-                        if (currElement->index == atoi(currElement->value.data)) {
-                            currElement->level = 1;
-                            currElement->containerStartPosition = startObjectPosition;
-                        }
-                        break;
-                    case RECURSIVE:
-                        (jsonRequest->elements)[jsonRequest->elementsCount].type = RECURSIVE;
-                        (jsonRequest->elements)[jsonRequest->elementsCount].level = 1;
-                        (jsonRequest->elements)[jsonRequest->elementsCount].index = 0;
-                        (jsonRequest->elements)[jsonRequest->elementsCount].next = NULL;
-                        (jsonRequest->elements)[jsonRequest->elementsCount].containerStartPosition = startObjectPosition;
-                        (jsonRequest->elements)[jsonRequest->elementsCount].recursiveRoot = currElement->recursiveRoot;
-                        (jsonRequest->elements)[jsonRequest->elementsCount].recursivePrevious = currElement;
-                        currElement->next = &((jsonRequest->elements)[jsonRequest->elementsCount]);
-                        ++(currRoot->index);
-                        ++(jsonRequest->elementsCount);
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            ++(currRoot->level);
-
-            if (NULL != (nextElement = getNextElement(currRoot, currElement))) {
-                /* Let's see forward rule. INDEX, ANY, ANYINDEX may be here. */
-                /* Try to resolve zero indexed element */
-                switch (nextElement->type) {
-                    case ANYINDEX:
-                    case ANY:
-                        nextElement->level = 1;
-                        break;
-                    case INDEX:
-                        if (nextElement->index == atoi(currElement->value.data)) {
-                            nextElement->level = 1;
-                            nextElement->containerStartPosition = startObjectPosition;
-                        }
-                        break;
-                    case RECURSIVE:
-                        nextElement->level = 1;
-                        nextElement->containerStartPosition = startObjectPosition;
-                        break;
-                    default:
-                        break;
-                }
-            }
-            currRoot = currRoot->next;
-        }
-        return LE_OK;
-    }
+    jsonPathElement *currentElement = &(jsonRequest->elements[jsonRequest->elementsCount + jsonRequest->parsedStackSize]);
+    currentElement->type = PARSED_OBJECT;
+    currentElement->data.containerStartPosition = startObjectPosition;
+    ++(jsonRequest->parsedStackSize);
+    return LE_OK;
 }
 
 const lemonError rollbackJsonPathRequestStatusByObject(jsonPathRequest *jsonRequest, const char *endObjectPosition) {
-    if (NULL == jsonRequest) {
-        return LE_NULL_IN_INPUT_VALUES;
-    }
-    /* empty string is not checked ! */
-    {
-        const jsonPathElement *lastElement = &((jsonRequest->elements)[jsonRequest->elementsCount - 1]);
-        jsonPathElement *currRoot = &((jsonRequest->elements)[0]);
-        searchResult passed;
-        jsonPathElement *currElement;
+    jsonPathElement *currElement = jsonRequest->elements;
+    while ((ROOT == currElement->type) && (PARSED_ROOT != (1 + currElement)->type)) {
+        const rootRule *currRoot = &(currElement->data.root);
+        const jsonPathElement *currRule = &(currElement[currRoot->ruleSize - 1]);
+        const jsonPathElement *currStack = &((jsonRequest->elements)[jsonRequest->elementsCount + jsonRequest->parsedStackSize - 1]);
 
-        while (NULL != currRoot) {
-            if (currRoot->level <= currRoot->index) {
-                currElement = getElement(currRoot, currRoot->level);
-                switch (currElement->type) {
-                    case ANY:
-                    case ANYINDEX:
-                    case INDEX:
-                    case NAME: /* Research it */
-                        currElement->index = currElement->level = 0;
-                        currElement->containerStartPosition = NULL;
-                        break;
-                    case RECURSIVE:
-                        if ((NULL != (passed = getLastPassedRule(currRoot)).rule) && (TRUE == ifItIsLastRule2(passed.rule, currRoot)) && (passed.rule == currElement) && (0 != currElement->level)) {
-                            string s;
-                            s.data = currElement->containerStartPosition;
-                            s.length = endObjectPosition - s.data + 1;
-                            {
-                                const lemonError err = (currRoot->callback.handler)(&s, currRoot->callback.data);
-                                if (LE_OK != err) {
-                                    return err;
-                                }
-                            }
-                        }
-
-                        if (NULL != currElement->recursivePrevious) {
-                            currElement->type = ROOT;
-                            currElement->level = 0;
-                            currElement->index = 0;
-                            currElement->realRootSize = 0;
-                            currElement->next = NULL;
-                            currElement->recursiveRoot = NULL;
-
-                            currElement->recursivePrevious->next = NULL;
-                            currElement->recursivePrevious = NULL;
-
-                            currElement->containerStartPosition = NULL;
-
-                            currElement->callback.handler = NULL;
-                            currElement->callback.data = NULL;
-                            currElement->value.length = 0;
-                            currElement->callback.data = NULL;
-                            --(jsonRequest->elementsCount);
-                        }
-                        break;
-                    default:
-                        break;
-                }
+        /* Many rules while */
+        if ((RECURSIVE == currRule->type) && (PARSED_OBJECT == currStack->type) && (1 == isJsonPathResolved(currRule, currStack))) {
+            string s;
+            s.data = currStack->data.containerStartPosition;
+            s.length = endObjectPosition - s.data + 1;
+            const lemonError err = (currRoot->callback.handler)(&s, currRoot->callback.data);
+            if (LE_OK != err) {
+                return err;
             }
-
-            --(currRoot->level);
-            if (currRoot->level <= currRoot->index) {
-                currElement = getElement(currRoot, currRoot->level);
-
-                if ((NULL != (passed = getLastPassedRule(currRoot)).rule) && (TRUE == ifItIsLastRule2(passed.rule, currRoot)) && (passed.rule == currElement) && (NULL != passed.rule->containerStartPosition) && (0 != currElement->level)) {
-                    string s;
-                    s.data = currElement->containerStartPosition;
-                    s.length = endObjectPosition - s.data + 1;
-                    {
-                        const lemonError err = (currRoot->callback.handler)(&s, currRoot->callback.data);
-                        if (LE_OK != err) {
-                            return err;
-                        }
-                    }
-                }
-            }
-            currRoot = currRoot->next;
         }
-        return LE_OK;
+        currElement = 1 + currRule;
     }
+
+    (&(jsonRequest->elements[jsonRequest->elementsCount + (--(jsonRequest->parsedStackSize))]))->type = NONE;
+    return LE_OK;
 }
 
 const lemonError updateJsonPathRequestStatusByArray(jsonPathRequest *jsonRequest, const char *startArrayPosition) {
     /* May be collapse ? */
-    return updateJsonPathRequestStatusByObject(jsonRequest, startArrayPosition);
+    jsonPathElement *currentElement = &(jsonRequest->elements[jsonRequest->elementsCount + jsonRequest->parsedStackSize]);
+    currentElement->type = PARSED_INDEX;
+    currentElement->data.index.containerStartPosition = startArrayPosition;
+    currentElement->data.index.index = 0;
+    ++(jsonRequest->parsedStackSize);
+    return LE_OK;
 }
 
 const lemonError rollbackJsonPathRequestStatusByArray(jsonPathRequest *jsonRequest, const char *endArrayPosition) {
@@ -485,119 +271,64 @@ const lemonError rollbackJsonPathRequestStatusByArray(jsonPathRequest *jsonReque
 }
 
 const lemonError executeJsonPathCallbackWithValue(jsonPathRequest *jsonRequest, const string *s) {
-    if ((NULL == jsonRequest) || (NULL == s)) {
-        return LE_NULL_IN_INPUT_VALUES;
-    }
-    /* empty string is not checked ! */
-    {
-        const jsonPathElement *lastElement = &((jsonRequest->elements)[jsonRequest->elementsCount - 1]);
-        jsonPathElement *currRoot = &((jsonRequest->elements)[0]);
-        searchResult passed;
-        jsonPathElement *currElement;
+    jsonPathElement *currElement = jsonRequest->elements;
+    while (ROOT == currElement->type) { /* Be carefull */
+        const rootRule *currRoot = &(currElement->data.root);
+        const jsonPathElement *currRule = &(currElement[currRoot->ruleSize - 1]);
+        const jsonPathElement *currStack = &((jsonRequest->elements)[jsonRequest->elementsCount + jsonRequest->parsedStackSize - 1]);
 
-        while (NULL != currRoot) {
-            if (currRoot->level <= currRoot->index) {
-                currElement = getElement(currRoot, currRoot->level);
-                switch (currElement->type) {
-                    case ANYINDEX:
-                        /* Useless but fine */
-                        currElement->level = 1;
-                        break;
-                    case INDEX:
-                        if (currElement->index == atoi(currElement->value.data)) {
-                            currElement->level = 1;
+        switch (currRule->type) {
+            case NAME:
+            case ANY:
+            case INDEX:
+            case ANYINDEX:
+                switch (currStack->type) {
+                    case PARSED_FIELD:
+                    case PARSED_INDEX:
+                        if (1 == isJsonPathResolved(currRule, currStack)) {
+                            const lemonError err = (currRoot->callback.handler)(s, currRoot->callback.data);
+                            if (LE_OK != err) {
+                                return err;
+                            }
                         }
                         break;
                     default:
                         break;
                 }
-            }
-
-            if ((NULL != (passed = getLastPassedRule(currRoot)).rule) && (RECURSIVE != passed.rule->type)) {
-                if ((TRUE == ifItIsLastRule2(passed.rule, currRoot)) && (currRoot->level - 1 == passed.level)) {
-                    (currRoot->callback.handler)(s, currRoot->callback.data); /* Check return */
+                break;
+            case ROOT: {
+                    const lemonError err = (currRoot->callback.handler)(s, currRoot->callback.data);
+                    if (LE_OK != err) {
+                        return err;
+                    }
                 }
-            }
-            currRoot = currRoot->next;
+                break;
+            default:
+                break;
         }
-        return LE_OK;
+        currElement = 1 + currRule;
     }
+
+    return LE_OK;
 }
 
 const lemonError updateJsonPathRequestStatusByArrayElement(jsonPathRequest *jsonRequest) {
-    if (NULL == jsonRequest) {
-        return LE_NULL_IN_INPUT_VALUES;
+    jsonPathElement *currStack = &((jsonRequest->elements)[jsonRequest->elementsCount + jsonRequest->parsedStackSize - 1]);
+    if (PARSED_INDEX == currStack->type) {
+        ++(currStack->data.index.index);
     }
-    /* empty string is not checked ! */
-    {
-        jsonPathElement *currRoot = &((jsonRequest->elements)[0]);
-        jsonPathElement *currElement;
-
-        while (NULL != currRoot) {
-            if (currRoot->level <= currRoot->index) {
-                currElement = &(currRoot[currRoot->level - 1]);
-                switch (currElement->type) {
-                    case ANYINDEX:
-                        /* Useless but fine */
-                        ++(currElement->index);
-                        break;
-                    case INDEX:
-                        if (currElement->index == atoi(currElement->value.data)) {
-                            currElement->level = 0;
-                        }
-                        ++(currElement->index);
-                        break;
-                    default:
-                        break;
-                }
-            }
-            currRoot = currRoot->next;
-        }
-        return LE_OK;
-    }
+    return LE_OK;
 }
 
 const lemonError updateJsonPathRequestStatusByRoot(jsonPathRequest *jsonRequest) {
-    if (NULL == jsonRequest) {
-        return LE_NULL_IN_INPUT_VALUES;
-    }
-    /* empty string is not checked ! */
-    {
-        jsonPathElement *currRoot = &((jsonRequest->elements)[0]);
-
-        while (NULL != currRoot) {
-            switch (currRoot->type) {
-                case ROOT:
-                    currRoot->level = 1;
-                    break;
-                default:
-                    break;
-            }
-            currRoot = currRoot->next;
-        }
-        return LE_OK;
-    }
+    jsonPathElement *currentElement = &(jsonRequest->elements[jsonRequest->elementsCount + jsonRequest->parsedStackSize]);
+    currentElement->type = PARSED_ROOT;
+    ++(jsonRequest->parsedStackSize);
+    return LE_OK;
 }
 
 const lemonError rollbackJsonPathRequestStatusByRoot(jsonPathRequest *jsonRequest) {
-    if (NULL == jsonRequest) {
-        return LE_NULL_IN_INPUT_VALUES;
-    }
-    /* empty string is not checked ! */
-    {
-        jsonPathElement *currRoot = &((jsonRequest->elements)[0]);
-
-        while (NULL != currRoot) {
-            switch (currRoot->type) {
-                case ROOT:
-                    currRoot->level = 0;
-                    currRoot->containerStartPosition = NULL;
-                    break;
-                default:
-                    break;
-            }
-            currRoot = currRoot->next;
-        }
-        return LE_OK;
-    }
+    jsonPathElement *currentElement = &(jsonRequest->elements[jsonRequest->elementsCount + (--(jsonRequest->parsedStackSize))]);
+    currentElement->type = NONE;
+    return LE_OK;
 }

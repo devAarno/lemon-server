@@ -59,11 +59,13 @@ end_root ::= . { puts("ROOT_END"); rollbackJsonPathRequestStatusByRoot(ps->jsonR
 %type chars {string}
 %type char {string}
 %type key {string}
+%type array {string}
+%type object {string}
 
 %type number {string}
 
-value ::= object.
-value ::= array.
+value ::= object(o).  { printf("\nVALUE -- %.*s\n", o.length, o.data); executeJsonPathCallbackWithValue(ps->jsonRequest, &o); }
+value ::= array(a). { printf("\nVALUE -- %.*s\n", a.length, a.data); executeJsonPathCallbackWithValue(ps->jsonRequest, &a); }
 
 value ::= number(s1). { printf("\nVALUE -- %.*s\n", s1.length, s1.data); executeJsonPathCallbackWithValue(ps->jsonRequest, &s1); }
 value ::= string(s1). { printf("\nVALUE -- %.*s\n", s1.length, s1.data); executeJsonPathCallbackWithValue(ps->jsonRequest, &s1); }
@@ -80,8 +82,14 @@ value ::= null. {
   executeJsonPathCallbackWithValue(ps->jsonRequest, &s);
 }
 
-object ::= l_crl_brckt ows r_crl_brckt.
-object ::= l_crl_brckt ows object_content ows r_crl_brckt.
+object(o) ::= l_crl_brckt(o_start) ows r_crl_brckt(o_end). {
+  o.data = o_start;
+  o.length = o_end - o_start + 1;
+}
+object(o) ::= l_crl_brckt(o_start) ows object_content ows r_crl_brckt(o_end). {
+  o.data = o_start;
+  o.length = o_end - o_start + 1;
+}
 
 key(s1) ::= string(s1). {
   printf("\nKEY IN -- %.*s\n", s1.length, s1.data);
@@ -91,8 +99,14 @@ key(s1) ::= string(s1). {
 object_content ::= key(s1) ows COLON ows value. { rollbackJsonPathRequestStatusByFieldName(ps->jsonRequest, &s1); }
 object_content ::= object_content ows COMMA ows key(s1) ows COLON ows value. { rollbackJsonPathRequestStatusByFieldName(ps->jsonRequest, &s1); }
 
-array ::= l_sqr_brckt ows r_sqr_brckt.
-array ::= l_sqr_brckt ows array_content ows r_sqr_brckt.
+array(a) ::= l_sqr_brckt(a_start) ows r_sqr_brckt(a_end). {
+  a.data = a_start;
+  a.length = a_end - a_start + 1;
+}
+array(a) ::= l_sqr_brckt(a_start) ows array_content ows r_sqr_brckt(a_end). {
+  a.data = a_start;
+  a.length = a_end - a_start + 1;
+}
 
 array_content ::= value array_inc.
 array_content ::= array_content ows COMMA ows value array_inc.
