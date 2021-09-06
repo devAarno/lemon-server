@@ -48,8 +48,10 @@ jsonPathElement *appendJsonPathElementOfHttpRequest(jsonPathRequest *r, const st
         ((r->elements)[elementNo]).index = 0;
         ((r->elements)[elementNo]).realRootSize = 0;
         ((r->elements)[elementNo]).containerStartPosition = NULL;
-        if (RECURSIVE == ((r->elements)[elementNo - 1]).type) {
-            ((r->elements)[elementNo - 1]).next = &((r->elements)[elementNo]);
+        ((r->elements)[elementNo]).recursiveRoot = NULL;
+        ((r->elements)[elementNo]).recursivePrevious = NULL;
+        if (RECURSIVE == ((r->elements)[elementNo]).type) {
+            ((r->elements)[elementNo]).recursiveRoot = &((r->elements)[elementNo]);
         }
         return &((r->elements)[elementNo]);
     }
@@ -78,64 +80,128 @@ const string convertUtf16ToString(char *c1, char *c2, const char c3, const char 
 }
 
 static const boolean ifItIsLastRule2(const jsonPathElement *currElement, const jsonPathElement *currRoot) {
-    return &(currRoot[currRoot->realRootSize - 1]) == currElement ? TRUE : FALSE;
+    if (RECURSIVE == currElement->type) {
+        return ((NULL == currElement->next) && (currElement->recursiveRoot == &(currRoot[currRoot->realRootSize - 1]))) ? TRUE : FALSE;
+    } else {
+        return &(currRoot[currRoot->realRootSize - 1]) == currElement ? TRUE : FALSE;
+    }
 }
 
-static const searchResult getLastPassedRule(const jsonPathElement *root, const jsonPathElement *lastElement) {
-    if ((NULL == root) || (NULL == lastElement)) {
+static const searchResult getLastPassedRule(const jsonPathElement *root) {
+    if (NULL == root) {
         /* ERROR ? */
     }
     {
-        /* const jsonPathElement *end = (NULL == root->next) ? lastElement : (root->next) - 1;*/
-        const jsonPathElement *end = &(root[root->index - 1]);
         searchResult result;
         jsonPathElement *currElement = root;
-        jsonPathElement *recursionElement = root;
+        jsonPathElement *recursionElement = NULL;
 
+        /*
+         * ROOT
+         * ANY
+         * RECURSIVE -> RECURSIVE -> RECURSIVE -> NULL
+         * ANY
+         */
         result.level = 0;
-        while ((0 != currElement->level) && (currElement <= end)) {
+        while ((0 != currElement->level) && (result.level < root->index)) {
             if (RECURSIVE != currElement->type) {
-                ++(result.level);
+                result.rule = currElement;
+                ++currElement;
             } else {
-                recursionElement = currElement;
-                while (recursionElement->type == RECURSIVE) {
-                    recursionElement = recursionElement->next;
-                    ++(result.level);
+                if (NULL == currElement->next) {
+                    result.rule = currElement;
+                    ++currElement;
+                } else {
+                    if (NULL == recursionElement) {
+                        result.rule = currElement;
+                        recursionElement = currElement->next;
+                    } else {
+                        if (NULL == recursionElement->next) {
+                            result.rule = recursionElement;
+                            recursionElement = NULL;
+                            ++currElement;
+                        } else {
+                            result.rule = recursionElement;
+                            recursionElement = recursionElement->next;
+                        }
+                    }
                 }
-                --(result.level);
             }
-            ++currElement;
+            ++(result.level);
         }
-        --currElement;
         --(result.level);
-        result.rule = currElement;
         return result;
     }
 }
 
-static const jsonPathElement *getElement(const jsonPathElement *currRoot, const size_t parsingLevel) {
+static const jsonPathElement *getNextElement(const jsonPathElement *currRoot, const jsonPathElement *currElement) {
+    if ((ROOT == currElement->type) && (currRoot != currElement)) {
+        return NULL;
+    }
+
+    switch (currElement->type) {
+        case RECURSIVE:
+            if (NULL == currElement->next) {
+                return 1 + (currElement->recursiveRoot);
+            } else {
+                return currElement->next;
+            }
+        default:
+            return 1 + currElement;
+    }
+}
+
+/*static const jsonPathElement *getElement(const jsonPathElement *currRoot, const size_t parsingLevel) {
     jsonPathElement *result = currRoot;
     jsonPathElement *currentRecursionElement = currRoot;
-    size_t ruleLevel = 0; /* ????????????? */
+    size_t ruleLevel = 0;
 
     while (ruleLevel < parsingLevel) {
         switch (result->type) {
             case RECURSIVE:
-                if (RECURSIVE != result->next->type) {
-                    result = result->next;
+                if (NULL == result->next) {
+                    ++result;
                 } else {
                     result = result->next;
-                    ++ruleLevel;
                 }
                 break;
             default:
                 ++result;
-                ++ruleLevel;
                 break;
         }
+        ++ruleLevel;
     }
     --result;
     return result;
+}*/
+
+static const jsonPathElement *getElement(const jsonPathElement *currRoot, const size_t parsingLevel) {
+    jsonPathElement *result = currRoot;
+    jsonPathElement *recursionElement = NULL;
+    size_t ruleLevel = 0;
+
+    while (ruleLevel < parsingLevel - 1) {
+        if (RECURSIVE != result->type) {
+            ++result;
+        } else {
+            if (NULL == result->next) {
+                ++result;
+            } else {
+                if (NULL == recursionElement) {
+                    recursionElement = result->next;
+                } else {
+                    if (NULL == recursionElement->next) {
+                        recursionElement = NULL;
+                        ++result;
+                    } else {
+                        recursionElement = recursionElement->next;
+                    }
+                }
+            }
+        }
+        ++ruleLevel;
+    }
+    return (NULL == recursionElement) ? result : recursionElement;
 }
 
 const lemonError updateJsonPathRequestStatusByFieldName(jsonPathRequest *jsonRequest, const string *key) {
@@ -147,6 +213,7 @@ const lemonError updateJsonPathRequestStatusByFieldName(jsonPathRequest *jsonReq
         const jsonPathElement *lastElement = &((jsonRequest->elements)[jsonRequest->elementsCount - 1]);
         jsonPathElement *currRoot = &((jsonRequest->elements)[0]);
         jsonPathElement *currElement;
+        jsonPathElement *nextElement;
 
         while (NULL != currRoot) {
             if (currRoot->level <= currRoot->index) {
@@ -156,19 +223,6 @@ const lemonError updateJsonPathRequestStatusByFieldName(jsonPathRequest *jsonReq
                         if ((currElement->value.length == key->length) && (0 == STRNCASECMP(currElement->value.data, key->data, key->length))) {
                             /* A key has been found, so mark it*/
                             currElement->level = 1;
-                            if (RECURSIVE == (currElement - 1)->type) {
-                                (currElement - 1)->level = 1;
-                            }
-                        } else {
-                            if (RECURSIVE == (currElement - 1)->type) {
-                                (jsonRequest->elements)[jsonRequest->elementsCount].type = RECURSIVE;
-                                (jsonRequest->elements)[jsonRequest->elementsCount].level = 0;
-                                (jsonRequest->elements)[jsonRequest->elementsCount].index = 0;
-                                (jsonRequest->elements)[jsonRequest->elementsCount].next = (currElement - 1)->next;
-                                (currElement - 1)->next = &((jsonRequest->elements)[jsonRequest->elementsCount]);
-                                ++(currRoot->index);
-                                ++(jsonRequest->elementsCount);
-                            }
                         }
                         break;
                     case ANY:
@@ -176,6 +230,32 @@ const lemonError updateJsonPathRequestStatusByFieldName(jsonPathRequest *jsonReq
                         /* An any key has been found, so mark it*/
                         currElement->level = 1;
                         currElement->value = *key;
+                        break;
+                    case RECURSIVE:
+                        nextElement = getNextElement(currRoot, currElement);
+                        if (NULL != nextElement) {
+                            switch (nextElement->type) {
+                                case NAME:
+                                    if ((nextElement->value.length == key->length) && (0 == STRNCASECMP(nextElement->value.data, key->data, key->length))) {
+                                        /* A key has been found, so mark it*/
+                                        nextElement->level = 1;
+                                        ++(currRoot->level);
+                                    }
+                                    break;
+                                default:
+                                    /*(jsonRequest->elements)[jsonRequest->elementsCount].type = RECURSIVE;
+                                    (jsonRequest->elements)[jsonRequest->elementsCount].level = 1;
+                                    (jsonRequest->elements)[jsonRequest->elementsCount].index = 0;
+                                    (jsonRequest->elements)[jsonRequest->elementsCount].next = NULL;
+                                    (jsonRequest->elements)[jsonRequest->elementsCount].containerStartPosition = NULL;
+                                    (jsonRequest->elements)[jsonRequest->elementsCount].recursiveRoot = currElement->recursiveRoot;
+                                    (jsonRequest->elements)[jsonRequest->elementsCount].recursivePrevious = currElement;
+                                    currElement->next = &((jsonRequest->elements)[jsonRequest->elementsCount]);
+                                    ++(currRoot->index);
+                                    ++(jsonRequest->elementsCount);*/
+                                    break;
+                            }
+                        }
                         break;
                     default:
                         break;
@@ -235,6 +315,7 @@ const lemonError updateJsonPathRequestStatusByObject(jsonPathRequest *jsonReques
         const jsonPathElement *lastElement = &((jsonRequest->elements)[jsonRequest->elementsCount - 1]);
         jsonPathElement *currRoot = &((jsonRequest->elements)[0]);
         jsonPathElement *currElement;
+        jsonPathElement *nextElement;
 
         while (NULL != currRoot) {
             if (currRoot->level <= currRoot->index) {
@@ -264,26 +345,42 @@ const lemonError updateJsonPathRequestStatusByObject(jsonPathRequest *jsonReques
                             currElement->containerStartPosition = startObjectPosition;
                         }
                         break;
+                    case RECURSIVE:
+                        (jsonRequest->elements)[jsonRequest->elementsCount].type = RECURSIVE;
+                        (jsonRequest->elements)[jsonRequest->elementsCount].level = 1;
+                        (jsonRequest->elements)[jsonRequest->elementsCount].index = 0;
+                        (jsonRequest->elements)[jsonRequest->elementsCount].next = NULL;
+                        (jsonRequest->elements)[jsonRequest->elementsCount].containerStartPosition = startObjectPosition;
+                        (jsonRequest->elements)[jsonRequest->elementsCount].recursiveRoot = currElement->recursiveRoot;
+                        (jsonRequest->elements)[jsonRequest->elementsCount].recursivePrevious = currElement;
+                        currElement->next = &((jsonRequest->elements)[jsonRequest->elementsCount]);
+                        ++(currRoot->index);
+                        ++(jsonRequest->elementsCount);
+                        break;
                     default:
                         break;
                 }
             }
 
             ++(currRoot->level);
-            if (currRoot->level <= currRoot->index) {
+
+            if (NULL != (nextElement = getNextElement(currRoot, currElement))) {
                 /* Let's see forward rule. INDEX, ANY, ANYINDEX may be here. */
                 /* Try to resolve zero indexed element */
-                ++(currElement);
-                switch (currElement->type) {
+                switch (nextElement->type) {
                     case ANYINDEX:
                     case ANY:
-                        currElement->level = 1;
+                        nextElement->level = 1;
                         break;
                     case INDEX:
-                        if (currElement->index == atoi(currElement->value.data)) {
-                            currElement->level = 1;
-                            currElement->containerStartPosition = startObjectPosition;
+                        if (nextElement->index == atoi(currElement->value.data)) {
+                            nextElement->level = 1;
+                            nextElement->containerStartPosition = startObjectPosition;
                         }
+                        break;
+                    case RECURSIVE:
+                        nextElement->level = 1;
+                        nextElement->containerStartPosition = startObjectPosition;
                         break;
                     default:
                         break;
@@ -316,8 +413,38 @@ const lemonError rollbackJsonPathRequestStatusByObject(jsonPathRequest *jsonRequ
                     case NAME: /* Research it */
                         currElement->index = currElement->level = 0;
                         currElement->containerStartPosition = NULL;
-                        if (RECURSIVE == (currElement - 1)->type) {
-                            (currElement - 1)->level = 0;
+                        break;
+                    case RECURSIVE:
+                        if ((NULL != (passed = getLastPassedRule(currRoot)).rule) && (TRUE == ifItIsLastRule2(passed.rule, currRoot)) && (passed.rule == currElement) && (0 != currElement->level)) {
+                            string s;
+                            s.data = currElement->containerStartPosition;
+                            s.length = endObjectPosition - s.data + 1;
+                            {
+                                const lemonError err = (currRoot->callback.handler)(&s, currRoot->callback.data);
+                                if (LE_OK != err) {
+                                    return err;
+                                }
+                            }
+                        }
+
+                        if (NULL != currElement->recursivePrevious) {
+                            currElement->type = ROOT;
+                            currElement->level = 0;
+                            currElement->index = 0;
+                            currElement->realRootSize = 0;
+                            currElement->next = NULL;
+                            currElement->recursiveRoot = NULL;
+
+                            currElement->recursivePrevious->next = NULL;
+                            currElement->recursivePrevious = NULL;
+
+                            currElement->containerStartPosition = NULL;
+
+                            currElement->callback.handler = NULL;
+                            currElement->callback.data = NULL;
+                            currElement->value.length = 0;
+                            currElement->callback.data = NULL;
+                            --(jsonRequest->elementsCount);
                         }
                         break;
                     default:
@@ -329,7 +456,7 @@ const lemonError rollbackJsonPathRequestStatusByObject(jsonPathRequest *jsonRequ
             if (currRoot->level <= currRoot->index) {
                 currElement = getElement(currRoot, currRoot->level);
 
-                if ((NULL != (passed = getLastPassedRule(currRoot, lastElement)).rule) && (TRUE == ifItIsLastRule2(passed.rule, currRoot)) && (passed.rule == currElement) && (0 != currElement->level)) {
+                if ((NULL != (passed = getLastPassedRule(currRoot)).rule) && (TRUE == ifItIsLastRule2(passed.rule, currRoot)) && (passed.rule == currElement) && (NULL != passed.rule->containerStartPosition) && (0 != currElement->level)) {
                     string s;
                     s.data = currElement->containerStartPosition;
                     s.length = endObjectPosition - s.data + 1;
@@ -386,7 +513,7 @@ const lemonError executeJsonPathCallbackWithValue(jsonPathRequest *jsonRequest, 
                 }
             }
 
-            if (NULL != (passed = getLastPassedRule(currRoot, lastElement)).rule) {
+            if ((NULL != (passed = getLastPassedRule(currRoot)).rule) && (RECURSIVE != passed.rule->type)) {
                 if ((TRUE == ifItIsLastRule2(passed.rule, currRoot)) && (currRoot->level - 1 == passed.level)) {
                     (currRoot->callback.handler)(s, currRoot->callback.data); /* Check return */
                 }

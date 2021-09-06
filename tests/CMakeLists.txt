@@ -51,6 +51,6 @@ foreach(s ${allSrc})
   add_executable(${testname} ${s})
   add_dependencies(${testname} unity lemonServer)
   target_link_libraries(${testname} unity lemonServer)
-  add_test(NAME ${testDesription} COMMAND ${testname} WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+  add_test(NAME ${testDesription}-${s} COMMAND ${testname} WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 endforeach(s)
 

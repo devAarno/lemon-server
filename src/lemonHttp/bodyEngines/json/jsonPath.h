@@ -49,6 +49,8 @@ typedef struct jsonPathElement {
     size_t index;
     size_t realRootSize;
     struct jsonPathElement *next;
+    struct jsonPathElement *recursiveRoot;
+    struct jsonPathElement *recursivePrevious;
     char *containerStartPosition;
     ruleType type;
 } jsonPathElement;
