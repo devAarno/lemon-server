@@ -45,6 +45,12 @@
 mainn ::= main NULL.
 
 main ::= jsonpath. { markJSONPathAsParsed(ps); puts("DONE"); }
+main ::= jsonpath DOT. { markJSONPathAsParsed(ps); puts("DONE"); }
+main ::= jsonpath DOT DOT. {
+    const string emptyString = getEmptyString();
+    appendJsonPathElementOfHttpRequest(ps->jsonPathRequest, &(emptyString), RECURSIVE);
+    markJSONPathAsParsed(ps); puts("DONE");
+}
 
 jsonpath ::= DOLLAR. {
     const string emptyString = getEmptyString();
@@ -57,20 +63,22 @@ jsonpath ::= DOLLAR. {
 %type objectname {string}
 %type char {string}
 %type arrayindex {string}
-jsonpath ::= jsonpath DOT dotobjectname(var_s). { appendJsonPathElementOfHttpRequest(ps->jsonPathRequest, &var_s, NAME); }
+jsonpath ::= jsonpath DOT dotobjectname(var_s). {
+    appendJsonPathElementOfHttpRequest(ps->jsonPathRequest, &var_s, NAME);
+}
 jsonpath ::= jsonpath DOT ASTERISK. {
     const string emptyString = getEmptyString();
     appendJsonPathElementOfHttpRequest(ps->jsonPathRequest, &(emptyString), ANY);
 }
-jsonpath ::= jsonpath LBRACKET APOSTROPHE objectname(var_s) APOSTROPHE RBRACKET. { appendJsonPathElementOfHttpRequest(ps->jsonPathRequest, &var_s, NAME); }
-jsonpath ::= jsonpath LBRACKET arrayindex(var_s) RBRACKET. { appendJsonPathElementOfHttpRequest(ps->jsonPathRequest, &var_s, INDEX); }
+jsonpath ::= jsonpath LBRACKET APOSTROPHE objectname(var_s) APOSTROPHE RBRACKET. {
+    appendJsonPathElementOfHttpRequest(ps->jsonPathRequest, &var_s, NAME);
+}
+jsonpath ::= jsonpath LBRACKET arrayindex(var_s) RBRACKET. {
+    appendJsonPathElementOfHttpRequest(ps->jsonPathRequest, &var_s, INDEX);
+}
 jsonpath ::= jsonpath LBRACKET ASTERISK RBRACKET. {
     const string emptyString = getEmptyString();
     appendJsonPathElementOfHttpRequest(ps->jsonPathRequest, &(emptyString), ANYINDEX);
-}
-jsonpath ::= jsonpath DOT DOT. {
-    const string emptyString = getEmptyString();
-    appendJsonPathElementOfHttpRequest(ps->jsonPathRequest, &(emptyString), RECURSIVE);
 }
 jsonpath ::= jsonpath DOT DOT dotobjectname(var_s). {
     const string emptyString = getEmptyString();
@@ -81,6 +89,21 @@ jsonpath ::= jsonpath DOT DOT ASTERISK. {
     const string emptyString = getEmptyString();
     appendJsonPathElementOfHttpRequest(ps->jsonPathRequest, &(emptyString), RECURSIVE);
     appendJsonPathElementOfHttpRequest(ps->jsonPathRequest, &(emptyString), ANY);
+}
+jsonpath ::= jsonpath DOT DOT LBRACKET APOSTROPHE objectname(var_s) APOSTROPHE RBRACKET. {
+    const string emptyString = getEmptyString();
+    appendJsonPathElementOfHttpRequest(ps->jsonPathRequest, &(emptyString), RECURSIVE);
+    appendJsonPathElementOfHttpRequest(ps->jsonPathRequest, &var_s, NAME);
+}
+jsonpath ::= jsonpath DOT DOT LBRACKET arrayindex(var_s) RBRACKET. {
+    const string emptyString = getEmptyString();
+    appendJsonPathElementOfHttpRequest(ps->jsonPathRequest, &(emptyString), RECURSIVE);
+    appendJsonPathElementOfHttpRequest(ps->jsonPathRequest, &var_s, INDEX);
+}
+jsonpath ::= jsonpath DOT DOT LBRACKET ASTERISK RBRACKET. {
+    const string emptyString = getEmptyString();
+    appendJsonPathElementOfHttpRequest(ps->jsonPathRequest, &(emptyString), RECURSIVE);
+    appendJsonPathElementOfHttpRequest(ps->jsonPathRequest, &(emptyString), ANYINDEX);
 }
 
 dotobjectname(var_s) ::= char(var_ch). { var_s.length = var_ch.length; var_s.data = var_ch.data; }

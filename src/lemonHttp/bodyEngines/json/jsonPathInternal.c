@@ -92,7 +92,7 @@ static size_t isJsonPathResolved(jsonPathElement *currRule, jsonPathElement *cur
                         --(currStack);
                         break;
                     default:
-                        return 0;
+                        return r;
                 }
                 break;
             case ANY:
@@ -106,7 +106,7 @@ static size_t isJsonPathResolved(jsonPathElement *currRule, jsonPathElement *cur
                         --(currStack);
                         break;
                     case PARSED_ROOT:
-                        return 0;
+                        return r;
                     default:
                         break;
                 }
@@ -122,12 +122,12 @@ static size_t isJsonPathResolved(jsonPathElement *currRule, jsonPathElement *cur
                             --(currRule);
                             --(currStack);
                         } else {
-                            return 0;
+                            return r;
                         }
                         break;
                     case PARSED_INDEX:
                     case PARSED_ROOT:
-                        return 0;
+                        return r;
                     case PARSED_OBJECT:
                         --(currStack);
                         break;
@@ -146,11 +146,11 @@ static size_t isJsonPathResolved(jsonPathElement *currRule, jsonPathElement *cur
                             --(currRule);
                             --(currStack);
                         } else {
-                            return 0;
+                            return r;
                         }
                         break;
                     default:
-                        return 0;
+                        return r;
                 }
                 break;
             case ANYINDEX:
@@ -164,36 +164,24 @@ static size_t isJsonPathResolved(jsonPathElement *currRule, jsonPathElement *cur
                         --(currStack);
                         break;
                     default:
-                        return 0;
+                        return r;
                 }
                 break;
             case RECURSIVE:
-                --(currRule);
-                switch (currRule->type) {
-                    case ANY:
+                switch (currStack->type) {
+                    case PARSED_OBJECT:
+                        r += isJsonPathResolved(currRule, currStack - 1);
+                        --(currRule);
                         break;
-                    case ANYINDEX:
+                    case PARSED_INDEX:
+                    case PARSED_FIELD:
+                        /* DO NOT KNOW */
+                        /* r += isJsonPathResolved(currRule, currStack - 1);
+                        --(currRule); */
+                        --(currStack);
                         break;
-                    case NAME:
-                        while (
-                                (PARSED_ROOT != currStack->type) &&
-                                !(
-                                        (PARSED_FIELD == currStack->type) &&
-                                        (currRule->data.name.length == currStack->data.name.length) &&
-                                        (0 == STRNCASECMP(currStack->data.name.data, currRule->data.name.data,
-                                                          currStack->data.name.length))
-                                        )
-                                ) {
-                            --(currStack);
-                        }
-                        break;
-                    case INDEX:
-                        break;
-                    case ROOT:
-                        while (PARSED_ROOT != currStack->type) {
-                            --(currStack);
-                        }
-                        break;
+                    case PARSED_ROOT:
+                        return r;
                     default:
                         /* ERROR */
                         break;
@@ -205,7 +193,7 @@ static size_t isJsonPathResolved(jsonPathElement *currRule, jsonPathElement *cur
         }
     }
 
-    return ((ROOT == currRule->type) && (PARSED_ROOT == currStack->type)) ? 1 : 0;
+    return ((ROOT == currRule->type) && (PARSED_ROOT == currStack->type)) ? ++r : r;
 }
 
 const lemonError updateJsonPathRequestStatusByFieldName(jsonPathRequest *jsonRequest, const string *key) {
@@ -239,14 +227,26 @@ const lemonError rollbackJsonPathRequestStatusByObject(jsonPathRequest *jsonRequ
         const jsonPathElement *currStack = &((jsonRequest->elements)[jsonRequest->elementsCount + jsonRequest->parsedStackSize - 1]);
 
         /* Many rules while */
-        if ((RECURSIVE == currRule->type) && (PARSED_OBJECT == currStack->type) && (1 == isJsonPathResolved(currRule, currStack))) {
+        if ((RECURSIVE == currRule->type) && (PARSED_OBJECT == currStack->type)) {
             string s;
+            const size_t r = isJsonPathResolved(currRule, currStack);
+            size_t i;
+
+            s.data = currStack->data.containerStartPosition;
+            s.length = endObjectPosition - s.data + 1;
+            for (i = 0; i < r; ++i) {
+                const lemonError err = (currRoot->callback.handler)(&s, currRoot->callback.data);
+                if (LE_OK != err) {
+                    return err;
+                }
+            }
+            /*string s;
             s.data = currStack->data.containerStartPosition;
             s.length = endObjectPosition - s.data + 1;
             const lemonError err = (currRoot->callback.handler)(&s, currRoot->callback.data);
             if (LE_OK != err) {
                 return err;
-            }
+            }*/
         }
         currElement = 1 + currRule;
     }
@@ -284,11 +284,14 @@ const lemonError executeJsonPathCallbackWithValue(jsonPathRequest *jsonRequest, 
             case ANYINDEX:
                 switch (currStack->type) {
                     case PARSED_FIELD:
-                    case PARSED_INDEX:
-                        if (1 == isJsonPathResolved(currRule, currStack)) {
-                            const lemonError err = (currRoot->callback.handler)(s, currRoot->callback.data);
-                            if (LE_OK != err) {
-                                return err;
+                    case PARSED_INDEX: {
+                            const size_t r = isJsonPathResolved(currRule, currStack);
+                            size_t i;
+                            for (i = 0; i < r; ++i) {
+                                const lemonError err = (currRoot->callback.handler)(s, currRoot->callback.data);
+                                if (LE_OK != err) {
+                                    return err;
+                                }
                             }
                         }
                         break;
