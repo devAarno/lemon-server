@@ -44,12 +44,19 @@
 
 mainn ::= main NULL.
 
-main ::= jsonpath. { markJSONPathAsParsed(ps); puts("DONE"); }
-main ::= jsonpath DOT. { markJSONPathAsParsed(ps); puts("DONE"); }
+main ::= jsonpath. { markJSONPathAsParsed(ps); puts("DONE1"); }
+main ::= jsonpath DOT. { markJSONPathAsParsed(ps); puts("DONE2"); }
 main ::= jsonpath DOT DOT. {
     const string emptyString = getEmptyString();
-    appendJsonPathElementOfHttpRequest(ps->jsonPathRequest, &(emptyString), RECURSIVE);
-    markJSONPathAsParsed(ps); puts("DONE");
+    if (NULL == appendJsonPathElementOfHttpRequest(ps->jsonPathRequest, &(emptyString), RECURSIVE)) {
+        /* TODO: Fix markJSONPathAsParseFailed !!!! */
+        markJSONPathAsParseFailed(ps);
+    };
+    if (NULL == appendJsonPathElementOfHttpRequest(ps->jsonPathRequest, &(emptyString), RECURSIVE)) {
+            /* TODO: Fix markJSONPathAsParseFailed !!!! */
+            markJSONPathAsParseFailed(ps);
+        };
+    markJSONPathAsParsed(ps); puts("DONE3");
 }
 
 jsonpath ::= DOLLAR. {
@@ -64,46 +71,76 @@ jsonpath ::= DOLLAR. {
 %type char {string}
 %type arrayindex {string}
 jsonpath ::= jsonpath DOT dotobjectname(var_s). {
-    appendJsonPathElementOfHttpRequest(ps->jsonPathRequest, &var_s, NAME);
+    if (NULL == appendJsonPathElementOfHttpRequest(ps->jsonPathRequest, &var_s, NAME)) {
+        markJSONPathAsParseFailed(ps);
+    }
 }
 jsonpath ::= jsonpath DOT ASTERISK. {
     const string emptyString = getEmptyString();
-    appendJsonPathElementOfHttpRequest(ps->jsonPathRequest, &(emptyString), ANY);
+    if (NULL == appendJsonPathElementOfHttpRequest(ps->jsonPathRequest, &(emptyString), ANY)) {
+        markJSONPathAsParseFailed(ps);
+    }
 }
 jsonpath ::= jsonpath LBRACKET APOSTROPHE objectname(var_s) APOSTROPHE RBRACKET. {
-    appendJsonPathElementOfHttpRequest(ps->jsonPathRequest, &var_s, NAME);
+    if (NULL == appendJsonPathElementOfHttpRequest(ps->jsonPathRequest, &var_s, NAME)) {
+        markJSONPathAsParseFailed(ps);
+    }
 }
 jsonpath ::= jsonpath LBRACKET arrayindex(var_s) RBRACKET. {
-    appendJsonPathElementOfHttpRequest(ps->jsonPathRequest, &var_s, INDEX);
+    if (NULL == appendJsonPathElementOfHttpRequest(ps->jsonPathRequest, &var_s, INDEX)) {
+        markJSONPathAsParseFailed(ps);
+    }
 }
 jsonpath ::= jsonpath LBRACKET ASTERISK RBRACKET. {
     const string emptyString = getEmptyString();
-    appendJsonPathElementOfHttpRequest(ps->jsonPathRequest, &(emptyString), ANYINDEX);
+    if (NULL == appendJsonPathElementOfHttpRequest(ps->jsonPathRequest, &(emptyString), ANYINDEX)) {
+        markJSONPathAsParseFailed(ps);
+    }
 }
 jsonpath ::= jsonpath DOT DOT dotobjectname(var_s). {
     const string emptyString = getEmptyString();
-    appendJsonPathElementOfHttpRequest(ps->jsonPathRequest, &(emptyString), RECURSIVE);
-    appendJsonPathElementOfHttpRequest(ps->jsonPathRequest, &var_s, NAME);
+    if (NULL == appendJsonPathElementOfHttpRequest(ps->jsonPathRequest, &(emptyString), RECURSIVE)) {
+        markJSONPathAsParseFailed(ps);
+    }
+    if (NULL == appendJsonPathElementOfHttpRequest(ps->jsonPathRequest, &var_s, NAME)) {
+        markJSONPathAsParseFailed(ps);
+    }
 }
 jsonpath ::= jsonpath DOT DOT ASTERISK. {
     const string emptyString = getEmptyString();
-    appendJsonPathElementOfHttpRequest(ps->jsonPathRequest, &(emptyString), RECURSIVE);
-    appendJsonPathElementOfHttpRequest(ps->jsonPathRequest, &(emptyString), ANY);
+    if (NULL == appendJsonPathElementOfHttpRequest(ps->jsonPathRequest, &(emptyString), RECURSIVE)) {
+        markJSONPathAsParseFailed(ps);
+    }
+    if (NULL == appendJsonPathElementOfHttpRequest(ps->jsonPathRequest, &(emptyString), ANY)) {
+        markJSONPathAsParseFailed(ps);
+    }
 }
 jsonpath ::= jsonpath DOT DOT LBRACKET APOSTROPHE objectname(var_s) APOSTROPHE RBRACKET. {
     const string emptyString = getEmptyString();
-    appendJsonPathElementOfHttpRequest(ps->jsonPathRequest, &(emptyString), RECURSIVE);
-    appendJsonPathElementOfHttpRequest(ps->jsonPathRequest, &var_s, NAME);
+    if (NULL == appendJsonPathElementOfHttpRequest(ps->jsonPathRequest, &(emptyString), RECURSIVE)) {
+        markJSONPathAsParseFailed(ps);
+    }
+    if (NULL == appendJsonPathElementOfHttpRequest(ps->jsonPathRequest, &var_s, NAME)) {
+        markJSONPathAsParseFailed(ps);
+    }
 }
 jsonpath ::= jsonpath DOT DOT LBRACKET arrayindex(var_s) RBRACKET. {
     const string emptyString = getEmptyString();
-    appendJsonPathElementOfHttpRequest(ps->jsonPathRequest, &(emptyString), RECURSIVE);
-    appendJsonPathElementOfHttpRequest(ps->jsonPathRequest, &var_s, INDEX);
+    if (NULL == appendJsonPathElementOfHttpRequest(ps->jsonPathRequest, &(emptyString), RECURSIVE)) {
+        markJSONPathAsParseFailed(ps);
+    }
+    if (NULL == appendJsonPathElementOfHttpRequest(ps->jsonPathRequest, &var_s, INDEX)) {
+        markJSONPathAsParseFailed(ps);
+    }
 }
 jsonpath ::= jsonpath DOT DOT LBRACKET ASTERISK RBRACKET. {
     const string emptyString = getEmptyString();
-    appendJsonPathElementOfHttpRequest(ps->jsonPathRequest, &(emptyString), RECURSIVE);
-    appendJsonPathElementOfHttpRequest(ps->jsonPathRequest, &(emptyString), ANYINDEX);
+    if (NULL == appendJsonPathElementOfHttpRequest(ps->jsonPathRequest, &(emptyString), RECURSIVE)) {
+        markJSONPathAsParseFailed(ps);
+    }
+    if (NULL == appendJsonPathElementOfHttpRequest(ps->jsonPathRequest, &(emptyString), ANYINDEX)) {
+        markJSONPathAsParseFailed(ps);
+    }
 }
 
 dotobjectname(var_s) ::= char(var_ch). { var_s.length = var_ch.length; var_s.data = var_ch.data; }
