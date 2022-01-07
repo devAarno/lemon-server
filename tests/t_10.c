@@ -164,7 +164,7 @@ static void test16(void) {
 int main() {
     UnityBegin(__FILE__);
     RUN_TEST(test1);
-    /*RUN_TEST(test2);
+    RUN_TEST(test2);
     RUN_TEST(test3);
     RUN_TEST(test4);
     RUN_TEST(test5);
@@ -177,6 +177,6 @@ int main() {
     RUN_TEST(test12);
     RUN_TEST(test13);
     RUN_TEST(test14);
-    RUN_TEST(test15);*/
+    RUN_TEST(test15);
     return (UnityEnd());
 }

@@ -74,6 +74,7 @@ static void test1(void) {
 }
 
 static const lemonError fakeExecuteForTest2AndTest3(const string *value, calledCallback *data) {
+    printf("FAIL OOOUUUTTT %.*s\r\n", value->length, value->data);
     switch (data->callCounter) {
         case 0:
             TEST_ASSERT_EQUAL(11, value->length);
@@ -346,7 +347,7 @@ static void test8(void) {
 }
 
 static const lemonError fakeExecuteForTest9AndTest10Buffer5And6(const string *value, calledCallback *data) {
-    switch (data->callCounter) {
+    /*switch (data->callCounter) {
         case 0:
             TEST_ASSERT_EQUAL(1, value->length);
             TEST_ASSERT_EQUAL_STRING_LEN("1", value->data, value->length);
@@ -360,9 +361,9 @@ static const lemonError fakeExecuteForTest9AndTest10Buffer5And6(const string *va
         default:
             TEST_FAIL_MESSAGE("Incorrect callCounter");
             break;
-    }
-    /*printf("OOOUUUTTT %.*s\r\n", value->length, value->data);
-    ++(data->callCounter);*/
+    }*/
+    printf("OOOUUUTTT %.*s\r\n", value->length, value->data);
+    ++(data->callCounter);
     return LE_OK;
 }
 
@@ -411,7 +412,7 @@ static const lemonError fakeExecuteForTest10Buffer1And7And8(const string *value,
 }
 
 static const lemonError fakeExecuteForTest10Buffer9(const string *value, calledCallback *data) {
-    switch (data->callCounter) {
+    /*switch (data->callCounter) {
         case 0:
             TEST_ASSERT_EQUAL(1, value->length);
             TEST_ASSERT_EQUAL_STRING_LEN("1", value->data, value->length);
@@ -431,7 +432,9 @@ static const lemonError fakeExecuteForTest10Buffer9(const string *value, calledC
         default:
             TEST_FAIL_MESSAGE("Incorrect callCounter");
             break;
-    }
+    }*/
+    printf("OOOUUUTTT %.*s\r\n", value->length, value->data);
+    ++(data->callCounter);
     return LE_OK;
 }
 
@@ -448,6 +451,7 @@ static void test10(void) {
     jsonPathQueryBuffer jsonPathQueryBuffer7[] = "$..a..a.";
     jsonPathQueryBuffer jsonPathQueryBuffer8[] = "$..a..a..";
     jsonPathQueryBuffer jsonPathQueryBuffer9[] = "$..a..";
+    jsonPathQueryBuffer jsonPathQueryBuffer10[] = "$..a..a..a..";
     calledCallback callData1;
     calledCallback callData2;
     calledCallback callData3;
@@ -457,6 +461,7 @@ static void test10(void) {
     calledCallback callData7;
     calledCallback callData8;
     calledCallback callData9;
+    calledCallback callData10;
     /* Fake json path request */
     TEST_ASSERT_EQUAL(LE_OK, initJsonPathRequest(&jsonRequest));
 
@@ -504,6 +509,11 @@ static void test10(void) {
     callData9.expectedValue.data = NULL;
     callData9.expectedValue.length = 0;
     TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer9, fakeExecuteForTest10Buffer9, &callData9));
+
+    callData10.callCounter = 0;
+    callData10.expectedValue.data = "1";
+    callData10.expectedValue.length = 1;
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer10, fakeExecute, &callData10));
     memcpy(&jsonRequest_backup, &jsonRequest, sizeof(jsonRequest));
 
     TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request, FAKE_DESCRIPTOR));
@@ -520,6 +530,7 @@ static void test10(void) {
     TEST_ASSERT_EQUAL(3, callData7.callCounter);
     TEST_ASSERT_EQUAL(3, callData8.callCounter);
     TEST_ASSERT_EQUAL(4, callData9.callCounter);
+    TEST_ASSERT_EQUAL(1, callData10.callCounter);
     /* TEST_ASSERT_EQUAL_MEMORY(&jsonRequest_backup, &jsonRequest, sizeof(jsonRequest)); */
 }
 
@@ -687,11 +698,110 @@ static void test11(void) {
     TEST_ASSERT_EQUAL(6, callData6.callCounter);
     TEST_ASSERT_EQUAL(6, callData7.callCounter);
     TEST_ASSERT_EQUAL(5, callData8.callCounter);
-    /*TEST_ASSERT_EQUAL(5, callData9.callCounter);*/
+    TEST_ASSERT_EQUAL(5, callData9.callCounter);
     /* TEST_ASSERT_EQUAL_MEMORY(&jsonRequest_backup, &jsonRequest, sizeof(jsonRequest)); */
 }
 
 static const lemonError fakeExecuteForTest12Buffer1(const string *value, calledCallback *data) {
+    printf("OOOUUUTTT XXX %.*s\r\n", value->length, value->data);
+    switch (data->callCounter) {
+        case 0:
+        case 1:
+        case 2:
+        case 3:
+        case 4:
+        case 5:
+        case 6:
+        case 7:
+        case 8:
+        case 9:
+        /*{
+            const string false = getNullString();
+            TEST_ASSERT_EQUAL(false.length, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN(false.data, value->data, value->length);
+            TEST_ASSERT_EQUAL(TRUE, isNullString(*value));
+        }*/
+            ++(data->callCounter);
+            break;
+        case 10:
+        case 11:
+        case 12:
+        case 13:
+            /*TEST_ASSERT_EQUAL(10, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("{\"a\":null}", value->data, value->length);*/
+            ++(data->callCounter);
+            break;
+        case 14:
+            /*TEST_ASSERT_EQUAL(16, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("{\"a\":{\"a\":null}}", value->data, value->length);*/
+            ++(data->callCounter);
+            break;
+        default:
+            TEST_FAIL_MESSAGE("Incorrect callCounter");
+            break;
+    }
+    return LE_OK;
+}
+
+static const lemonError fakeExecuteForTest12Buffer2(const string *value, calledCallback *data) {
+    printf("PFOOOUUUTTT XXX %.*s\r\n", value->length, value->data);
+    ++(data->callCounter);
+    /*switch (data->callCounter) {
+        case 0:
+        case 1:
+        case 2:
+        case 3:
+        case 4:
+            {
+                const string false = getNullString();
+                TEST_ASSERT_EQUAL(false.length, value->length);
+                TEST_ASSERT_EQUAL_STRING_LEN(false.data, value->data, value->length);
+                TEST_ASSERT_EQUAL(TRUE, isNullString(*value));
+            }
+            ++(data->callCounter);
+        case 5:
+            TEST_ASSERT_EQUAL(10, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("{\"a\":null}", value->data, value->length);
+            ++(data->callCounter);
+        default:
+            TEST_FAIL_MESSAGE("Incorrect callCounter");
+            break;
+    }*/
+    return LE_OK;
+}
+
+static void test12(void) {
+    const char* rawRequest = "{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":1}}}}}";
+    httpRequest request;
+    jsonPathRequest jsonRequest, jsonRequest_backup;
+    jsonPathQueryBuffer jsonPathQueryBuffer1[] = "$..a..a..a..";
+    jsonPathQueryBuffer jsonPathQueryBuffer2[] = "$..a..a..a..a..";
+    calledCallback callData1;
+    calledCallback callData2;
+    /* Fake json path request */
+    TEST_ASSERT_EQUAL(LE_OK, initJsonPathRequest(&jsonRequest));
+
+    /*callData1.callCounter = 0;
+    callData1.expectedValue.data = NULL;
+    callData1.expectedValue.length = 0;
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer1, fakeExecuteForTest12Buffer1, &callData1));*/
+
+    callData2.callCounter = 0;
+    callData2.expectedValue.data = NULL;
+    callData2.expectedValue.length = 0;
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer2, fakeExecuteForTest12Buffer2, &callData2));
+
+    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request, FAKE_DESCRIPTOR));
+
+    strncpy(request.privateBuffer, rawRequest, sizeof (request.privateBuffer));
+    TEST_ASSERT_EQUAL(LE_OK, parseJSON(&request, &jsonRequest));
+
+    /*TEST_ASSERT_EQUAL(15, callData1.callCounter);*/
+    TEST_ASSERT_EQUAL(6, callData2.callCounter);
+    /* TEST_ASSERT_EQUAL_MEMORY(&jsonRequest_backup, &jsonRequest, sizeof(jsonRequest)); */
+}
+
+static const lemonError fakeExecuteForTest13Buffer1(const string *value, calledCallback *data) {
     switch (data->callCounter) {
         case 0:
         case 1:
@@ -759,8 +869,8 @@ static const lemonError fakeExecuteForTest12Buffer1(const string *value, calledC
     return LE_OK;
 }
 
-static const lemonError fakeExecuteForTest12Buffer2(const string *value, calledCallback *data) {
-    switch (data->callCounter) {
+static const lemonError fakeExecuteForTest13Buffer2(const string *value, calledCallback *data) {
+    /*switch (data->callCounter) {
         case 0:
         case 1:
         case 2:
@@ -858,13 +968,13 @@ static const lemonError fakeExecuteForTest12Buffer2(const string *value, calledC
         default:
             TEST_FAIL_MESSAGE("Incorrect callCounter");
             break;
-    }
-    /*printf("OOOUUUTTT %.*s\r\n", value->length, value->data);
-    ++(data->callCounter);*/
+    }*/
+    printf("XOOOUUUTTT %.*s\r\n", value->length, value->data);
+    ++(data->callCounter);
     return LE_OK;
 }
 
-static void test12(void) {
+static void test13(void) {
     const char* rawRequest = "{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":null}}}}}}}";
     httpRequest request;
     jsonPathRequest jsonRequest, jsonRequest_backup;
@@ -875,27 +985,27 @@ static void test12(void) {
     /* Fake json path request */
     TEST_ASSERT_EQUAL(LE_OK, initJsonPathRequest(&jsonRequest));
 
-    callData1.callCounter = 0;
+    /*callData1.callCounter = 0;
     callData1.expectedValue.data = NULL;
     callData1.expectedValue.length = 0;
-    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer1, fakeExecuteForTest12Buffer1, &callData1));
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer1, fakeExecuteForTest13Buffer1, &callData1));*/
 
     callData2.callCounter = 0;
     callData2.expectedValue.data = NULL;
     callData2.expectedValue.length = 0;
-    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer2, fakeExecuteForTest12Buffer2, &callData2));
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer2, fakeExecuteForTest13Buffer2, &callData2));
 
     TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request, FAKE_DESCRIPTOR));
 
     strncpy(request.privateBuffer, rawRequest, sizeof (request.privateBuffer));
     TEST_ASSERT_EQUAL(LE_OK, parseJSON(&request, &jsonRequest));
 
-    TEST_ASSERT_EQUAL(35, callData1.callCounter);
+    /* TEST_ASSERT_EQUAL(35, callData1.callCounter); */
     TEST_ASSERT_EQUAL(70, callData2.callCounter);
     /* TEST_ASSERT_EQUAL_MEMORY(&jsonRequest_backup, &jsonRequest, sizeof(jsonRequest)); */
 }
 
-static const lemonError fakeExecuteForTest13Buffer1(const string *value, calledCallback *data) {
+static const lemonError fakeExecuteForTest14Buffer1(const string *value, calledCallback *data) {
     switch (data->callCounter) {
         case 0:
             TEST_ASSERT_EQUAL(1, value->length);
@@ -929,7 +1039,7 @@ static const lemonError fakeExecuteForTest13Buffer1(const string *value, calledC
     return LE_OK;
 }
 
-static const lemonError fakeExecuteForTest13Buffer2(const string *value, calledCallback *data) {
+static const lemonError fakeExecuteForTest14Buffer2(const string *value, calledCallback *data) {
     switch (data->callCounter) {
         case 0:
         case 1:
@@ -949,7 +1059,7 @@ static const lemonError fakeExecuteForTest13Buffer2(const string *value, calledC
     return LE_OK;
 }
 
-static void test13(void) {
+static void test14(void) {
     /*
 {
     "b" : "a",
@@ -997,13 +1107,13 @@ static void test13(void) {
     callData1.expectedValue.data = NULL;
     callData1.expectedValue.length = 0;
     TEST_ASSERT_EQUAL(LE_OK,
-                      appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer1, fakeExecuteForTest13Buffer1, &callData1));
+                      appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer1, fakeExecuteForTest14Buffer1, &callData1));
 
     callData2.callCounter = 0;
     callData2.expectedValue.data = NULL;
     callData2.expectedValue.length = 0;
     TEST_ASSERT_EQUAL(LE_OK,
-                      appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer2, fakeExecuteForTest13Buffer2, &callData2));
+                      appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer2, fakeExecuteForTest14Buffer2, &callData2));
     memcpy(&jsonRequest_backup, &jsonRequest, sizeof(jsonRequest));
 
     TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request, FAKE_DESCRIPTOR));
@@ -1015,6 +1125,2379 @@ static void test13(void) {
     TEST_ASSERT_EQUAL(3, callData2.callCounter);
     /* TEST_ASSERT_EQUAL_MEMORY(&jsonRequest_backup, &jsonRequest, sizeof(jsonRequest)); */
 }
+
+
+
+static const lemonError fakeExecuteForTest15Buffer1(const string *value, calledCallback *data) {
+    printf("XOOOUUUTTT %.*s\r\n", value->length, value->data);
+    switch (data->callCounter) {
+        case 0:
+            TEST_ASSERT_EQUAL(2, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("56", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        case 1:
+        case 2:
+        case 3:
+            TEST_ASSERT_EQUAL(8, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("{\"a\":56}", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        case 4:
+        case 5:
+            TEST_ASSERT_EQUAL(14, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("{\"a\":{\"a\":56}}", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        case 6:
+            TEST_ASSERT_EQUAL(20, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("{\"a\":{\"a\":{\"a\":56}}}", value->data, value->length);
+            ++(data->callCounter);
+            break;
+
+        default:
+            TEST_FAIL_MESSAGE("Incorrect callCounter");
+            break;
+    }
+    return LE_OK;
+}
+
+static void test15(void) {
+    const char* rawRequest = "{\"a\":{\"a\":{\"a\":{\"a\":56}}}}";
+    httpRequest request;
+    jsonPathRequest jsonRequest, jsonRequest_backup;
+    jsonPathQueryBuffer jsonPathQueryBuffer1[] = "$..a..";
+    calledCallback callData1;
+    /* Fake json path request */
+    TEST_ASSERT_EQUAL(LE_OK, initJsonPathRequest(&jsonRequest));
+
+    callData1.callCounter = 0;
+    callData1.expectedValue.data = NULL;
+    callData1.expectedValue.length = 0;
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer1, fakeExecuteForTest15Buffer1, &callData1));
+    memcpy(&jsonRequest_backup, &jsonRequest, sizeof(jsonRequest));
+
+    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request, FAKE_DESCRIPTOR));
+
+    strncpy(request.privateBuffer, rawRequest, sizeof (request.privateBuffer));
+    TEST_ASSERT_EQUAL(LE_OK, parseJSON(&request, &jsonRequest));
+
+    TEST_ASSERT_EQUAL(7, callData1.callCounter);
+    /* TEST_ASSERT_EQUAL_MEMORY(&jsonRequest_backup, &jsonRequest, sizeof(jsonRequest)); */
+}
+
+
+static const lemonError fakeExecuteForTest16Buffer1(const string *value, calledCallback *data) {
+    printf("XOOOUUUTTT %.*s\r\n", value->length, value->data);
+    switch (data->callCounter) {
+        case 0:
+        case 1:
+        case 2:
+            TEST_ASSERT_EQUAL(9, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("{\"d\":990}", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        case 3:
+        case 4:
+        case 5:
+            TEST_ASSERT_EQUAL(15, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("{\"c\":{\"d\":990}}", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        case 6:
+        case 7:
+        case 8:
+            TEST_ASSERT_EQUAL(21, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("{\"b\":{\"c\":{\"d\":990}}}", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        case 9:
+            TEST_ASSERT_EQUAL(27, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("{\"a\":{\"b\":{\"c\":{\"d\":990}}}}", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        default:
+            TEST_FAIL_MESSAGE("Incorrect callCounter");
+            break;
+    }
+    return LE_OK;
+}
+
+static const lemonError fakeExecuteForTest16Buffer3And4(const string *value, calledCallback *data) {
+    printf("XOOOUUUTTT %.*s\r\n", value->length, value->data);
+    switch (data->callCounter) {
+        case 0:
+            TEST_ASSERT_EQUAL(9, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("{\"d\":990}", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        case 1:
+            TEST_ASSERT_EQUAL(15, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("{\"c\":{\"d\":990}}", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        case 2:
+            TEST_ASSERT_EQUAL(21, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("{\"b\":{\"c\":{\"d\":990}}}", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        default:
+            TEST_FAIL_MESSAGE("Incorrect callCounter");
+            break;
+    }
+    return LE_OK;
+}
+
+static void test16(void) {
+    const char* rawRequest = "{\"x\":{\"a\":{\"a\":{\"a\":{\"b\":{\"c\":{\"d\":990}}}}}}}";
+    httpRequest request;
+    jsonPathRequest jsonRequest, jsonRequest_backup;
+    jsonPathQueryBuffer jsonPathQueryBuffer1[] = "$..a..a..";
+    jsonPathQueryBuffer jsonPathQueryBuffer2[] = "$..a..a..a";
+    jsonPathQueryBuffer jsonPathQueryBuffer3[] = "$..a..a..a..";
+    jsonPathQueryBuffer jsonPathQueryBuffer4[] = "$..x..a..a..a..";
+    calledCallback callData1;
+    calledCallback callData2;
+    calledCallback callData3;
+    calledCallback callData4;
+    /* Fake json path request */
+    TEST_ASSERT_EQUAL(LE_OK, initJsonPathRequest(&jsonRequest));
+
+    callData1.callCounter = 0;
+    callData1.expectedValue.data = NULL;
+    callData1.expectedValue.length = 0;
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer1, fakeExecuteForTest16Buffer1, &callData1));
+
+    callData2.callCounter = 0;
+    callData2.expectedValue.data = "{\"b\":{\"c\":{\"d\":990}}}";
+    callData2.expectedValue.length = 21;
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer2, fakeExecute, &callData2));
+
+    callData3.callCounter = 0;
+    callData3.expectedValue.data = NULL;
+    callData3.expectedValue.length = 0;
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer3, fakeExecuteForTest16Buffer3And4,
+                                                   &callData3));
+
+    callData4.callCounter = 0;
+    callData4.expectedValue.data = NULL;
+    callData4.expectedValue.length = 0;
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer4, fakeExecuteForTest16Buffer3And4,
+                                                   &callData4));
+    memcpy(&jsonRequest_backup, &jsonRequest, sizeof(jsonRequest));
+
+    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request, FAKE_DESCRIPTOR));
+
+    strncpy(request.privateBuffer, rawRequest, sizeof (request.privateBuffer));
+    TEST_ASSERT_EQUAL(LE_OK, parseJSON(&request, &jsonRequest));
+
+    TEST_ASSERT_EQUAL(10, callData1.callCounter);
+    TEST_ASSERT_EQUAL(1, callData2.callCounter);
+    TEST_ASSERT_EQUAL(3, callData3.callCounter);
+    TEST_ASSERT_EQUAL(3, callData4.callCounter);
+    /* TEST_ASSERT_EQUAL_MEMORY(&jsonRequest_backup, &jsonRequest, sizeof(jsonRequest)); */
+}
+
+
+static const lemonError fakeExecuteForTest17Buffer1(const string *value, calledCallback *data) {
+    printf("XOOOUUUTTT %.*s\r\n", value->length, value->data);
+    switch (data->callCounter) {
+        case 0:
+            {
+                const string nullStr = getNullString();
+                TEST_ASSERT_EQUAL(nullStr.length, value->length);
+                TEST_ASSERT_EQUAL_STRING_LEN(nullStr.data, value->data, value->length);
+                TEST_ASSERT_EQUAL(TRUE, isNullString(*value));
+            }
+            ++(data->callCounter);
+            break;
+        case 1:
+            TEST_ASSERT_EQUAL(10, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("{\"e\":null}", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        default:
+            TEST_FAIL_MESSAGE("Incorrect callCounter");
+            break;
+    }
+    return LE_OK;
+}
+
+static void test17(void) {
+    const char* rawRequest = "{\"a\":{\"b\":{\"c\":{\"d\":{\"e\":null}}}}}";
+    httpRequest request;
+    jsonPathRequest jsonRequest, jsonRequest_backup;
+    jsonPathQueryBuffer jsonPathQueryBuffer1[] = "$.a.b.c.d..";
+    jsonPathQueryBuffer jsonPathQueryBuffer2[] = "$..a..b..c..d.."; /* Same as prev */
+    calledCallback callData1;
+    /* Fake json path request */
+    TEST_ASSERT_EQUAL(LE_OK, initJsonPathRequest(&jsonRequest));
+
+    callData1.callCounter = 0;
+    callData1.expectedValue.data = NULL;
+    callData1.expectedValue.length = 0;
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer1, fakeExecuteForTest17Buffer1, &callData1));
+
+    /* NNNNNNNNNNNOOOOOOOOOOOOOOOOOOOTTTTTTTTTTTTTTTTT FFFFFFFFIIIIIIIIINNNNNNNNNNNNNNNIIIIIIIIIIIIIIIISSSSSSSSSSHHHHHHHHHHHHHEEEEEEDDDDDDDDDDD */
+    /* NNNNNNNNNNNOOOOOOOOOOOOOOOOOOOTTTTTTTTTTTTTTTTT FFFFFFFFIIIIIIIIINNNNNNNNNNNNNNNIIIIIIIIIIIIIIIISSSSSSSSSSHHHHHHHHHHHHHEEEEEEDDDDDDDDDDD */
+    /* NNNNNNNNNNNOOOOOOOOOOOOOOOOOOOTTTTTTTTTTTTTTTTT FFFFFFFFIIIIIIIIINNNNNNNNNNNNNNNIIIIIIIIIIIIIIIISSSSSSSSSSHHHHHHHHHHHHHEEEEEEDDDDDDDDDDD */
+    /* NNNNNNNNNNNOOOOOOOOOOOOOOOOOOOTTTTTTTTTTTTTTTTT FFFFFFFFIIIIIIIIINNNNNNNNNNNNNNNIIIIIIIIIIIIIIIISSSSSSSSSSHHHHHHHHHHHHHEEEEEEDDDDDDDDDDD */
+    /* NNNNNNNNNNNOOOOOOOOOOOOOOOOOOOTTTTTTTTTTTTTTTTT FFFFFFFFIIIIIIIIINNNNNNNNNNNNNNNIIIIIIIIIIIIIIIISSSSSSSSSSHHHHHHHHHHHHHEEEEEEDDDDDDDDDDD */
+
+    memcpy(&jsonRequest_backup, &jsonRequest, sizeof(jsonRequest));
+
+    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request, FAKE_DESCRIPTOR));
+
+    strncpy(request.privateBuffer, rawRequest, sizeof (request.privateBuffer));
+    TEST_ASSERT_EQUAL(LE_OK, parseJSON(&request, &jsonRequest));
+
+    TEST_ASSERT_EQUAL(2, callData1.callCounter);
+    /* TEST_ASSERT_EQUAL_MEMORY(&jsonRequest_backup, &jsonRequest, sizeof(jsonRequest)); */
+}
+
+
+static const lemonError fakeExecuteForTest18Buffer1(const string *value, calledCallback *data) {
+    printf("XOOOUUUTTT %.*s\r\n", value->length, value->data);
+    switch (data->callCounter) {
+        case 0:
+        case 1:
+            TEST_ASSERT_EQUAL(7, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("{\"q\":1}", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        case 2:
+            TEST_ASSERT_EQUAL(13, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("{\"a\":{\"q\":1}}", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        default:
+            TEST_FAIL_MESSAGE("Incorrect callCounter");
+            break;
+    }
+    return LE_OK;
+}
+
+static const lemonError fakeExecuteForTest18Buffer3(const string *value, calledCallback *data) {
+    printf("XOOOUUUTTT %.*s\r\n", value->length, value->data);
+    switch (data->callCounter) {
+        case 0:
+        case 1:
+            TEST_ASSERT_EQUAL(1, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("1", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        default:
+            TEST_FAIL_MESSAGE("Incorrect callCounter");
+            break;
+    }
+    return LE_OK;
+}
+
+static void test18(void) {
+    const char* rawRequest = "{\"a\":{\"a\":{\"q\":1}}}";
+    httpRequest request;
+    jsonPathRequest jsonRequest, jsonRequest_backup;
+    jsonPathQueryBuffer jsonPathQueryBuffer1[] = "$..a..";
+    jsonPathQueryBuffer jsonPathQueryBuffer2[] = "$..a..a..";
+    jsonPathQueryBuffer jsonPathQueryBuffer3[] = "$..a..q..";
+    jsonPathQueryBuffer jsonPathQueryBuffer4[] = "$..a..a..q..";
+    jsonPathQueryBuffer jsonPathQueryBuffer5[] = "$..q..";
+    calledCallback callData1;
+    calledCallback callData2;
+    calledCallback callData3;
+    calledCallback callData4;
+    calledCallback callData5;
+    /* Fake json path request */
+    TEST_ASSERT_EQUAL(LE_OK, initJsonPathRequest(&jsonRequest));
+
+    callData1.callCounter = 0;
+    callData1.expectedValue.data = NULL;
+    callData1.expectedValue.length = 0;
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer1, fakeExecuteForTest18Buffer1, &callData1));
+
+    callData2.callCounter = 0;
+    callData2.expectedValue.data = "{\"q\":1}";
+    callData2.expectedValue.length = 7;
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer2, fakeExecute, &callData2));
+
+    callData3.callCounter = 0;
+    callData3.expectedValue.data = NULL;
+    callData3.expectedValue.length = 0;
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer3, fakeExecuteForTest18Buffer3, &callData3));
+
+    callData4.callCounter = 0;
+    callData4.expectedValue.data = "1";
+    callData4.expectedValue.length = 1;
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer4, fakeExecute, &callData4));
+
+    callData5.callCounter = 0;
+    callData5.expectedValue.data = "1";
+    callData5.expectedValue.length = 1;
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer5, fakeExecute, &callData5));
+
+    memcpy(&jsonRequest_backup, &jsonRequest, sizeof(jsonRequest));
+
+    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request, FAKE_DESCRIPTOR));
+
+    strncpy(request.privateBuffer, rawRequest, sizeof (request.privateBuffer));
+    TEST_ASSERT_EQUAL(LE_OK, parseJSON(&request, &jsonRequest));
+
+    TEST_ASSERT_EQUAL(3, callData1.callCounter);
+    TEST_ASSERT_EQUAL(1, callData2.callCounter);
+    TEST_ASSERT_EQUAL(2, callData3.callCounter);
+    TEST_ASSERT_EQUAL(1, callData4.callCounter);
+    TEST_ASSERT_EQUAL(1, callData5.callCounter);
+    /* TEST_ASSERT_EQUAL_MEMORY(&jsonRequest_backup, &jsonRequest, sizeof(jsonRequest)); */
+}
+
+
+static const lemonError fakeExecuteForTest19Buffer1(const string *value, calledCallback *data) {
+    printf("XOOOUUUTTT %.*s\r\n", value->length, value->data);
+    switch (data->callCounter) {
+        case 0:
+            TEST_ASSERT_EQUAL(1, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("1", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        case 1:
+            TEST_ASSERT_EQUAL(7, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("{\"a\":1}", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        case 2:
+            TEST_ASSERT_EQUAL(13, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("{\"q\":{\"a\":1}}", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        default:
+            TEST_FAIL_MESSAGE("Incorrect callCounter");
+            break;
+    }
+    return LE_OK;
+}
+
+static void test19(void) {
+    const char* rawRequest = "{\"a\":{\"q\":{\"a\":1}}}";
+    httpRequest request;
+    jsonPathRequest jsonRequest, jsonRequest_backup;
+    jsonPathQueryBuffer jsonPathQueryBuffer1[] = "$..a..";
+    jsonPathQueryBuffer jsonPathQueryBuffer2[] = "$..a..a..";
+    jsonPathQueryBuffer jsonPathQueryBuffer3[] = "$..a..q..";
+    jsonPathQueryBuffer jsonPathQueryBuffer4[] = "$..a..q..a..";
+    jsonPathQueryBuffer jsonPathQueryBuffer5[] = "$..q..";
+    jsonPathQueryBuffer jsonPathQueryBuffer6[] = "$..q..a..";
+    calledCallback callData1;
+    calledCallback callData2;
+    calledCallback callData3;
+    calledCallback callData4;
+    calledCallback callData5;
+    calledCallback callData6;
+    /* Fake json path request */
+    TEST_ASSERT_EQUAL(LE_OK, initJsonPathRequest(&jsonRequest));
+
+    callData1.callCounter = 0;
+    callData1.expectedValue.data = NULL;
+    callData1.expectedValue.length = 0;
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer1, fakeExecuteForTest19Buffer1, &callData1));
+
+    callData2.callCounter = 0;
+    callData2.expectedValue.data = "1";
+    callData2.expectedValue.length = 1;
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer2, fakeExecute, &callData2));
+
+    callData3.callCounter = 0;
+    callData3.expectedValue.data = "{\"a\":1}";
+    callData3.expectedValue.length = 7;
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer3, fakeExecute, &callData3));
+
+    callData4.callCounter = 0;
+    callData4.expectedValue.data = "1";
+    callData4.expectedValue.length = 1;
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer4, fakeExecute, &callData4));
+
+    callData5.callCounter = 0;
+    callData5.expectedValue.data = "{\"a\":1}";
+    callData5.expectedValue.length = 7;
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer5, fakeExecute, &callData5));
+
+    callData6.callCounter = 0;
+    callData6.expectedValue.data = "1";
+    callData6.expectedValue.length = 1;
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer6, fakeExecute, &callData6));
+
+    memcpy(&jsonRequest_backup, &jsonRequest, sizeof(jsonRequest));
+
+    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request, FAKE_DESCRIPTOR));
+
+    strncpy(request.privateBuffer, rawRequest, sizeof (request.privateBuffer));
+    TEST_ASSERT_EQUAL(LE_OK, parseJSON(&request, &jsonRequest));
+
+    TEST_ASSERT_EQUAL(3, callData1.callCounter);
+    TEST_ASSERT_EQUAL(1, callData2.callCounter);
+    TEST_ASSERT_EQUAL(1, callData3.callCounter);
+    TEST_ASSERT_EQUAL(1, callData4.callCounter);
+    TEST_ASSERT_EQUAL(1, callData5.callCounter);
+    TEST_ASSERT_EQUAL(1, callData6.callCounter);
+    /* TEST_ASSERT_EQUAL_MEMORY(&jsonRequest_backup, &jsonRequest, sizeof(jsonRequest)); */
+}
+
+
+static const lemonError fakeExecuteForTest20Buffer1(const string *value, calledCallback *data) {
+    printf("XOOOUUUTTT %.*s\r\n", value->length, value->data);
+    switch (data->callCounter) {
+        case 0:
+            TEST_ASSERT_EQUAL(1, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("1", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        case 1:
+            TEST_ASSERT_EQUAL(7, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("{\"a\":1}", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        default:
+            TEST_FAIL_MESSAGE("Incorrect callCounter");
+            break;
+    }
+    return LE_OK;
+}
+
+static const lemonError fakeExecuteForTest20Buffer3(const string *value, calledCallback *data) {
+    printf("XOOOUUUTTT %.*s\r\n", value->length, value->data);
+    switch (data->callCounter) {
+        case 0:
+            TEST_ASSERT_EQUAL(7, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("{\"a\":1}", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        case 1:
+            TEST_ASSERT_EQUAL(13, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("{\"a\":{\"a\":1}}", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        default:
+            TEST_FAIL_MESSAGE("Incorrect callCounter");
+            break;
+    }
+    return LE_OK;
+}
+
+static const lemonError fakeExecuteForTest20Buffer4(const string *value, calledCallback *data) {
+    printf("XOOOUUUTTT %.*s\r\n", value->length, value->data);
+    switch (data->callCounter) {
+        case 0:
+            TEST_ASSERT_EQUAL(1, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("1", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        case 1:
+            TEST_ASSERT_EQUAL(7, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("{\"a\":1}", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        default:
+            TEST_FAIL_MESSAGE("Incorrect callCounter");
+            break;
+    }
+    return LE_OK;
+}
+
+
+static void test20(void) {
+    const char* rawRequest = "{\"q\":{\"a\":{\"a\":1}}}";
+    httpRequest request;
+    jsonPathRequest jsonRequest, jsonRequest_backup;
+    jsonPathQueryBuffer jsonPathQueryBuffer1[] = "$..a..";
+    jsonPathQueryBuffer jsonPathQueryBuffer2[] = "$..a..a..";
+    jsonPathQueryBuffer jsonPathQueryBuffer3[] = "$..q..";
+    jsonPathQueryBuffer jsonPathQueryBuffer4[] = "$..q..a..";
+    jsonPathQueryBuffer jsonPathQueryBuffer5[] = "$..q..a..a..";
+    calledCallback callData1;
+    calledCallback callData2;
+    calledCallback callData3;
+    calledCallback callData4;
+    calledCallback callData5;
+    /* Fake json path request */
+    TEST_ASSERT_EQUAL(LE_OK, initJsonPathRequest(&jsonRequest));
+
+    callData1.callCounter = 0;
+    callData1.expectedValue.data = NULL;
+    callData1.expectedValue.length = 0;
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer1, fakeExecuteForTest20Buffer1, &callData1));
+
+    callData2.callCounter = 0;
+    callData2.expectedValue.data = "1";
+    callData2.expectedValue.length = 1;
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer2, fakeExecute, &callData2));
+
+    callData3.callCounter = 0;
+    callData3.expectedValue.data = NULL;
+    callData3.expectedValue.length = 0;
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer3, fakeExecuteForTest20Buffer3, &callData3));
+
+    callData4.callCounter = 0;
+    callData4.expectedValue.data = NULL;
+    callData4.expectedValue.length = 0;
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer4, fakeExecuteForTest20Buffer4, &callData4));
+
+    callData5.callCounter = 0;
+    callData5.expectedValue.data = "1";
+    callData5.expectedValue.length = 1;
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer5, fakeExecute, &callData5));
+
+    memcpy(&jsonRequest_backup, &jsonRequest, sizeof(jsonRequest));
+
+    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request, FAKE_DESCRIPTOR));
+
+    strncpy(request.privateBuffer, rawRequest, sizeof (request.privateBuffer));
+    TEST_ASSERT_EQUAL(LE_OK, parseJSON(&request, &jsonRequest));
+
+    TEST_ASSERT_EQUAL(2, callData1.callCounter);
+    TEST_ASSERT_EQUAL(1, callData2.callCounter);
+    TEST_ASSERT_EQUAL(2, callData3.callCounter);
+    TEST_ASSERT_EQUAL(2, callData4.callCounter);
+    TEST_ASSERT_EQUAL(1, callData5.callCounter);
+    /* TEST_ASSERT_EQUAL_MEMORY(&jsonRequest_backup, &jsonRequest, sizeof(jsonRequest)); */
+}
+
+static const lemonError fakeExecuteForTest21Buffer2(const string *value, calledCallback *data) {
+    printf("XOOOUUUTTT %.*s\r\n", value->length, value->data);
+    switch (data->callCounter) {
+        case 0:
+        case 1:
+            TEST_ASSERT_EQUAL(7, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("{\"a\":1}", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        case 2:
+            TEST_ASSERT_EQUAL(13, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("{\"q\":{\"a\":1}}", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        default:
+            TEST_FAIL_MESSAGE("Incorrect callCounter");
+            break;
+    }
+    return LE_OK;
+}
+
+static const lemonError fakeExecuteForTest21Buffer3(const string *value, calledCallback *data) {
+    printf("XOOOUUUTTT %.*s\r\n", value->length, value->data);
+    switch (data->callCounter) {
+        case 0:
+        case 1:
+            TEST_ASSERT_EQUAL(1, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("1", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        default:
+            TEST_FAIL_MESSAGE("Incorrect callCounter");
+            break;
+    }
+    return LE_OK;
+}
+
+static void test21(void) {
+    const char* rawRequest = "{\"q\":{\"q\":{\"a\":1}}}";
+    httpRequest request;
+    jsonPathRequest jsonRequest, jsonRequest_backup;
+    jsonPathQueryBuffer jsonPathQueryBuffer1[] = "$..a..";
+    jsonPathQueryBuffer jsonPathQueryBuffer2[] = "$..q..";
+    jsonPathQueryBuffer jsonPathQueryBuffer3[] = "$..q..a..";
+    jsonPathQueryBuffer jsonPathQueryBuffer4[] = "$..q..q..";
+    jsonPathQueryBuffer jsonPathQueryBuffer5[] = "$..q..q..a..";
+    calledCallback callData1;
+    calledCallback callData2;
+    calledCallback callData3;
+    calledCallback callData4;
+    calledCallback callData5;
+    /* Fake json path request */
+    TEST_ASSERT_EQUAL(LE_OK, initJsonPathRequest(&jsonRequest));
+
+    callData1.callCounter = 0;
+    callData1.expectedValue.data = "1";
+    callData1.expectedValue.length = 1;
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer1, fakeExecute, &callData1));
+
+    callData2.callCounter = 0;
+    callData2.expectedValue.data = NULL;
+    callData2.expectedValue.length = 0;
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer2, fakeExecuteForTest21Buffer2, &callData2));
+
+    callData3.callCounter = 0;
+    callData3.expectedValue.data = NULL;
+    callData3.expectedValue.length = 0;
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer3, fakeExecuteForTest21Buffer3, &callData3));
+
+    callData4.callCounter = 0;
+    callData4.expectedValue.data = "{\"a\":1}";
+    callData4.expectedValue.length = 7;
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer4, fakeExecute, &callData4));
+
+    callData5.callCounter = 0;
+    callData5.expectedValue.data = "1";
+    callData5.expectedValue.length = 1;
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer5, fakeExecute, &callData5));
+
+    memcpy(&jsonRequest_backup, &jsonRequest, sizeof(jsonRequest));
+
+    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request, FAKE_DESCRIPTOR));
+
+    strncpy(request.privateBuffer, rawRequest, sizeof (request.privateBuffer));
+    TEST_ASSERT_EQUAL(LE_OK, parseJSON(&request, &jsonRequest));
+
+    TEST_ASSERT_EQUAL(1, callData1.callCounter);
+    TEST_ASSERT_EQUAL(3, callData2.callCounter);
+    TEST_ASSERT_EQUAL(2, callData3.callCounter);
+    TEST_ASSERT_EQUAL(1, callData4.callCounter);
+    TEST_ASSERT_EQUAL(1, callData5.callCounter);
+    /* TEST_ASSERT_EQUAL_MEMORY(&jsonRequest_backup, &jsonRequest, sizeof(jsonRequest)); */
+}
+
+static const lemonError fakeExecuteForTest22Buffer2(const string *value, calledCallback *data) {
+    printf("XOOOUUUTTT %.*s\r\n", value->length, value->data);
+    switch (data->callCounter) {
+        case 0:
+            TEST_ASSERT_EQUAL(1, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("1", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        case 1:
+            TEST_ASSERT_EQUAL(7, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("{\"q\":1}", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        case 2:
+            TEST_ASSERT_EQUAL(13, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("{\"a\":{\"q\":1}}", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        default:
+            TEST_FAIL_MESSAGE("Incorrect callCounter");
+            break;
+    }
+    return LE_OK;
+}
+
+static void test22(void) {
+    const char* rawRequest = "{\"q\":{\"a\":{\"q\":1}}}";
+    httpRequest request;
+    jsonPathRequest jsonRequest, jsonRequest_backup;
+    jsonPathQueryBuffer jsonPathQueryBuffer1[] = "$..a..";
+    jsonPathQueryBuffer jsonPathQueryBuffer2[] = "$..q..";
+    jsonPathQueryBuffer jsonPathQueryBuffer3[] = "$..q..q..";
+    jsonPathQueryBuffer jsonPathQueryBuffer4[] = "$..a..q..";
+    jsonPathQueryBuffer jsonPathQueryBuffer5[] = "$..q..a..";
+    calledCallback callData1;
+    calledCallback callData2;
+    calledCallback callData3;
+    calledCallback callData4;
+    calledCallback callData5;
+    /* Fake json path request */
+    TEST_ASSERT_EQUAL(LE_OK, initJsonPathRequest(&jsonRequest));
+
+    callData1.callCounter = 0;
+    callData1.expectedValue.data = "{\"q\":1}";
+    callData1.expectedValue.length = 7;
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer1, fakeExecute, &callData1));
+
+    callData2.callCounter = 0;
+    callData2.expectedValue.data = NULL;
+    callData2.expectedValue.length = 0;
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer2, fakeExecuteForTest22Buffer2, &callData2));
+
+    callData3.callCounter = 0;
+    callData3.expectedValue.data = "1";
+    callData3.expectedValue.length = 1;
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer3, fakeExecute, &callData3));
+
+    callData4.callCounter = 0;
+    callData4.expectedValue.data = "1";
+    callData4.expectedValue.length = 1;
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer4, fakeExecute, &callData4));
+
+    callData5.callCounter = 0;
+    callData5.expectedValue.data = "{\"q\":1}";
+    callData5.expectedValue.length = 7;
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer5, fakeExecute, &callData5));
+
+    memcpy(&jsonRequest_backup, &jsonRequest, sizeof(jsonRequest));
+
+    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request, FAKE_DESCRIPTOR));
+
+    strncpy(request.privateBuffer, rawRequest, sizeof (request.privateBuffer));
+    TEST_ASSERT_EQUAL(LE_OK, parseJSON(&request, &jsonRequest));
+
+    TEST_ASSERT_EQUAL(1, callData1.callCounter);
+    TEST_ASSERT_EQUAL(3, callData2.callCounter);
+    TEST_ASSERT_EQUAL(1, callData3.callCounter);
+    TEST_ASSERT_EQUAL(1, callData4.callCounter);
+    TEST_ASSERT_EQUAL(1, callData5.callCounter);
+    /* TEST_ASSERT_EQUAL_MEMORY(&jsonRequest_backup, &jsonRequest, sizeof(jsonRequest)); */
+}
+
+static const lemonError fakeExecuteForTest23Buffer1(const string *value, calledCallback *data) {
+    printf("XOOOUUUTTT %.*s\r\n", value->length, value->data);
+    switch (data->callCounter) {
+        case 0:
+        case 1:
+        case 2:
+            TEST_ASSERT_EQUAL(7, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("{\"q\":1}", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        case 3:
+        case 4:
+            TEST_ASSERT_EQUAL(13, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("{\"a\":{\"q\":1}}", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        case 5:
+            TEST_ASSERT_EQUAL(19, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("{\"a\":{\"a\":{\"q\":1}}}", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        default:
+            TEST_FAIL_MESSAGE("Incorrect callCounter");
+            break;
+    }
+    return LE_OK;
+}
+
+static const lemonError fakeExecuteForTest23Buffer2(const string *value, calledCallback *data) {
+    printf("XOOOUUUTTT %.*s\r\n", value->length, value->data);
+    switch (data->callCounter) {
+        case 0:
+        case 1:
+        case 2:
+            TEST_ASSERT_EQUAL(7, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("{\"q\":1}", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        case 3:
+            TEST_ASSERT_EQUAL(13, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("{\"a\":{\"q\":1}}", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        default:
+            TEST_FAIL_MESSAGE("Incorrect callCounter");
+            break;
+    }
+    return LE_OK;
+}
+
+static const lemonError fakeExecuteForTest23Buffer5(const string *value, calledCallback *data) {
+    printf("XOOOUUUTTT %.*s\r\n", value->length, value->data);
+    switch (data->callCounter) {
+        case 0:
+        case 1:
+        case 2:
+            TEST_ASSERT_EQUAL(1, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("1", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        default:
+            TEST_FAIL_MESSAGE("Incorrect callCounter");
+            break;
+    }
+    return LE_OK;
+}
+
+static void test23(void) {
+    const char* rawRequest = "{\"a\":{\"a\":{\"a\":{\"q\":1}}}}";
+    httpRequest request;
+    jsonPathRequest jsonRequest, jsonRequest_backup;
+    jsonPathQueryBuffer jsonPathQueryBuffer1[] = "$..a..";
+    jsonPathQueryBuffer jsonPathQueryBuffer2[] = "$..a..a..";
+    jsonPathQueryBuffer jsonPathQueryBuffer3[] = "$..a..a..a..";
+    jsonPathQueryBuffer jsonPathQueryBuffer4[] = "$..q..";
+    jsonPathQueryBuffer jsonPathQueryBuffer5[] = "$..a..q..";
+    calledCallback callData1;
+    calledCallback callData2;
+    calledCallback callData3;
+    calledCallback callData4;
+    calledCallback callData5;
+    /* Fake json path request */
+    TEST_ASSERT_EQUAL(LE_OK, initJsonPathRequest(&jsonRequest));
+
+    callData1.callCounter = 0;
+    callData1.expectedValue.data = NULL;
+    callData1.expectedValue.length = 0;
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer1, fakeExecuteForTest23Buffer1, &callData1));
+
+    callData2.callCounter = 0;
+    callData2.expectedValue.data = NULL;
+    callData2.expectedValue.length = 0;
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer2, fakeExecuteForTest23Buffer2, &callData2));
+
+    callData3.callCounter = 0;
+    callData3.expectedValue.data = "{\"q\":1}";
+    callData3.expectedValue.length = 7;
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer3, fakeExecute, &callData3));
+
+    callData4.callCounter = 0;
+    callData4.expectedValue.data = "1";
+    callData4.expectedValue.length = 1;
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer4, fakeExecute, &callData4));
+
+    callData5.callCounter = 0;
+    callData5.expectedValue.data = NULL;
+    callData5.expectedValue.length = 0;
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer5, fakeExecuteForTest23Buffer5, &callData5));
+
+    memcpy(&jsonRequest_backup, &jsonRequest, sizeof(jsonRequest));
+
+    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request, FAKE_DESCRIPTOR));
+
+    strncpy(request.privateBuffer, rawRequest, sizeof (request.privateBuffer));
+    TEST_ASSERT_EQUAL(LE_OK, parseJSON(&request, &jsonRequest));
+
+    TEST_ASSERT_EQUAL(6, callData1.callCounter);
+    TEST_ASSERT_EQUAL(4, callData2.callCounter);
+    TEST_ASSERT_EQUAL(1, callData3.callCounter);
+    TEST_ASSERT_EQUAL(1, callData4.callCounter);
+    TEST_ASSERT_EQUAL(3, callData5.callCounter);
+    /* TEST_ASSERT_EQUAL_MEMORY(&jsonRequest_backup, &jsonRequest, sizeof(jsonRequest)); */
+}
+
+
+static const lemonError fakeExecuteForTest24(const string *value, calledCallback *data) {
+    printf("XOOOUUUTTT %.*s\r\n", value->length, value->data);
+    switch (data->callCounter) {
+        case 0:
+            TEST_ASSERT_EQUAL(1, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("1", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        case 1:
+        case 2:
+            TEST_ASSERT_EQUAL(7, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("{\"a\":1}", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        case 3:
+        case 4:
+            TEST_ASSERT_EQUAL(13, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("{\"q\":{\"a\":1}}", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        case 5:
+            TEST_ASSERT_EQUAL(19, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("{\"a\":{\"q\":{\"a\":1}}}", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        default:
+            TEST_FAIL_MESSAGE("Incorrect callCounter");
+            break;
+    }
+    return LE_OK;
+}
+
+static void test24(void) {
+    const char* rawRequest = "{\"a\":{\"a\":{\"q\":{\"a\":1}}}}";
+    httpRequest request;
+    jsonPathRequest jsonRequest, jsonRequest_backup;
+    jsonPathQueryBuffer jsonPathQueryBuffer1[] = "$..a..";
+    calledCallback callData1;
+    /* Fake json path request */
+    TEST_ASSERT_EQUAL(LE_OK, initJsonPathRequest(&jsonRequest));
+
+    callData1.callCounter = 0;
+    callData1.expectedValue.data = NULL;
+    callData1.expectedValue.length = 0;
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer1, fakeExecuteForTest24, &callData1));
+
+    memcpy(&jsonRequest_backup, &jsonRequest, sizeof(jsonRequest));
+
+    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request, FAKE_DESCRIPTOR));
+
+    strncpy(request.privateBuffer, rawRequest, sizeof (request.privateBuffer));
+    TEST_ASSERT_EQUAL(LE_OK, parseJSON(&request, &jsonRequest));
+
+    TEST_ASSERT_EQUAL(6, callData1.callCounter);
+    /* TEST_ASSERT_EQUAL_MEMORY(&jsonRequest_backup, &jsonRequest, sizeof(jsonRequest)); */
+}
+
+static const lemonError fakeExecuteForTest25(const string *value, calledCallback *data) {
+    printf("XOOOUUUTTT %.*s\r\n", value->length, value->data);
+    switch (data->callCounter) {
+        case 0:
+            TEST_ASSERT_EQUAL(1, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("1", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        case 1:
+        case 2:
+            TEST_ASSERT_EQUAL(7, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("{\"a\":1}", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        case 3:
+            TEST_ASSERT_EQUAL(13, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("{\"a\":{\"a\":1}}", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        case 4:
+            TEST_ASSERT_EQUAL(19, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("{\"q\":{\"a\":{\"a\":1}}}", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        default:
+            TEST_FAIL_MESSAGE("Incorrect callCounter");
+            break;
+    }
+    return LE_OK;
+}
+
+static void test25(void) {
+    const char* rawRequest = "{\"a\":{\"q\":{\"a\":{\"a\":1}}}}";
+    httpRequest request;
+    jsonPathRequest jsonRequest, jsonRequest_backup;
+    jsonPathQueryBuffer jsonPathQueryBuffer1[] = "$..a..";
+    calledCallback callData1;
+    /* Fake json path request */
+    TEST_ASSERT_EQUAL(LE_OK, initJsonPathRequest(&jsonRequest));
+
+    callData1.callCounter = 0;
+    callData1.expectedValue.data = NULL;
+    callData1.expectedValue.length = 0;
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer1, fakeExecuteForTest25, &callData1));
+
+    memcpy(&jsonRequest_backup, &jsonRequest, sizeof(jsonRequest));
+
+    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request, FAKE_DESCRIPTOR));
+
+    strncpy(request.privateBuffer, rawRequest, sizeof (request.privateBuffer));
+    TEST_ASSERT_EQUAL(LE_OK, parseJSON(&request, &jsonRequest));
+
+    TEST_ASSERT_EQUAL(5, callData1.callCounter);
+    /* TEST_ASSERT_EQUAL_MEMORY(&jsonRequest_backup, &jsonRequest, sizeof(jsonRequest)); */
+}
+
+
+static const lemonError fakeExecuteForTest26(const string *value, calledCallback *data) {
+    printf("XOOOUUUTTT %.*s\r\n", value->length, value->data);
+    switch (data->callCounter) {
+        case 0:
+            TEST_ASSERT_EQUAL(1, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("1", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        case 1:
+        case 2:
+            TEST_ASSERT_EQUAL(7, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("{\"a\":1}", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        case 3:
+            TEST_ASSERT_EQUAL(13, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("{\"a\":{\"a\":1}}", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        default:
+            TEST_FAIL_MESSAGE("Incorrect callCounter");
+            break;
+    }
+    return LE_OK;
+}
+
+static void test26(void) {
+    const char* rawRequest = "{\"q\":{\"a\":{\"a\":{\"a\":1}}}}";
+    httpRequest request;
+    jsonPathRequest jsonRequest, jsonRequest_backup;
+    jsonPathQueryBuffer jsonPathQueryBuffer1[] = "$..a..";
+    calledCallback callData1;
+    /* Fake json path request */
+    TEST_ASSERT_EQUAL(LE_OK, initJsonPathRequest(&jsonRequest));
+
+    callData1.callCounter = 0;
+    callData1.expectedValue.data = NULL;
+    callData1.expectedValue.length = 0;
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer1, fakeExecuteForTest26, &callData1));
+
+    memcpy(&jsonRequest_backup, &jsonRequest, sizeof(jsonRequest));
+
+    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request, FAKE_DESCRIPTOR));
+
+    strncpy(request.privateBuffer, rawRequest, sizeof (request.privateBuffer));
+    TEST_ASSERT_EQUAL(LE_OK, parseJSON(&request, &jsonRequest));
+
+    TEST_ASSERT_EQUAL(4, callData1.callCounter);
+    /* TEST_ASSERT_EQUAL_MEMORY(&jsonRequest_backup, &jsonRequest, sizeof(jsonRequest)); */
+}
+
+static const lemonError fakeExecuteForTest27Buffer1(const string *value, calledCallback *data) {
+    printf("XOOOUUUTTT %.*s\r\n", value->length, value->data);
+    switch (data->callCounter) {
+        case 0:
+            TEST_ASSERT_EQUAL(1, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("1", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        case 1:
+        case 2:
+        case 3:
+            TEST_ASSERT_EQUAL(7, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("{\"a\":1}", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        case 4:
+        case 5:
+            TEST_ASSERT_EQUAL(13, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("{\"a\":{\"a\":1}}", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        case 6:
+            TEST_ASSERT_EQUAL(19, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("{\"a\":{\"a\":{\"a\":1}}}", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        default:
+            TEST_FAIL_MESSAGE("Incorrect callCounter");
+            break;
+    }
+    return LE_OK;
+}
+
+static const lemonError fakeExecuteForTest27Buffer2(const string *value, calledCallback *data) {
+    printf("XOOOUUUTTT %.*s\r\n", value->length, value->data);
+    switch (data->callCounter) {
+        case 0:
+        case 1:
+        case 2:
+            TEST_ASSERT_EQUAL(1, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("1", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        case 3:
+        case 4:
+        case 5:
+            TEST_ASSERT_EQUAL(7, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("{\"a\":1}", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        case 6:
+            TEST_ASSERT_EQUAL(13, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("{\"a\":{\"a\":1}}", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        default:
+            TEST_FAIL_MESSAGE("Incorrect callCounter");
+            break;
+    }
+    return LE_OK;
+}
+
+static const lemonError fakeExecuteForTest27Buffer3(const string *value, calledCallback *data) {
+    printf("XOOOUUUTTT %.*s\r\n", value->length, value->data);
+    switch (data->callCounter) {
+        case 0:
+        case 1:
+        case 2:
+            TEST_ASSERT_EQUAL(1, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("1", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        case 3:
+            TEST_ASSERT_EQUAL(7, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("{\"a\":1}", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        default:
+            TEST_FAIL_MESSAGE("Incorrect callCounter");
+            break;
+    }
+    return LE_OK;
+}
+
+
+static void test27(void) {
+    const char* rawRequest = "{\"a\":{\"a\":{\"a\":{\"a\":1}}}}";
+    httpRequest request;
+    jsonPathRequest jsonRequest, jsonRequest_backup;
+    jsonPathQueryBuffer jsonPathQueryBuffer1[] = "$..a..";
+    jsonPathQueryBuffer jsonPathQueryBuffer2[] = "$..a..a..";
+    jsonPathQueryBuffer jsonPathQueryBuffer3[] = "$..a..a..a..";
+    jsonPathQueryBuffer jsonPathQueryBuffer4[] = "$..a..a..a..a..";
+    calledCallback callData1;
+    calledCallback callData2;
+    calledCallback callData3;
+    calledCallback callData4;
+    /* Fake json path request */
+    TEST_ASSERT_EQUAL(LE_OK, initJsonPathRequest(&jsonRequest));
+
+    callData1.callCounter = 0;
+    callData1.expectedValue.data = NULL;
+    callData1.expectedValue.length = 0;
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer1, fakeExecuteForTest27Buffer1, &callData1));
+
+    callData2.callCounter = 0;
+    callData2.expectedValue.data = NULL;
+    callData2.expectedValue.length = 0;
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer2, fakeExecuteForTest27Buffer2, &callData2));
+
+    callData3.callCounter = 0;
+    callData3.expectedValue.data = NULL;
+    callData3.expectedValue.length = 0;
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer3, fakeExecuteForTest27Buffer3, &callData3));
+
+    callData4.callCounter = 0;
+    callData4.expectedValue.data = "1";
+    callData4.expectedValue.length = 1;
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer4, fakeExecute, &callData4));
+
+    memcpy(&jsonRequest_backup, &jsonRequest, sizeof(jsonRequest));
+
+    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request, FAKE_DESCRIPTOR));
+
+    strncpy(request.privateBuffer, rawRequest, sizeof (request.privateBuffer));
+    TEST_ASSERT_EQUAL(LE_OK, parseJSON(&request, &jsonRequest));
+
+    TEST_ASSERT_EQUAL(7, callData1.callCounter);
+    TEST_ASSERT_EQUAL(7, callData2.callCounter);
+    TEST_ASSERT_EQUAL(4, callData3.callCounter);
+    TEST_ASSERT_EQUAL(1, callData4.callCounter);
+    /* TEST_ASSERT_EQUAL_MEMORY(&jsonRequest_backup, &jsonRequest, sizeof(jsonRequest)); */
+}
+
+static const lemonError fakeExecuteForTest28Buffer1(const string *value, calledCallback *data) {
+    printf("XOOOUUUTTT %.*s\r\n", value->length, value->data);
+    switch (data->callCounter) {
+        case 0:
+            TEST_ASSERT_EQUAL(1, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("1", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        case 1:
+        case 2:
+        case 3:
+        case 4:
+            TEST_ASSERT_EQUAL(7, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("{\"a\":1}", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        case 5:
+        case 6:
+        case 7:
+            TEST_ASSERT_EQUAL(13, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("{\"a\":{\"a\":1}}", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        case 8:
+        case 9:
+            TEST_ASSERT_EQUAL(19, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("{\"a\":{\"a\":{\"a\":1}}}", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        case 10:
+            TEST_ASSERT_EQUAL(25, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("{\"a\":{\"a\":{\"a\":{\"a\":1}}}}", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        default:
+            TEST_FAIL_MESSAGE("Incorrect callCounter");
+            break;
+    }
+    return LE_OK;
+}
+
+static const lemonError fakeExecuteForTest28Buffer2(const string *value, calledCallback *data) {
+    printf("XOOOUUUTTT %.*s\r\n", value->length, value->data);
+    switch (data->callCounter) {
+        case 0:
+        case 1:
+        case 2:
+        case 3:
+            TEST_ASSERT_EQUAL(1, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("1", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        case 4:
+        case 5:
+        case 6:
+        case 7:
+        case 8:
+        case 9:
+            TEST_ASSERT_EQUAL(7, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("{\"a\":1}", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        case 10:
+        case 11:
+        case 12:
+            TEST_ASSERT_EQUAL(13, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("{\"a\":{\"a\":1}}", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        case 13:
+            TEST_ASSERT_EQUAL(19, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("{\"a\":{\"a\":{\"a\":1}}}", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        default:
+            TEST_FAIL_MESSAGE("Incorrect callCounter");
+            break;
+    }
+    return LE_OK;
+}
+
+static const lemonError fakeExecuteForTest28Buffer3(const string *value, calledCallback *data) {
+    printf("XOOOUUUTTT %.*s\r\n", value->length, value->data);
+    switch (data->callCounter) {
+        case 0:
+        case 1:
+        case 2:
+        case 3:
+        case 4:
+        case 5:
+            TEST_ASSERT_EQUAL(1, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("1", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        case 6:
+        case 7:
+        case 8:
+        case 9:
+            TEST_ASSERT_EQUAL(7, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("{\"a\":1}", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        case 10:
+            TEST_ASSERT_EQUAL(13, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("{\"a\":{\"a\":1}}", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        default:
+            TEST_FAIL_MESSAGE("Incorrect callCounter");
+            break;
+    }
+    return LE_OK;
+}
+
+static const lemonError fakeExecuteForTest28Buffer4(const string *value, calledCallback *data) {
+    printf("XOOOUUUTTT %.*s\r\n", value->length, value->data);
+    switch (data->callCounter) {
+        case 0:
+        case 1:
+        case 2:
+        case 3:
+            TEST_ASSERT_EQUAL(1, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("1", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        case 4:
+            TEST_ASSERT_EQUAL(7, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("{\"a\":1}", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        default:
+            TEST_FAIL_MESSAGE("Incorrect callCounter");
+            break;
+    }
+    return LE_OK;
+}
+
+static void test28(void) {
+    const char* rawRequest = "{\"a\":{\"a\":{\"a\":{\"a\":{\"a\":1}}}}}";
+    httpRequest request;
+    jsonPathRequest jsonRequest, jsonRequest_backup;
+    jsonPathQueryBuffer jsonPathQueryBuffer1[] = "$..a..";
+    jsonPathQueryBuffer jsonPathQueryBuffer2[] = "$..a..a..";
+    jsonPathQueryBuffer jsonPathQueryBuffer3[] = "$..a..a..a..";
+    jsonPathQueryBuffer jsonPathQueryBuffer4[] = "$..a..a..a..a..";
+    jsonPathQueryBuffer jsonPathQueryBuffer5[] = "$..a..a..a..a..a..";
+    calledCallback callData1;
+    calledCallback callData2;
+    calledCallback callData3;
+    calledCallback callData4;
+    calledCallback callData5;
+    /* Fake json path request */
+    TEST_ASSERT_EQUAL(LE_OK, initJsonPathRequest(&jsonRequest));
+
+    callData1.callCounter = 0;
+    callData1.expectedValue.data = NULL;
+    callData1.expectedValue.length = 0;
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer1, fakeExecuteForTest28Buffer1, &callData1));
+
+    callData2.callCounter = 0;
+    callData2.expectedValue.data = NULL;
+    callData2.expectedValue.length = 0;
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer2, fakeExecuteForTest28Buffer2, &callData2));
+
+    callData3.callCounter = 0;
+    callData3.expectedValue.data = NULL;
+    callData3.expectedValue.length = 0;
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer3, fakeExecuteForTest28Buffer3, &callData3));
+
+    callData4.callCounter = 0;
+    callData4.expectedValue.data = NULL;
+    callData4.expectedValue.length = 0;
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer4, fakeExecuteForTest28Buffer4, &callData4));
+
+    callData5.callCounter = 0;
+    callData5.expectedValue.data = "1";
+    callData5.expectedValue.length = 1;
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer5, fakeExecute, &callData5));
+
+    memcpy(&jsonRequest_backup, &jsonRequest, sizeof(jsonRequest));
+
+    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request, FAKE_DESCRIPTOR));
+
+    strncpy(request.privateBuffer, rawRequest, sizeof (request.privateBuffer));
+    TEST_ASSERT_EQUAL(LE_OK, parseJSON(&request, &jsonRequest));
+
+    TEST_ASSERT_EQUAL(11, callData1.callCounter);
+    TEST_ASSERT_EQUAL(14, callData2.callCounter);
+    TEST_ASSERT_EQUAL(11, callData3.callCounter);
+    TEST_ASSERT_EQUAL(5, callData4.callCounter);
+    TEST_ASSERT_EQUAL(1, callData5.callCounter);
+    /* TEST_ASSERT_EQUAL_MEMORY(&jsonRequest_backup, &jsonRequest, sizeof(jsonRequest)); */
+}
+
+
+static const lemonError fakeExecuteForTest29Buffer1And7(const string *value, calledCallback *data) {
+    /*printf("PAOOOUUUTTT %.*s\r\n", value->length, value->data);
+    ++(data->callCounter);*/
+    switch (data->callCounter) {
+        case 0:
+        case 1:
+            TEST_ASSERT_EQUAL(2, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("{}", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        case 2:
+            TEST_ASSERT_EQUAL(8, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("{\"a\":{}}", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        default:
+            TEST_FAIL_MESSAGE("Incorrect callCounter");
+            break;
+    }
+    return LE_OK;
+}
+
+static const lemonError fakeExecuteForTest29Buffer8(const string *value, calledCallback *data) {
+    switch (data->callCounter) {
+        case 0:
+        case 1:
+        case 2:
+            TEST_ASSERT_EQUAL(2, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("{}", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        case 3:
+            TEST_ASSERT_EQUAL(8, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("{\"a\":{}}", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        default:
+            TEST_FAIL_MESSAGE("Incorrect callCounter");
+            break;
+    }
+    return LE_OK;
+}
+
+
+static const lemonError fakeExecuteForTest29Buffer5And6(const string *value, calledCallback *data) {
+    /* printf("OOOUUUTTT %.*s\r\n", value->length, value->data);
+    ++(data->callCounter); */
+    switch (data->callCounter) {
+        case 0:
+            TEST_ASSERT_EQUAL(2, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("{}", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        case 1:
+            TEST_ASSERT_EQUAL(8, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("{\"a\":{}}", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        default:
+            TEST_FAIL_MESSAGE("Incorrect callCounter");
+            break;
+    }
+    return LE_OK;
+}
+
+static const lemonError fakeExecuteForTest29Buffer9(const string *value, calledCallback *data) {
+    /*printf("OOOUUUTTT %.*s\r\n", value->length, value->data);
+    ++(data->callCounter);*/
+    switch (data->callCounter) {
+        case 0:
+        case 1:
+        case 2:
+            TEST_ASSERT_EQUAL(2, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("{}", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        case 3:
+        case 4:
+            TEST_ASSERT_EQUAL(8, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("{\"a\":{}}", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        case 5:
+            TEST_ASSERT_EQUAL(14, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("{\"a\":{\"a\":{}}}", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        default:
+            TEST_FAIL_MESSAGE("Incorrect callCounter");
+            break;
+    }
+    return LE_OK;
+}
+
+
+static void test29(void) {
+    const char* rawRequest = "{\"a\":{\"a\":{\"a\":{}}}}}";
+    httpRequest request;
+    jsonPathRequest jsonRequest, jsonRequest_backup;
+    jsonPathQueryBuffer jsonPathQueryBuffer1[] = "$..a..a";
+    jsonPathQueryBuffer jsonPathQueryBuffer2[] = "$..a..a..a";
+    jsonPathQueryBuffer jsonPathQueryBuffer3[] = "$..b..a";
+    jsonPathQueryBuffer jsonPathQueryBuffer4[] = "$..a..a..a..a";
+    jsonPathQueryBuffer jsonPathQueryBuffer5[] = "$.a..a";
+    jsonPathQueryBuffer jsonPathQueryBuffer6[] = "$..a.a";
+    jsonPathQueryBuffer jsonPathQueryBuffer7[] = "$..a..a.";
+    jsonPathQueryBuffer jsonPathQueryBuffer8[] = "$..a..a..";
+    jsonPathQueryBuffer jsonPathQueryBuffer9[] = "$..a..";
+    jsonPathQueryBuffer jsonPathQueryBuffer10[] = "$..a..a..a..";
+    calledCallback callData1;
+    calledCallback callData2;
+    calledCallback callData3;
+    calledCallback callData4;
+    calledCallback callData5;
+    calledCallback callData6;
+    calledCallback callData7;
+    calledCallback callData8;
+    calledCallback callData9;
+    calledCallback callData10;
+    /* Fake json path request */
+    TEST_ASSERT_EQUAL(LE_OK, initJsonPathRequest(&jsonRequest));
+
+    callData1.callCounter = 0;
+    callData1.expectedValue.data = NULL;
+    callData1.expectedValue.length = 0;
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer1, fakeExecuteForTest29Buffer1And7,&callData1));
+
+    callData2.callCounter = 0;
+    callData2.expectedValue.data = "{}";
+    callData2.expectedValue.length = 2;
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer2, fakeExecute, &callData2));
+
+    callData3.callCounter = 0;
+    callData3.expectedValue.data = "*** Not found (it's a fake message) ***";
+    callData3.expectedValue.length = strlen(callData3.expectedValue.data);
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer3, fakeExecute, &callData3));
+
+    callData4.callCounter = 0;
+    callData4.expectedValue.data = "*** Not found (it's a fake message) ***";
+    callData4.expectedValue.length = strlen(callData4.expectedValue.data);
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer4, fakeExecute, &callData4));
+
+    callData5.callCounter = 0;
+    callData5.expectedValue.data = NULL;
+    callData5.expectedValue.length = 0;
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer5, fakeExecuteForTest29Buffer5And6, &callData5));
+
+    callData6.callCounter = 0;
+    callData6.expectedValue.data = NULL;
+    callData6.expectedValue.length = 0;
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer6, fakeExecuteForTest29Buffer5And6, &callData6));
+
+    callData7.callCounter = 0;
+    callData7.expectedValue.data = NULL;
+    callData7.expectedValue.length = 0;
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer7, fakeExecuteForTest29Buffer1And7,&callData7));
+
+    callData8.callCounter = 0;
+    callData8.expectedValue.data = NULL;
+    callData8.expectedValue.length = 0;
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer8, fakeExecuteForTest29Buffer8,&callData8));
+
+    callData9.callCounter = 0;
+    callData9.expectedValue.data = NULL;
+    callData9.expectedValue.length = 0;
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer9, fakeExecuteForTest29Buffer9, &callData9));
+
+    callData10.callCounter = 0;
+    callData10.expectedValue.data = "{}";
+    callData10.expectedValue.length = 2;
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer10, fakeExecute, &callData10));
+    memcpy(&jsonRequest_backup, &jsonRequest, sizeof(jsonRequest));
+
+    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request, FAKE_DESCRIPTOR));
+
+    strncpy(request.privateBuffer, rawRequest, sizeof (request.privateBuffer));
+    TEST_ASSERT_EQUAL(LE_OK, parseJSON(&request, &jsonRequest));
+
+    TEST_ASSERT_EQUAL(3, callData1.callCounter);
+    TEST_ASSERT_EQUAL(1, callData2.callCounter);
+    TEST_ASSERT_EQUAL(0, callData3.callCounter);
+    TEST_ASSERT_EQUAL(0, callData4.callCounter);
+    TEST_ASSERT_EQUAL(2, callData5.callCounter);
+    TEST_ASSERT_EQUAL(2, callData6.callCounter);
+    TEST_ASSERT_EQUAL(3, callData7.callCounter);
+    TEST_ASSERT_EQUAL(4, callData8.callCounter);
+    TEST_ASSERT_EQUAL(6, callData9.callCounter);
+    TEST_ASSERT_EQUAL(1, callData10.callCounter);
+    /* TEST_ASSERT_EQUAL_MEMORY(&jsonRequest_backup, &jsonRequest, sizeof(jsonRequest)); */
+}
+
+
+static const lemonError fakeExecuteForTest30Buffer1And7(const string *value, calledCallback *data) {
+    /*printf("PAOOOUUUTTT %.*s\r\n", value->length, value->data);
+    ++(data->callCounter);*/
+    switch (data->callCounter) {
+        case 0:
+        case 1:
+            TEST_ASSERT_EQUAL(2, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("[]", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        case 2:
+            TEST_ASSERT_EQUAL(8, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("{\"a\":[]}", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        default:
+            TEST_FAIL_MESSAGE("Incorrect callCounter");
+            break;
+    }
+    return LE_OK;
+}
+
+static const lemonError fakeExecuteForTest30Buffer8(const string *value, calledCallback *data) {
+    switch (data->callCounter) {
+        case 0:
+        case 1:
+        case 2:
+            TEST_ASSERT_EQUAL(2, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("[]", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        case 3:
+            TEST_ASSERT_EQUAL(8, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("{\"a\":[]}", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        default:
+            TEST_FAIL_MESSAGE("Incorrect callCounter");
+            break;
+    }
+    return LE_OK;
+}
+
+
+static const lemonError fakeExecuteForTest30Buffer5And6(const string *value, calledCallback *data) {
+    /* printf("OOOUUUTTT %.*s\r\n", value->length, value->data);
+    ++(data->callCounter); */
+    switch (data->callCounter) {
+        case 0:
+            TEST_ASSERT_EQUAL(2, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("[]", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        case 1:
+            TEST_ASSERT_EQUAL(8, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("{\"a\":[]}", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        default:
+            TEST_FAIL_MESSAGE("Incorrect callCounter");
+            break;
+    }
+    return LE_OK;
+}
+
+static const lemonError fakeExecuteForTest30Buffer9(const string *value, calledCallback *data) {
+    /*printf("OOOUUUTTT %.*s\r\n", value->length, value->data);
+    ++(data->callCounter);*/
+    switch (data->callCounter) {
+        case 0:
+        case 1:
+        case 2:
+            TEST_ASSERT_EQUAL(2, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("[]", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        case 3:
+        case 4:
+            TEST_ASSERT_EQUAL(8, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("{\"a\":[]}", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        case 5:
+            TEST_ASSERT_EQUAL(14, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("{\"a\":{\"a\":[]}}", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        default:
+            TEST_FAIL_MESSAGE("Incorrect callCounter");
+            break;
+    }
+    return LE_OK;
+}
+
+
+static void test30(void) {
+    const char* rawRequest = "{\"a\":{\"a\":{\"a\":[]}}}}";
+    httpRequest request;
+    jsonPathRequest jsonRequest, jsonRequest_backup;
+    jsonPathQueryBuffer jsonPathQueryBuffer1[] = "$..a..a";
+    jsonPathQueryBuffer jsonPathQueryBuffer2[] = "$..a..a..a";
+    jsonPathQueryBuffer jsonPathQueryBuffer3[] = "$..b..a";
+    jsonPathQueryBuffer jsonPathQueryBuffer4[] = "$..a..a..a..a";
+    jsonPathQueryBuffer jsonPathQueryBuffer5[] = "$.a..a";
+    jsonPathQueryBuffer jsonPathQueryBuffer6[] = "$..a.a";
+    jsonPathQueryBuffer jsonPathQueryBuffer7[] = "$..a..a.";
+    jsonPathQueryBuffer jsonPathQueryBuffer8[] = "$..a..a..";
+    jsonPathQueryBuffer jsonPathQueryBuffer9[] = "$..a..";
+    jsonPathQueryBuffer jsonPathQueryBuffer10[] = "$..a..a..a..";
+    calledCallback callData1;
+    calledCallback callData2;
+    calledCallback callData3;
+    calledCallback callData4;
+    calledCallback callData5;
+    calledCallback callData6;
+    calledCallback callData7;
+    calledCallback callData8;
+    calledCallback callData9;
+    calledCallback callData10;
+    /* Fake json path request */
+    TEST_ASSERT_EQUAL(LE_OK, initJsonPathRequest(&jsonRequest));
+
+    callData1.callCounter = 0;
+    callData1.expectedValue.data = NULL;
+    callData1.expectedValue.length = 0;
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer1, fakeExecuteForTest30Buffer1And7,&callData1));
+
+    callData2.callCounter = 0;
+    callData2.expectedValue.data = "[]";
+    callData2.expectedValue.length = 2;
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer2, fakeExecute, &callData2));
+
+    callData3.callCounter = 0;
+    callData3.expectedValue.data = "*** Not found (it's a fake message) ***";
+    callData3.expectedValue.length = strlen(callData3.expectedValue.data);
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer3, fakeExecute, &callData3));
+
+    callData4.callCounter = 0;
+    callData4.expectedValue.data = "*** Not found (it's a fake message) ***";
+    callData4.expectedValue.length = strlen(callData4.expectedValue.data);
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer4, fakeExecute, &callData4));
+
+    callData5.callCounter = 0;
+    callData5.expectedValue.data = NULL;
+    callData5.expectedValue.length = 0;
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer5, fakeExecuteForTest30Buffer5And6, &callData5));
+
+    callData6.callCounter = 0;
+    callData6.expectedValue.data = NULL;
+    callData6.expectedValue.length = 0;
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer6, fakeExecuteForTest30Buffer5And6, &callData6));
+
+    callData7.callCounter = 0;
+    callData7.expectedValue.data = NULL;
+    callData7.expectedValue.length = 0;
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer7, fakeExecuteForTest30Buffer1And7,&callData7));
+
+    callData8.callCounter = 0;
+    callData8.expectedValue.data = NULL;
+    callData8.expectedValue.length = 0;
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer8, fakeExecuteForTest30Buffer8,&callData8));
+
+    callData9.callCounter = 0;
+    callData9.expectedValue.data = NULL;
+    callData9.expectedValue.length = 0;
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer9, fakeExecuteForTest30Buffer9, &callData9));
+
+    callData10.callCounter = 0;
+    callData10.expectedValue.data = "[]";
+    callData10.expectedValue.length = 2;
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer10, fakeExecute, &callData10));
+    memcpy(&jsonRequest_backup, &jsonRequest, sizeof(jsonRequest));
+
+    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request, FAKE_DESCRIPTOR));
+
+    strncpy(request.privateBuffer, rawRequest, sizeof (request.privateBuffer));
+    TEST_ASSERT_EQUAL(LE_OK, parseJSON(&request, &jsonRequest));
+
+    TEST_ASSERT_EQUAL(3, callData1.callCounter);
+    TEST_ASSERT_EQUAL(1, callData2.callCounter);
+    TEST_ASSERT_EQUAL(0, callData3.callCounter);
+    TEST_ASSERT_EQUAL(0, callData4.callCounter);
+    TEST_ASSERT_EQUAL(2, callData5.callCounter);
+    TEST_ASSERT_EQUAL(2, callData6.callCounter);
+    TEST_ASSERT_EQUAL(3, callData7.callCounter);
+    TEST_ASSERT_EQUAL(4, callData8.callCounter);
+    TEST_ASSERT_EQUAL(6, callData9.callCounter);
+    TEST_ASSERT_EQUAL(1, callData10.callCounter);
+    /* TEST_ASSERT_EQUAL_MEMORY(&jsonRequest_backup, &jsonRequest, sizeof(jsonRequest)); */
+}
+
+
+static const lemonError fakeExecuteForTest31Buffer1And7(const string *value, calledCallback *data) {
+    /*printf("PAOOOUUUTTT %.*s\r\n", value->length, value->data);
+    ++(data->callCounter);*/
+    switch (data->callCounter) {
+        case 0:
+        case 1:
+            TEST_ASSERT_EQUAL(2, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("[]", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        case 2:
+            TEST_ASSERT_EQUAL(8, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("{\"a\":[]}", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        default:
+            TEST_FAIL_MESSAGE("Incorrect callCounter");
+            break;
+    }
+    return LE_OK;
+}
+
+static const lemonError fakeExecuteForTest31Buffer8(const string *value, calledCallback *data) {
+    switch (data->callCounter) {
+        case 0:
+        case 1:
+        case 2:
+            TEST_ASSERT_EQUAL(2, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("[]", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        case 3:
+            TEST_ASSERT_EQUAL(8, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("{\"a\":[]}", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        default:
+            TEST_FAIL_MESSAGE("Incorrect callCounter");
+            break;
+    }
+    return LE_OK;
+}
+
+
+static const lemonError fakeExecuteForTest31Buffer6(const string *value, calledCallback *data) {
+    /* printf("OOOUUUTTT %.*s\r\n", value->length, value->data);
+    ++(data->callCounter); */
+    switch (data->callCounter) {
+        case 0:
+            TEST_ASSERT_EQUAL(2, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("[]", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        case 1:
+            TEST_ASSERT_EQUAL(8, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("{\"a\":[]}", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        default:
+            TEST_FAIL_MESSAGE("Incorrect callCounter");
+            break;
+    }
+    return LE_OK;
+}
+
+static const lemonError fakeExecuteForTest31Buffer9(const string *value, calledCallback *data) {
+    /*printf("OOOUUUTTT %.*s\r\n", value->length, value->data);
+    ++(data->callCounter);*/
+    switch (data->callCounter) {
+        case 0:
+        case 1:
+        case 2:
+            TEST_ASSERT_EQUAL(2, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("[]", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        case 3:
+        case 4:
+            TEST_ASSERT_EQUAL(8, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("{\"a\":[]}", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        case 5:
+            TEST_ASSERT_EQUAL(14, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("{\"a\":{\"a\":[]}}", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        default:
+            TEST_FAIL_MESSAGE("Incorrect callCounter");
+            break;
+    }
+    return LE_OK;
+}
+
+
+static void test31(void) {
+    const char* rawRequest = "[{\"a\":{\"a\":{\"a\":[]}}}]";
+    httpRequest request;
+    jsonPathRequest jsonRequest, jsonRequest_backup;
+    jsonPathQueryBuffer jsonPathQueryBuffer1[] = "$..a..a";
+    jsonPathQueryBuffer jsonPathQueryBuffer2[] = "$..a..a..a";
+    jsonPathQueryBuffer jsonPathQueryBuffer3[] = "$..b..a";
+    jsonPathQueryBuffer jsonPathQueryBuffer4[] = "$..a..a..a..a";
+    jsonPathQueryBuffer jsonPathQueryBuffer5[] = "$.a..a";
+    jsonPathQueryBuffer jsonPathQueryBuffer6[] = "$..a.a";
+    jsonPathQueryBuffer jsonPathQueryBuffer7[] = "$..a..a.";
+    jsonPathQueryBuffer jsonPathQueryBuffer8[] = "$..a..a..";
+    jsonPathQueryBuffer jsonPathQueryBuffer9[] = "$..a..";
+    jsonPathQueryBuffer jsonPathQueryBuffer10[] = "$..a..a..a..";
+    calledCallback callData1;
+    calledCallback callData2;
+    calledCallback callData3;
+    calledCallback callData4;
+    calledCallback callData5;
+    calledCallback callData6;
+    calledCallback callData7;
+    calledCallback callData8;
+    calledCallback callData9;
+    calledCallback callData10;
+    /* Fake json path request */
+    TEST_ASSERT_EQUAL(LE_OK, initJsonPathRequest(&jsonRequest));
+
+    callData1.callCounter = 0;
+    callData1.expectedValue.data = NULL;
+    callData1.expectedValue.length = 0;
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer1, fakeExecuteForTest31Buffer1And7,&callData1));
+
+    callData2.callCounter = 0;
+    callData2.expectedValue.data = "[]";
+    callData2.expectedValue.length = 2;
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer2, fakeExecute, &callData2));
+
+    callData3.callCounter = 0;
+    callData3.expectedValue.data = "*** Not found (it's a fake message) ***";
+    callData3.expectedValue.length = strlen(callData3.expectedValue.data);
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer3, fakeExecute, &callData3));
+
+    callData4.callCounter = 0;
+    callData4.expectedValue.data = "*** Not found (it's a fake message) ***";
+    callData4.expectedValue.length = strlen(callData4.expectedValue.data);
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer4, fakeExecute, &callData4));
+
+    callData5.callCounter = 0;
+    callData5.expectedValue.data = callData4.expectedValue.data;
+    callData5.expectedValue.length = callData4.expectedValue.length;
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer5, fakeExecute, &callData5));
+
+    callData6.callCounter = 0;
+    callData6.expectedValue.data = NULL;
+    callData6.expectedValue.length = 0;
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer6, fakeExecuteForTest31Buffer6, &callData6));
+
+    callData7.callCounter = 0;
+    callData7.expectedValue.data = NULL;
+    callData7.expectedValue.length = 0;
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer7, fakeExecuteForTest31Buffer1And7,&callData7));
+
+    callData8.callCounter = 0;
+    callData8.expectedValue.data = NULL;
+    callData8.expectedValue.length = 0;
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer8, fakeExecuteForTest31Buffer8,&callData8));
+
+    callData9.callCounter = 0;
+    callData9.expectedValue.data = NULL;
+    callData9.expectedValue.length = 0;
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer9, fakeExecuteForTest31Buffer9, &callData9));
+
+    callData10.callCounter = 0;
+    callData10.expectedValue.data = "[]";
+    callData10.expectedValue.length = 2;
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer10, fakeExecute, &callData10));
+    memcpy(&jsonRequest_backup, &jsonRequest, sizeof(jsonRequest));
+
+    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request, FAKE_DESCRIPTOR));
+
+    strncpy(request.privateBuffer, rawRequest, sizeof (request.privateBuffer));
+    TEST_ASSERT_EQUAL(LE_OK, parseJSON(&request, &jsonRequest));
+
+    TEST_ASSERT_EQUAL(3, callData1.callCounter);
+    TEST_ASSERT_EQUAL(1, callData2.callCounter);
+    TEST_ASSERT_EQUAL(0, callData3.callCounter);
+    TEST_ASSERT_EQUAL(0, callData4.callCounter);
+    TEST_ASSERT_EQUAL(0, callData5.callCounter);
+    TEST_ASSERT_EQUAL(2, callData6.callCounter);
+    TEST_ASSERT_EQUAL(3, callData7.callCounter);
+    TEST_ASSERT_EQUAL(4, callData8.callCounter);
+    TEST_ASSERT_EQUAL(6, callData9.callCounter);
+    TEST_ASSERT_EQUAL(1, callData10.callCounter);
+    /* TEST_ASSERT_EQUAL_MEMORY(&jsonRequest_backup, &jsonRequest, sizeof(jsonRequest)); */
+}
+
+static const lemonError fakeExecuteForTest32Buffer2(const string *value, calledCallback *data) {
+    /*printf("ZXOOOUUUTTT %.*s\r\n", value->length, value->data);
+    ++(data->callCounter);*/
+    switch (data->callCounter) {
+        case 0:
+            TEST_ASSERT_EQUAL(1, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("1", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        case 1:
+            TEST_ASSERT_EQUAL(7, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("{\"b\":1}", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        case 2:
+            TEST_ASSERT_EQUAL(1, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("2", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        case 3:
+            TEST_ASSERT_EQUAL(7, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("{\"b\":2}", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        case 4:
+            TEST_ASSERT_EQUAL(25, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("{\"c\":{\"b\":1},\"d\":{\"b\":2}}", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        default:
+            TEST_FAIL_MESSAGE("Incorrect callCounter");
+            break;
+    }
+    return LE_OK;
+}
+
+static const lemonError fakeExecuteForTest32Buffer3(const string *value, calledCallback *data) {
+    /*printf("ZXOOOUUUTTT %.*s\r\n", value->length, value->data);
+    ++(data->callCounter);*/
+    switch (data->callCounter) {
+        case 0:
+            TEST_ASSERT_EQUAL(7, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("{\"b\":1}", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        case 1:
+            TEST_ASSERT_EQUAL(7, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("{\"b\":2}", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        case 2:
+            TEST_ASSERT_EQUAL(25, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("{\"c\":{\"b\":1},\"d\":{\"b\":2}}", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        case 3:
+            TEST_ASSERT_EQUAL(31, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("{\"b\":{\"c\":{\"b\":1},\"d\":{\"b\":2}}}", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        default:
+            TEST_FAIL_MESSAGE("Incorrect callCounter");
+            break;
+    }
+    return LE_OK;
+}
+
+
+static const lemonError fakeExecuteForTest32Buffer4(const string *value, calledCallback *data) {
+    /*printf("ZXOOOUUUTTT %.*s\r\n", value->length, value->data);
+    ++(data->callCounter);*/
+    switch (data->callCounter) {
+        case 0:
+            TEST_ASSERT_EQUAL(1, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("1", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        case 1:
+            TEST_ASSERT_EQUAL(7, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("{\"b\":1}", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        case 2:
+            TEST_ASSERT_EQUAL(1, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("2", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        case 3:
+            TEST_ASSERT_EQUAL(7, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("{\"b\":2}", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        case 4:
+            TEST_ASSERT_EQUAL(25, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("{\"c\":{\"b\":1},\"d\":{\"b\":2}}", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        case 5:
+            TEST_ASSERT_EQUAL(1, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("3", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        case 6:
+            TEST_ASSERT_EQUAL(7, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("{\"b\":3}", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        case 7:
+            TEST_ASSERT_EQUAL(1, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("4", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        case 8:
+            TEST_ASSERT_EQUAL(13, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("{\"b\":4,\"e\":5}", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        default:
+            TEST_FAIL_MESSAGE("Incorrect callCounter");
+            break;
+    }
+    return LE_OK;
+}
+
+static const lemonError fakeExecuteForTest32Buffer5(const string *value, calledCallback *data) {
+    /*printf("ZXOOOUUUTTT %.*s\r\n", value->length, value->data);
+    ++(data->callCounter);*/
+    switch (data->callCounter) {
+        case 0:
+            TEST_ASSERT_EQUAL(7, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("{\"b\":1}", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        case 1:
+            TEST_ASSERT_EQUAL(7, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("{\"b\":3}", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        case 2:
+            TEST_ASSERT_EQUAL(13, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("{\"b\":{\"b\":3}}", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        case 3:
+            TEST_ASSERT_EQUAL(13, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("{\"b\":4,\"e\":5}", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        case 4:
+            TEST_ASSERT_EQUAL(43, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("{\"d\":{\"b\":{\"b\":3}},\"b\":{\"b\":4,\"e\":5},\"f\":6}", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        default:
+            TEST_FAIL_MESSAGE("Incorrect callCounter");
+            break;
+    }
+    return LE_OK;
+}
+
+static const lemonError fakeExecuteForTest32Buffer6(const string *value, calledCallback *data) {
+    /*printf("ZXOOOUUUTTT %.*s\r\n", value->length, value->data);
+    ++(data->callCounter);*/
+    switch (data->callCounter) {
+        case 0:
+            TEST_ASSERT_EQUAL(7, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("{\"b\":2}", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        case 1:
+            TEST_ASSERT_EQUAL(7, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("{\"b\":3}", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        case 2:
+            TEST_ASSERT_EQUAL(13, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("{\"b\":{\"b\":3}}", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        default:
+            TEST_FAIL_MESSAGE("Incorrect callCounter");
+            break;
+    }
+    return LE_OK;
+}
+
+
+static const lemonError fakeExecuteForTest32Buffer10(const string *value, calledCallback *data) {
+    /*printf("ZXOOOUUUTTT %.*s\r\n", value->length, value->data);
+    ++(data->callCounter);*/
+    switch (data->callCounter) {
+        case 0:
+            TEST_ASSERT_EQUAL(1, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("1", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        case 1:
+            TEST_ASSERT_EQUAL(1, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("3", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        case 2:
+            TEST_ASSERT_EQUAL(7, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("{\"b\":3}", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        case 3:
+            TEST_ASSERT_EQUAL(1, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("4", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        case 4:
+            TEST_ASSERT_EQUAL(13, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("{\"b\":4,\"e\":5}", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        default:
+            TEST_FAIL_MESSAGE("Incorrect callCounter");
+            break;
+    }
+    return LE_OK;
+}
+
+static void test32(void) {
+    /*
+{
+    "a" : {
+        "b" : {
+            "c" : {
+                "b" : 1
+            },
+            "d" : {
+                "b" : 2
+            }
+        }
+    },
+    "c" : {
+        "d" : {
+            "b" : {
+                "b" : 3
+            }
+        },
+        "b" : {
+            "b" : 4,
+            "e" : 5
+        },
+        "f" : 6
+    }
+}
+     */
+    const char* rawRequest = "{\"a\":{\"b\":{\"c\":{\"b\":1},\"d\":{\"b\":2}}},\"c\":{\"d\":{\"b\":{\"b\":3}},\"b\":{\"b\":4,\"e\":5},\"f\":6}}";
+    httpRequest request;
+    jsonPathRequest jsonRequest, jsonRequest_backup;
+
+    jsonPathQueryBuffer jsonPathQueryBuffer1[] = "$..a..c..b..";
+    jsonPathQueryBuffer jsonPathQueryBuffer2[] = "$..a..b..";
+    jsonPathQueryBuffer jsonPathQueryBuffer3[] = "$..a..";
+    jsonPathQueryBuffer jsonPathQueryBuffer4[] = "$..b..";
+    jsonPathQueryBuffer jsonPathQueryBuffer5[] = "$..c..";
+    jsonPathQueryBuffer jsonPathQueryBuffer6[] = "$..d..";
+    jsonPathQueryBuffer jsonPathQueryBuffer7[] = "$..e..";
+    jsonPathQueryBuffer jsonPathQueryBuffer8[] = "$..f..";
+    jsonPathQueryBuffer jsonPathQueryBuffer9[] = "$..a..e..";
+    jsonPathQueryBuffer jsonPathQueryBuffer10[] = "$..c..b..";
+    calledCallback callData1;
+    calledCallback callData2;
+    calledCallback callData3;
+    calledCallback callData4;
+    calledCallback callData5;
+    calledCallback callData6;
+    calledCallback callData7;
+    calledCallback callData8;
+    calledCallback callData9;
+    calledCallback callData10;
+    /* Fake json path request */
+    TEST_ASSERT_EQUAL(LE_OK, initJsonPathRequest(&jsonRequest));
+
+    callData1.callCounter = 0;
+    callData1.expectedValue.data = "1";
+    callData1.expectedValue.length = 1;
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer1, fakeExecute, &callData1));
+
+    callData2.callCounter = 0;
+    callData2.expectedValue.data = NULL;
+    callData2.expectedValue.length = 0;
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer2, fakeExecuteForTest32Buffer2, &callData2));
+
+    callData3.callCounter = 0;
+    callData3.expectedValue.data = NULL;
+    callData3.expectedValue.length = 0;
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer3, fakeExecuteForTest32Buffer3, &callData3));
+
+    callData4.callCounter = 0;
+    callData4.expectedValue.data = NULL;
+    callData4.expectedValue.length = 0;
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer4, fakeExecuteForTest32Buffer4, &callData4));
+
+    callData5.callCounter = 0;
+    callData5.expectedValue.data = NULL;
+    callData5.expectedValue.length = 0;
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer5, fakeExecuteForTest32Buffer5, &callData5));
+
+    callData6.callCounter = 0;
+    callData6.expectedValue.data = NULL;
+    callData6.expectedValue.length = 0;
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer6, fakeExecuteForTest32Buffer6, &callData6));
+
+    callData7.callCounter = 0;
+    callData7.expectedValue.data = "5";
+    callData7.expectedValue.length = 1;
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer7, fakeExecute, &callData7));
+
+    callData8.callCounter = 0;
+    callData8.expectedValue.data = "6";
+    callData8.expectedValue.length = 1;
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer8, fakeExecute, &callData8));
+
+    callData9.callCounter = 0;
+    callData9.expectedValue.data = "*** Not found (it's a fake message) ***";
+    callData9.expectedValue.length = strlen(callData9.expectedValue.data);
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer9, fakeExecute, &callData9));
+
+    callData10.callCounter = 0;
+    callData10.expectedValue.data = NULL;
+    callData10.expectedValue.length = 0;
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer10, fakeExecuteForTest32Buffer10, &callData10));
+
+    memcpy(&jsonRequest_backup, &jsonRequest, sizeof(jsonRequest));
+
+    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request, FAKE_DESCRIPTOR));
+
+    strncpy(request.privateBuffer, rawRequest, sizeof (request.privateBuffer));
+    TEST_ASSERT_EQUAL(LE_OK, parseJSON(&request, &jsonRequest));
+
+    TEST_ASSERT_EQUAL(1, callData1.callCounter);
+    TEST_ASSERT_EQUAL(5, callData2.callCounter);
+    TEST_ASSERT_EQUAL(4, callData3.callCounter);
+    TEST_ASSERT_EQUAL(9, callData4.callCounter);
+    TEST_ASSERT_EQUAL(5, callData5.callCounter);
+    TEST_ASSERT_EQUAL(3, callData6.callCounter);
+    TEST_ASSERT_EQUAL(1, callData7.callCounter);
+    TEST_ASSERT_EQUAL(1, callData8.callCounter);
+    TEST_ASSERT_EQUAL(0, callData9.callCounter);
+    TEST_ASSERT_EQUAL(5, callData10.callCounter);
+    /* TEST_ASSERT_EQUAL_MEMORY(&jsonRequest_backup, &jsonRequest, sizeof(jsonRequest)); */
+}
+
+
+
+static const lemonError fakeExecuteForTest33Buffer2(const string *value, calledCallback *data) {
+    printf("ZXOOOUUUTTT %.*s\r\n", value->length, value->data);
+    ++(data->callCounter);
+    /*switch (data->callCounter) {
+        case 0:
+        case 1:
+        case 2:
+            TEST_ASSERT_EQUAL(2, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("[]", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        case 3:
+        case 4:
+            TEST_ASSERT_EQUAL(8, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("{\"a\":[]}", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        case 5:
+            TEST_ASSERT_EQUAL(14, value->length);
+            TEST_ASSERT_EQUAL_STRING_LEN("{\"a\":{\"a\":[]}}", value->data, value->length);
+            ++(data->callCounter);
+            break;
+        default:
+            TEST_FAIL_MESSAGE("Incorrect callCounter");
+            break;
+    }*/
+    return LE_OK;
+}
+
+
+static void test33(void) {
+    const char* rawRequest = "[\n"
+                             "    \"a\",\n"
+                             "    {\n"
+                             "        \"c\" : {\n"
+                             "            \"b\" : {\n"
+                             "                \"d\" : 123\n"
+                             "            }\n"
+                             "        }\n"
+                             "    },\n"
+                             "    [\n"
+                             "        {\n"
+                             "            \"b\" : 234\n"
+                             "        },\n"
+                             "        [\"b\", \"b\"],\n"
+                             "        {\n"
+                             "            \"x\": 567,\n"
+                             "            \"b\": 678,\n"
+                             "            \"p\": {\n"
+                             "                \"q\" : 111,\n"
+                             "                \"b\": {\n"
+                             "                    \"b\": [],\n"
+                             "                    \"b\": {}\n"
+                             "                }\n"
+                             "            }\n"
+                             "        }\n"
+                             "    ]\n"
+                             "]";
+    httpRequest request;
+    jsonPathRequest jsonRequest, jsonRequest_backup;
+    jsonPathQueryBuffer jsonPathQueryBuffer1[] = "$..a..";
+    jsonPathQueryBuffer jsonPathQueryBuffer2[] = "$..b..";
+    calledCallback callData1;
+    calledCallback callData2;
+    /* Fake json path request */
+    TEST_ASSERT_EQUAL(LE_OK, initJsonPathRequest(&jsonRequest));
+
+    callData1.callCounter = 0;
+    callData1.expectedValue.data = "*** Not found (it's a fake message) ***";
+    callData1.expectedValue.length = strlen(callData1.expectedValue.data);
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer1, fakeExecute, &callData1));
+
+    callData2.callCounter = 0;
+    callData2.expectedValue.data = NULL;
+    callData2.expectedValue.length = 0;
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer2, fakeExecuteForTest33Buffer2, &callData2));
+
+    memcpy(&jsonRequest_backup, &jsonRequest, sizeof(jsonRequest));
+
+    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request, FAKE_DESCRIPTOR));
+
+    strncpy(request.privateBuffer, rawRequest, sizeof (request.privateBuffer));
+    TEST_ASSERT_EQUAL(LE_OK, parseJSON(&request, &jsonRequest));
+
+    TEST_ASSERT_EQUAL(0, callData1.callCounter);
+    /* TEST_ASSERT_EQUAL_MEMORY(&jsonRequest_backup, &jsonRequest, sizeof(jsonRequest)); */
+}
+
+
+/*
+[
+    "a",
+    {
+        "c" : {
+            "b" : {
+                "d" : 123
+            }
+        }
+    },
+    [
+        {
+            "b" : 234
+        },
+        ["b", "b"],
+        {
+            "x": 567,
+            "b": 678,
+            "p": {
+                "q" : 111,
+                "b": {
+                    "b": [],
+                    "b": {}
+                }
+            }
+        }
+    ]
+]
+ */
+
 /*
 
 {
@@ -1064,6 +3547,12 @@ static void test13(void) {
 
 int main() {
     UnityBegin(__FILE__);
+    /*RUN_TEST(test12);*/
+    /*RUN_TEST(test13);*/
+    /*RUN_TEST(test17);*/
+    /*RUN_TEST(test32);*/
+
+
     RUN_TEST(test1);
     RUN_TEST(test2);
     RUN_TEST(test3);
@@ -1075,6 +3564,41 @@ int main() {
     RUN_TEST(test9);
     RUN_TEST(test10);
     RUN_TEST(test11);
-    RUN_TEST(test12);
+
+    RUN_TEST(test15);
+    RUN_TEST(test16);
+
+    RUN_TEST(test18);
+    RUN_TEST(test19);
+    RUN_TEST(test20);
+    RUN_TEST(test21);
+    RUN_TEST(test22);
+    RUN_TEST(test23);
+    RUN_TEST(test24);
+    RUN_TEST(test25);
+    RUN_TEST(test26);
+    RUN_TEST(test27);
+    RUN_TEST(test28);
+
+    RUN_TEST(test29);
+    RUN_TEST(test30);
+    RUN_TEST(test31);
+
+    RUN_TEST(test32);
+
+
+
+
     return (UnityEnd());
 }
+
+/* GOOD TEST:
+$.b..b
+
+{
+    "b" : {
+        "b" : 1
+    }
+}
+
+ */

@@ -52,10 +52,6 @@ main ::= jsonpath DOT DOT. {
         /* TODO: Fix markJSONPathAsParseFailed !!!! */
         markJSONPathAsParseFailed(ps);
     };
-    if (NULL == appendJsonPathElementOfHttpRequest(ps->jsonPathRequest, &(emptyString), RECURSIVE)) {
-            /* TODO: Fix markJSONPathAsParseFailed !!!! */
-            markJSONPathAsParseFailed(ps);
-        };
     markJSONPathAsParsed(ps); puts("DONE3");
 }
 

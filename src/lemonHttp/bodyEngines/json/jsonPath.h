@@ -26,16 +26,21 @@
 #include "./jsonPathQueryBuffer.h"
 
 typedef enum {
-    ROOT,
-    ANY,
-    ANYINDEX,
-    NAME,
-    INDEX,
-    RECURSIVE,
-    PARSED_ROOT,
-    PARSED_OBJECT,
-    PARSED_INDEX,
-    PARSED_FIELD,
+    ROOT, /* 0 */
+    ANY, /* 1 */
+    ANYINDEX, /* 2 */
+    NAME, /* 3 */
+    NAME_WITH_OBJECT_OR_ARRAY, /* 4 */
+    INDEX, /* 5 */
+    RECURSIVE, /* 6 */
+    PARSED_ROOT, /* 7 */
+    PARSED_OBJECT, /* 8 */
+    JOINED_OBJECT, /* 9 */
+    HEAD_OF_JOINED_OBJECT, /* 10 */
+    PARSED_INDEX, /* 11 */
+    PARSED_FIELD, /* 12 */
+    PARSED_FIELD_WITH_OBJECT, /* 13 */
+    RESOLVED_FIELD /* 14 */,
     /* PARSED_VALUE,
     PARSED_ANY,
     PARSED_ANYINDEX,

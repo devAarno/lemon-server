@@ -39,7 +39,7 @@ const lemonError updateJsonPathRequestStatusByArray(jsonPathRequest *jsonRequest
 
 const lemonError rollbackJsonPathRequestStatusByArray(jsonPathRequest *jsonRequest, const char *endArrayPosition);
 
-const lemonError executeJsonPathCallbackWithValue(jsonPathRequest *jsonRequest, const string *s);
+const lemonError executeJsonPathCallbackWithValue(jsonPathRequest *jsonRequest, const string *s, const boolean isComplex);
 
 const lemonError executeJsonPathCallbackByObject(jsonPathRequest *jsonRequest);
 

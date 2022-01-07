@@ -64,25 +64,25 @@ end_root ::= . { puts("ROOT_END"); rollbackJsonPathRequestStatusByRoot(ps->jsonR
 
 %type number {string}
 
-value ::= object(o).  { printf("\nOBJ XVALUE -- %.*s\n", o.length, o.data); executeJsonPathCallbackWithValue(ps->jsonRequest, &o); }
-value ::= array(a). { printf("\nARRAY XVALUE -- %.*s\n", a.length, a.data); executeJsonPathCallbackWithValue(ps->jsonRequest, &a); }
+value ::= object(o).  { printf("\nOBJ XVALUE -- %.*s\n", o.length, o.data); executeJsonPathCallbackWithValue(ps->jsonRequest, &o, TRUE); }
+value ::= array(a). { printf("\nARRAY XVALUE -- %.*s\n", a.length, a.data); executeJsonPathCallbackWithValue(ps->jsonRequest, &a, TRUE);}
 
-value ::= number(s1). { printf("\nNUM XVALUE -- %.*s\n", s1.length, s1.data); executeJsonPathCallbackWithValue(ps->jsonRequest, &s1); }
-value ::= string(s1). { printf("\nSTR XVALUE -- %.*s\n", s1.length, s1.data); executeJsonPathCallbackWithValue(ps->jsonRequest, &s1); }
+value ::= number(s1). { printf("\nNUM XVALUE -- %.*s\n", s1.length, s1.data); executeJsonPathCallbackWithValue(ps->jsonRequest, &s1, FALSE); }
+value ::= string(s1). { printf("\nSTR XVALUE -- %.*s\n", s1.length, s1.data); executeJsonPathCallbackWithValue(ps->jsonRequest, &s1, FALSE); }
 value ::= true. {
   const string s = getTrueString();
   printf("\nTRUE XVALUE\n");
-  executeJsonPathCallbackWithValue(ps->jsonRequest, &s);
+  executeJsonPathCallbackWithValue(ps->jsonRequest, &s, FALSE);
 }
 value ::= false. {
   const string s = getFalseString();
   printf("\nFALSE XVALUE\n");
-  executeJsonPathCallbackWithValue(ps->jsonRequest, &s);
+  executeJsonPathCallbackWithValue(ps->jsonRequest, &s, FALSE);
 }
 value ::= null. {
   const string s = getNullString();
   printf("\nFALSE XVALUE\n");
-  executeJsonPathCallbackWithValue(ps->jsonRequest, &s);
+  executeJsonPathCallbackWithValue(ps->jsonRequest, &s, FALSE);
 }
 
 object(o) ::= l_crl_brckt(o_start) ows r_crl_brckt(o_end). {
