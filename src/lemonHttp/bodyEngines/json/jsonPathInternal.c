@@ -519,24 +519,68 @@ static lemonError isJsonPathResolved(const jsonPathElement *currRoot, const json
 
                         break;
                     case PARSED_INDEX:
-                    case PARSED_FIELD:
-                    case PARSED_FIELD_WITH_OBJECT:
-
                         if ((lastStack == currStack) && (lastRule == currRule)) {
                             return (currRoot->data.root.callback.handler)(s, currRoot->data.root.callback.data);
                         }
 
-                        if (1 + currRule <= lastRule) {
-                            ++(currRule);
+                        if ((1 + currRule == lastRule) && (RECURSIVE == (1 + currRule)->type) && (currStack == lastStack) && (TRUE == isComplex)) {
+                            printf("RETURN DATA 2xxx %.*s\r\n", s->length, s->data);
+                            puts("CALL 1xxx");
+                            return (currRoot->data.root.callback.handler)(s, currRoot->data.root.callback.data);
+                        }
+
+                        if ((1 + currStack <= lastStack) && (1 + currRule <= lastRule)) {
+                            currStack->type = RESOLVED_FIELD;
+                            isJsonPathResolved(currRoot, lastRule, lastStack, s, currRule + 1, currStack + 1, isComplex, FALSE);
+                            currStack->type = PARSED_INDEX;
+                            return LE_OK;
+                        } else {
+                            return LE_OK;
+                        }
+                        break;
+                    case PARSED_FIELD_WITH_OBJECT:
+                        if ((lastStack == currStack) && (lastRule == currRule)) {
+                            return (currRoot->data.root.callback.handler)(s, currRoot->data.root.callback.data);
+                        }
+
+                        if ((1 + currRule == lastRule) && (RECURSIVE == (1 + currRule)->type) && (currStack == lastStack) && (TRUE == isComplex)) {
+                            printf("RETURN DATA 2xx %.*s\r\n", s->length, s->data);
+                            puts("CALL 1xx");
+                            return (currRoot->data.root.callback.handler)(s, currRoot->data.root.callback.data);
+                        }
+
+                        if ((1 + currStack <= lastStack) && (1 + currRule <= lastRule)) {
+                            currStack->type = RESOLVED_FIELD;
+                            isJsonPathResolved(currRoot, lastRule, lastStack, s, currRule + 1, currStack + 1, isComplex, FALSE);
+                            currStack->type = PARSED_FIELD_WITH_OBJECT;
+                            return LE_OK;
                         } else {
                             return LE_OK;
                         }
 
-                        if (1 + currStack <= lastStack) {
-                            ++(currStack);
-                        } else {
-                            return LE_OK; /* ????????????? */
+                        break;
+                    case PARSED_FIELD:
+                        if ((lastStack == currStack) && (lastRule == currRule)) {
+                            return (currRoot->data.root.callback.handler)(s, currRoot->data.root.callback.data);
                         }
+
+                        if ((1 + currRule == lastRule) && (RECURSIVE == (1 + currRule)->type) && (currStack == lastStack) && (TRUE == isComplex)) {
+                            printf("RETURN DATA 2x %.*s\r\n", s->length, s->data);
+                            puts("CALL 1x");
+                            return (currRoot->data.root.callback.handler)(s, currRoot->data.root.callback.data);
+                        }
+
+                        if ((1 + currStack <= lastStack) && (1 + currRule <= lastRule)) {
+                            currStack->type = RESOLVED_FIELD;
+                            isJsonPathResolved(currRoot, lastRule, lastStack, s, currRule + 1, currStack + 1, isComplex, FALSE);
+                            currStack->type = PARSED_FIELD;
+                            return LE_OK;
+                        } else {
+                            return LE_OK;
+                        }
+
+                        /*++(currRule);
+                        ++(currStack);*/
                         break;
                     default:
                         printf("RETURN LE_OK 20 %.*s\r\n", s->length, s->data);
@@ -604,7 +648,7 @@ static lemonError isJsonPathResolved(const jsonPathElement *currRoot, const json
                                 printStack(lastStack, "ERROR STATE 2");
                                 return LE_OK;
                             }*/
-                            if ((TRUE == isComplex) && (TRUE == isAllRecursiveResolved(lastRule, lastStack)) && (TRUE == isAllFieldsResolved(lastRule, lastStack))) {
+                            if ((TRUE == isComplex) /*&& (TRUE == isAllRecursiveResolved(lastRule, lastStack)) && (TRUE == isAllFieldsResolved(lastRule, lastStack))*/) {
                                 puts("CALL 6");
                                 return (currRoot->data.root.callback.handler)(s, currRoot->data.root.callback.data);
                             } else {
@@ -623,7 +667,7 @@ static lemonError isJsonPathResolved(const jsonPathElement *currRoot, const json
                         return LE_OK;
                         break;
                     case PARSED_INDEX:
-                        if ((currStack == lastStack) && (lastRule == currRule) && (TRUE == isAllRecursiveResolved(lastRule - 1, lastStack)) && (TRUE == isAllFieldsResolved(lastRule, lastStack))) {
+                        if ((currStack == lastStack) && (lastRule == currRule) /*&& (TRUE == isAllRecursiveResolved(lastRule - 1, lastStack)) && (TRUE == isAllFieldsResolved(lastRule, lastStack))*/) {
                             if (TRUE == isComplex) {
                                 return (currRoot->data.root.callback.handler)(s, currRoot->data.root.callback.data);
                             } else {
