@@ -17,31 +17,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef PARSER_H
-#define PARSER_H
+#ifndef LEMONSERVER_JSONPATHQUERYBUFFER_H
+#define LEMONSERVER_JSONPATHQUERYBUFFER_H
 
-#include <stddef.h>
+typedef char jsonPathQueryBuffer;
 
-#include "httpRequest.h"
-#include "../boolean.h"
-#include "lemonError.h"
-
-typedef struct {
-    httpRequest *request;
-    boolean isParsed;
-    boolean isParseFailed;
-    boolean isSyntaxIncorrect;
-} parserState;
-
-const lemonError parseHTTP(httpRequest *request);
-
-const boolean isParsed(const parserState* ps);
-
-const lemonError markAsParsed(parserState* ps);
-
-const lemonError markAsParseFailed(parserState* ps);
-
-const lemonError markAsSyntaxIncorrect(parserState* ps);
-
-#endif /* PARSER_H */
-
+#endif /* LEMONSERVER_JSONPATHQUERYBUFFER_H */

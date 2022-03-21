@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2017, 2018, 2019 Parkhomenko Stanislav
+# Copyright (C) 2017, 2018, 2019, 2020, 2021, 2022 Parkhomenko Stanislav
 #
 # This file is part of Lemon Server.
 #
@@ -16,13 +16,16 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-cmake_minimum_required (VERSION 2.4)
+cmake_minimum_required (VERSION 2.4...3.18)
 project (lemonServer C)
 
 set(CMAKE_VERBOSE_MAKEFILE on)
-add_definitions(-g -O0 -ansi -pedantic)
-#add_definitions(-O3 -flto -march=broadwell)
+add_definitions(-gdwarf-4 -ggdb -g3 -fvar-tracking-assignments -ginline-points -O0 -ansi -pedantic -Wall -Wpedantic -Wextra)
+# add_definitions(-O3 -flto -march=broadwell -s)
 set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -Wall -Wpedantic -Wextra")
+
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -gdwarf-4 -ggdb -g3 -fvar-tracking-assignments -ginline-points")
+set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -gdwarf-4 -ggdb -g3 -fvar-tracking-assignments -ginline-points")
 
 add_subdirectory (3rdParty/lemon)
 add_subdirectory (src)

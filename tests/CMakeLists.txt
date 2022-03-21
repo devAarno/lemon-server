@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2017, 2018, 2019 Parkhomenko Stanislav
+# Copyright (C) 2017, 2018, 2019, 2020, 2021, 2022 Parkhomenko Stanislav
 #
 # This file is part of Lemon Server.
 #
@@ -16,7 +16,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-cmake_minimum_required (VERSION 2.4)
+cmake_minimum_required (VERSION 2.4...3.18)
 project (unittest C)
 
 include(CheckIncludeFiles)
@@ -51,6 +51,6 @@ foreach(s ${allSrc})
   add_executable(${testname} ${s})
   add_dependencies(${testname} unity lemonServer)
   target_link_libraries(${testname} unity lemonServer)
-  add_test(NAME ${testDesription} COMMAND ${testname} WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+  add_test(NAME ${testDesription}-${s} COMMAND ${testname} WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 endforeach(s)
 

@@ -17,31 +17,25 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef PARSER_H
-#define PARSER_H
+#include "strncasecmp.h"
 
-#include <stddef.h>
+/** FreeBSD implementation
+ * https://svnweb.freebsd.org/base/head/lib/libc/string/strcasecmp.c?view=markup
+ */
 
-#include "httpRequest.h"
-#include "../boolean.h"
-#include "lemonError.h"
+#ifdef USE_INTERNAL_STRNCASECMP
 
-typedef struct {
-    httpRequest *request;
-    boolean isParsed;
-    boolean isParseFailed;
-    boolean isSyntaxIncorrect;
-} parserState;
+#include <ctype.h>
 
-const lemonError parseHTTP(httpRequest *request);
-
-const boolean isParsed(const parserState* ps);
-
-const lemonError markAsParsed(parserState* ps);
-
-const lemonError markAsParseFailed(parserState* ps);
-
-const lemonError markAsSyntaxIncorrect(parserState* ps);
-
-#endif /* PARSER_H */
-
+static int strncasecmp_internal(const char *s1, const char *s2, size_t n) {
+    if (n != 0) {
+        do {
+            if (tolower(*s1) != tolower(*s2++))
+                return (tolower(*s1) - tolower(*--s2));
+            if (*s1++ == '\0')
+                break;
+        } while (--n != 0);
+    }
+    return (0);
+}
+#endif

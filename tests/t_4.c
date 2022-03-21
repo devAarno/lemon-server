@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017, 2018, 2019 Parkhomenko Stanislav
+ * Copyright (C) 2017, 2018, 2019, 2020, 2021, 2022 Parkhomenko Stanislav
  *
  * This file is part of Lemon Server.
  *
@@ -53,7 +53,7 @@ static void test_correctValues1(void) {
 
     strncpy(request.privateBuffer, rawRequest1, sizeof (request.privateBuffer));
 
-    TEST_ASSERT_EQUAL(LE_OK, parse(&request));
+    TEST_ASSERT_EQUAL(LE_OK, parseHTTP(&request));
 
     out = (string *) getMethodOfHttpRequest(&request);
     TEST_ASSERT_NOT_NULL(out);
@@ -123,7 +123,7 @@ static void test_correctValues2(void) {
 
     strncpy(request.privateBuffer, rawRequest2, sizeof (request.privateBuffer));
 
-    TEST_ASSERT_EQUAL(LE_OK, parse(&request));
+    TEST_ASSERT_EQUAL(LE_OK, parseHTTP(&request));
 
     out = (string *) getMethodOfHttpRequest(&request);
     TEST_ASSERT_NOT_NULL(out);
@@ -157,7 +157,7 @@ static void test_incorrectValues1(void) {
 
     strncpy(request.privateBuffer, rawRequest3a, sizeof (request.privateBuffer));
 
-    TEST_ASSERT_EQUAL(LE_PARSING_IS_FAILED, parse(&request));
+    TEST_ASSERT_EQUAL(LE_PARSING_IS_FAILED, parseHTTP(&request));
 }
 
 static void test_incorrectValues2(void) {
@@ -167,7 +167,7 @@ static void test_incorrectValues2(void) {
 
     strncpy(request.privateBuffer, rawRequest3b, sizeof (request.privateBuffer));
 
-    TEST_ASSERT_EQUAL(LE_PARSING_IS_FAILED, parse(&request));
+    TEST_ASSERT_EQUAL(LE_PARSING_IS_FAILED, parseHTTP(&request));
 }
 
 static void test_incorrectValues3(void) {
@@ -177,7 +177,7 @@ static void test_incorrectValues3(void) {
 
     strncpy(request.privateBuffer, rawRequest3c, sizeof (request.privateBuffer));
 
-    TEST_ASSERT_EQUAL(LE_PARSING_IS_FAILED, parse(&request));
+    TEST_ASSERT_EQUAL(LE_PARSING_IS_FAILED, parseHTTP(&request));
 }
 
 static void test_incorrectValues4(void) {
@@ -187,7 +187,7 @@ static void test_incorrectValues4(void) {
 
     strncpy(request.privateBuffer, rawRequest3d, sizeof (request.privateBuffer));
 
-    TEST_ASSERT_EQUAL(LE_PARSING_IS_FAILED, parse(&request));
+    TEST_ASSERT_EQUAL(LE_PARSING_IS_FAILED, parseHTTP(&request));
 }
 
 static void test_incorrectValues5(void) {
@@ -197,7 +197,7 @@ static void test_incorrectValues5(void) {
 
     strncpy(request.privateBuffer, rawRequest3e, sizeof (request.privateBuffer));
 
-    TEST_ASSERT_EQUAL(LE_PARSING_IS_FAILED, parse(&request));
+    TEST_ASSERT_EQUAL(LE_PARSING_IS_FAILED, parseHTTP(&request));
 }
 
 static void test_incorrectValues6(void) {
@@ -207,7 +207,7 @@ static void test_incorrectValues6(void) {
 
     strncpy(request.privateBuffer, rawRequest3f, sizeof (request.privateBuffer));
 
-    TEST_ASSERT_EQUAL(LE_PARSING_IS_FAILED, parse(&request));
+    TEST_ASSERT_EQUAL(LE_PARSING_IS_FAILED, parseHTTP(&request));
 }
 
 static void test_correctValues3(void) {
@@ -218,7 +218,7 @@ static void test_correctValues3(void) {
 
     strncpy(request.privateBuffer, rawRequest3g, sizeof (request.privateBuffer));
 
-    TEST_ASSERT_EQUAL(LE_OK, parse(&request));
+    TEST_ASSERT_EQUAL(LE_OK, parseHTTP(&request));
 
     out = (string *) getMethodOfHttpRequest(&request);
     TEST_ASSERT_NOT_NULL(out);
@@ -253,7 +253,7 @@ static void test_correctValues4(void) {
 
     strncpy(request.privateBuffer, rawRequest3h, sizeof (request.privateBuffer));
 
-    TEST_ASSERT_EQUAL(LE_OK, parse(&request));
+    TEST_ASSERT_EQUAL(LE_OK, parseHTTP(&request));
 
     out = (string *) getMethodOfHttpRequest(&request);
     TEST_ASSERT_NOT_NULL(out);

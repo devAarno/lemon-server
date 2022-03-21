@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017, 2018, 2019 Parkhomenko Stanislav
+ * Copyright (C) 2017, 2018, 2019, 2020, 2021, 2022 Parkhomenko Stanislav
  *
  * This file is part of Lemon Server.
  *
@@ -99,7 +99,7 @@ static void test_body(void) {
     /* What should I do if test fails? How to close files? */
     TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request, fileno(fparser)));
     readData(&request);
-    TEST_ASSERT_EQUAL(LE_OK, parse(&request));
+    TEST_ASSERT_EQUAL(LE_OK, parseHTTP(&request));
 
     out = (string *) getMethodOfHttpRequest(&request);
     TEST_ASSERT_NOT_NULL(out);

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017, 2018, 2019 Parkhomenko Stanislav
+ * Copyright (C) 2017, 2018, 2019, 2020, 2021, 2022 Parkhomenko Stanislav
  *
  * This file is part of Lemon Server.
  *
@@ -48,7 +48,7 @@ static void test1(void) {
 
     strncpy(request.privateBuffer, rawRequest, sizeof (request.privateBuffer));
 
-    TEST_ASSERT_EQUAL(LE_OK, parse(&request));
+    TEST_ASSERT_EQUAL(LE_OK, parseHTTP(&request));
 
     out = (string *) getMethodOfHttpRequest(&request);
     TEST_ASSERT_NOT_NULL(out);
@@ -73,7 +73,7 @@ static void test2(void) {
 
     strncpy(request.privateBuffer, rawRequest, sizeof (request.privateBuffer));
 
-    TEST_ASSERT_EQUAL(LE_OK, parse(&request));
+    TEST_ASSERT_EQUAL(LE_OK, parseHTTP(&request));
 
     out = (string *) getMethodOfHttpRequest(&request);
     TEST_ASSERT_NOT_NULL(out);
@@ -98,7 +98,7 @@ static void test3(void) {
 
     strncpy(request.privateBuffer, rawRequest, sizeof (request.privateBuffer));
 
-    TEST_ASSERT_EQUAL(LE_OK, parse(&request));
+    TEST_ASSERT_EQUAL(LE_OK, parseHTTP(&request));
 
     out = (string *) getMethodOfHttpRequest(&request);
     TEST_ASSERT_NOT_NULL(out);
@@ -123,7 +123,7 @@ static void test4(void) {
 
     strncpy(request.privateBuffer, rawRequest, sizeof (request.privateBuffer));
 
-    TEST_ASSERT_EQUAL(LE_OK, parse(&request));
+    TEST_ASSERT_EQUAL(LE_OK, parseHTTP(&request));
 
     out = (string *) getMethodOfHttpRequest(&request);
     TEST_ASSERT_NOT_NULL(out);
@@ -148,7 +148,7 @@ static void test5(void) {
 
     strncpy(request.privateBuffer, rawRequest, sizeof (request.privateBuffer));
 
-    TEST_ASSERT_EQUAL(LE_OK, parse(&request));
+    TEST_ASSERT_EQUAL(LE_OK, parseHTTP(&request));
 
     out = (string *) getMethodOfHttpRequest(&request);
     TEST_ASSERT_NOT_NULL(out);
@@ -173,7 +173,7 @@ static void test6(void) {
 
     strncpy(request.privateBuffer, rawRequest, sizeof (request.privateBuffer));
 
-    TEST_ASSERT_EQUAL(LE_OK, parse(&request));
+    TEST_ASSERT_EQUAL(LE_OK, parseHTTP(&request));
 
     out = (string *) getMethodOfHttpRequest(&request);
     TEST_ASSERT_NOT_NULL(out);
@@ -198,7 +198,7 @@ static void test7(void) {
 
     strncpy(request.privateBuffer, rawRequest, sizeof (request.privateBuffer));
 
-    TEST_ASSERT_EQUAL(LE_OK, parse(&request));
+    TEST_ASSERT_EQUAL(LE_OK, parseHTTP(&request));
 
     out = (string *) getMethodOfHttpRequest(&request);
     TEST_ASSERT_NOT_NULL(out);
@@ -223,7 +223,7 @@ static void test8(void) {
 
     strncpy(request.privateBuffer, rawRequest, sizeof (request.privateBuffer));
 
-    TEST_ASSERT_EQUAL(LE_OK, parse(&request));
+    TEST_ASSERT_EQUAL(LE_OK, parseHTTP(&request));
 
     out = (string *) getMethodOfHttpRequest(&request);
     TEST_ASSERT_NOT_NULL(out);
@@ -248,7 +248,7 @@ static void test9(void) {
 
     strncpy(request.privateBuffer, rawRequest, sizeof (request.privateBuffer));
 
-    TEST_ASSERT_EQUAL(LE_OK, parse(&request));
+    TEST_ASSERT_EQUAL(LE_OK, parseHTTP(&request));
 
     out = (string *) getMethodOfHttpRequest(&request);
     TEST_ASSERT_NOT_NULL(out);
@@ -273,7 +273,7 @@ static void test10(void) {
 
     strncpy(request.privateBuffer, rawRequest, sizeof (request.privateBuffer));
 
-    TEST_ASSERT_EQUAL(LE_OK, parse(&request));
+    TEST_ASSERT_EQUAL(LE_OK, parseHTTP(&request));
 
     out = (string *) getMethodOfHttpRequest(&request);
     TEST_ASSERT_NOT_NULL(out);
@@ -298,7 +298,7 @@ static void test11(void) {
 
     strncpy(request.privateBuffer, rawRequest, sizeof (request.privateBuffer));
 
-    TEST_ASSERT_EQUAL(LE_OK, parse(&request));
+    TEST_ASSERT_EQUAL(LE_OK, parseHTTP(&request));
 
     out = (string *) getMethodOfHttpRequest(&request);
     TEST_ASSERT_NOT_NULL(out);
@@ -323,7 +323,7 @@ static void test12(void) {
 
     strncpy(request.privateBuffer, rawRequest, sizeof (request.privateBuffer));
 
-    TEST_ASSERT_EQUAL(LE_OK, parse(&request));
+    TEST_ASSERT_EQUAL(LE_OK, parseHTTP(&request));
 
     out = (string *) getMethodOfHttpRequest(&request);
     TEST_ASSERT_NOT_NULL(out);
@@ -348,7 +348,7 @@ static void test13(void) {
 
     strncpy(request.privateBuffer, rawRequest, sizeof (request.privateBuffer));
 
-    TEST_ASSERT_EQUAL(LE_OK, parse(&request));
+    TEST_ASSERT_EQUAL(LE_OK, parseHTTP(&request));
 
     out = (string *) getMethodOfHttpRequest(&request);
     TEST_ASSERT_NOT_NULL(out);

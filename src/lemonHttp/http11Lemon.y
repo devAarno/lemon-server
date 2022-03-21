@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017, 2018, 2019 Parkhomenko Stanislav
+ * Copyright (C) 2017, 2018, 2019, 2020, 2021, 2022 Parkhomenko Stanislav
  *
  * This file is part of Lemon Server.
  *
@@ -30,7 +30,7 @@
 %token_type {char*}
 %token_prefix TOK_
 %extra_argument {parserState *ps}
-%syntax_error  {if (FALSE == isParsed(ps) ) { puts("Systax error"); puts("---"); markAsSyntaxIncorrect(ps);} }
+%syntax_error  {if (FALSE == isParsed(ps) ) { puts("Syntax error"); puts("---"); markAsSyntaxIncorrect(ps);} }
 %parse_failure { markAsParseFailed(ps); }
 
 /* https://habrahabr.ru/post/232385/ 

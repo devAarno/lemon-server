@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017, 2018, 2019 Parkhomenko Stanislav
+ * Copyright (C) 2017, 2018, 2019, 2020, 2021, 2022 Parkhomenko Stanislav
  *
  * This file is part of Lemon Server.
  *
@@ -46,7 +46,7 @@ static void test_byRawRequest1(void) {
 
     strncpy(request.privateBuffer, rawRequest1, sizeof (request.privateBuffer));
 
-    TEST_ASSERT_EQUAL(LE_OK, parse(&request));
+    TEST_ASSERT_EQUAL(LE_OK, parseHTTP(&request));
 
     out = (string *) getMethodOfHttpRequest(&request);
     TEST_ASSERT_NOT_NULL(out);
@@ -69,7 +69,7 @@ static void test_byRawRequest2(void) {
 
     strncpy(request.privateBuffer, rawRequest2, sizeof (request.privateBuffer));
 
-    TEST_ASSERT_EQUAL(LE_OK, parse(&request));
+    TEST_ASSERT_EQUAL(LE_OK, parseHTTP(&request));
 
     out = (string *) getMethodOfHttpRequest(&request);
     TEST_ASSERT_NOT_NULL(out);
@@ -121,7 +121,7 @@ static void test_byRawRequest3(void) {
 
     strncpy(request.privateBuffer, rawRequest3, sizeof (request.privateBuffer));
 
-    TEST_ASSERT_EQUAL(LE_OK, parse(&request));
+    TEST_ASSERT_EQUAL(LE_OK, parseHTTP(&request));
 
     out = (string *) getMethodOfHttpRequest(&request);
     TEST_ASSERT_NOT_NULL(out);

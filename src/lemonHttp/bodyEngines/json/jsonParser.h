@@ -22,26 +22,28 @@
 
 #include <stddef.h>
 
-#include "httpRequest.h"
-#include "../boolean.h"
-#include "lemonError.h"
+#include "../../httpRequest.h"
+#include "../../../boolean.h"
+#include "../../lemonError.h"
+#include "jsonPath.h"
 
 typedef struct {
     httpRequest *request;
+    jsonPathRequest *jsonRequest;
     boolean isParsed;
     boolean isParseFailed;
     boolean isSyntaxIncorrect;
-} parserState;
+} jsonParserState;
 
-const lemonError parseHTTP(httpRequest *request);
+const lemonError parseJSON(httpRequest *request, jsonPathRequest *jsonRequest);
 
-const boolean isParsed(const parserState* ps);
+const boolean isJSONParsed(const jsonParserState* ps);
 
-const lemonError markAsParsed(parserState* ps);
+const lemonError markJSONAsParsed(jsonParserState* ps);
 
-const lemonError markAsParseFailed(parserState* ps);
+const lemonError markJSONAsParseFailed(jsonParserState* ps);
 
-const lemonError markAsSyntaxIncorrect(parserState* ps);
+const lemonError markJSONAsIncorrect(jsonParserState* ps);
 
 #endif /* PARSER_H */
 

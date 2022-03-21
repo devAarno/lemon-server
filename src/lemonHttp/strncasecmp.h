@@ -17,31 +17,22 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef PARSER_H
-#define PARSER_H
+#ifndef LEMONSERVER_STRNCASECMP_H
+#define LEMONSERVER_STRNCASECMP_H
 
-#include <stddef.h>
+#ifdef USE_STRINGS_H
+#include <strings.h>
+#endif
 
-#include "httpRequest.h"
-#include "../boolean.h"
-#include "lemonError.h"
+#undef STRNCASECMP
 
-typedef struct {
-    httpRequest *request;
-    boolean isParsed;
-    boolean isParseFailed;
-    boolean isSyntaxIncorrect;
-} parserState;
+#ifdef USE_INTERNAL_STRNCASECMP
 
-const lemonError parseHTTP(httpRequest *request);
+int strncasecmp_internal(const char *s1, const char *s2, size_t n);
 
-const boolean isParsed(const parserState* ps);
+#define STRNCASECMP strncasecmp_internal
+#else
+#define STRNCASECMP strncasecmp
+#endif
 
-const lemonError markAsParsed(parserState* ps);
-
-const lemonError markAsParseFailed(parserState* ps);
-
-const lemonError markAsSyntaxIncorrect(parserState* ps);
-
-#endif /* PARSER_H */
-
+#endif /* LEMONSERVER_STRNCASECMP_H */

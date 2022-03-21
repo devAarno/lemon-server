@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017, 2018, 2019 Parkhomenko Stanislav
+ * Copyright (C) 2017, 2018, 2019, 2020, 2021, 2022 Parkhomenko Stanislav
  *
  * This file is part of Lemon Server.
  *
@@ -21,7 +21,7 @@
 #define LEMONHTTPERROR_H
 
 typedef enum {
-    LE_OK, LE_NULL_IN_INPUT_VALUES, LE_INCORRECT_INPUT_VALUES, LE_INCORRECT_SYNTAX, LE_PARSING_IS_FAILED
+    LE_OK, LE_NULL_IN_INPUT_VALUES, LE_INCORRECT_INPUT_VALUES, LE_INCORRECT_SYNTAX, LE_PARSING_IS_FAILED, LE_BUFFER_OFF
 } lemonError;
 
 #endif /* LEMONHTTPERROR_H */
