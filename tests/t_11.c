@@ -4440,6 +4440,9 @@ static void test40(void) {
 
 int main() {
     UnityBegin(__FILE__);
+
+    /* Tests are commented due to https://github.com/JSONPath-Plus/JSONPath/issues/165 . */
+    /* In general case, `null` might be considered as `isComplex=True`, but I am not sure. */
     /*RUN_TEST(test12);*/
     /*RUN_TEST(test13);*/
     /*RUN_TEST(test17);*/

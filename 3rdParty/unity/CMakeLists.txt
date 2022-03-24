@@ -43,7 +43,7 @@ endif()
 include(DownloadProject.cmake)
 download_project(PROJ                gitunity
                  GIT_REPOSITORY      https://github.com/ThrowTheSwitch/Unity.git
-                 GIT_TAG             "v2.4.1"
+                 GIT_TAG             "v2.5.2"
                  SOURCE_DIR ${CMAKE_CURRENT_BINARY_DIR}/git
                  TMP_DIR ${CMAKE_CURRENT_BINARY_DIR}/tmp
                  STAMP_DIR ${CMAKE_CURRENT_BINARY_DIR}/stamp

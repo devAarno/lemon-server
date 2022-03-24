@@ -12,30 +12,7 @@ two files:
 
 The LEMON LALR(1) parser generator (as a compiled executable file ``lemon.c``) 
 takes a grammar file (here ``http11.y``) and fills a driver template by a 
-grammar specific information. Noticed that generator works well, but there is 
-one questions to the driver.
-
-In a Fossil Sqlite's repository, on 2017-12-27 18:19:06 a developer ``drh`` has 
-added a line 
-[``tool/lempar.c:514``](https://www.sqlite.org/src/info/1b22b42e59793af1):
-
-```diff
-+ assert( i>=0 && i+YYNTOKEN<=sizeof(yy_lookahead)/sizeof(yy_lookahead[0]) );
-```
-
-(SHA3-256: 1b22b42e59793af19c69a2e5f6822883cc2687d4a0d9b9280bbff885276c6baa)
-
-Next commits say that this line was 
-[split](https://www.sqlite.org/src/info/a6c3115483d597fc) into:
-
-```diff
-+ assert( i>=0 );
-+ assert( i+YYNTOKEN<=(int)sizeof(yy_lookahead)/sizeof(yy_lookahead[0]) );
-```
-
-(SHA3-256: a6c3115483d597fc77ab19fdcfd1d3437cad7e467081ad8c5315fb98c115eed9)
-
-Tests of the Lemon Server say that this assert brokes a pasing process.
+grammar specific information.
 
 ## How to update the LEMON LALR(1) parser generator in a repository of the Lemon Server.
 
@@ -43,14 +20,13 @@ The LEMON LALR(1) parser generator is still being under development, so it is
 needed to update it time-by-time as a core dependency. The Fossil is a great 
 DVCS, but a poor external (additional) dependency, so it was decided to store 
 LEMON LALR(1) parser generator in the primary repository of the Lemon Server 
-and update it manually with a respect of the problem (question) described 
-above.
+and update it manually.
 
 So, to update LEMON LALR(1) parser generator for a Lemon Server, please, follow 
 the steps:
 
 1. Let's start from a getting of Sqlite source code from a Fossil repository. 
-Assumes that Fossil utilites already present. Create folder and obtain Sqlite's 
+Assumes that Fossil utilities already present. Create folder and obtain Sqlite's 
 source code:
 
     ```Shell
@@ -77,22 +53,6 @@ Lemon Server local Git repository). Example:
     ```Shell
     cp ./tool/lemon.c %LEMON_SERVER%/3rdParty/lemon/lemon.c
     cp ./tool/lempar.c %LEMON_SERVER%/src/lemonHttp/lempar.c
-    ```
-
-1. Patch the ``%LEMON_SERVER%/src/lemonHttp/lempar.c`` to disable the assert:
-
-    ```diff
-    --- a/src/lemonHttp/lempar.c
-    +++ b/src/lemonHttp/lempar.c
-    @@ -516,7 +516,7 @@
-       do{
-         i = yy_shift_ofst[stateno];
-         assert( i>=0 );
-    -    assert( i+YYNTOKEN<=(int)sizeof(yy_lookahead)/sizeof(yy_lookahead[0]) );
-    +    /*assert( i+YYNTOKEN<=(int)sizeof(yy_lookahead)/sizeof(yy_lookahead[0]) );*/
-         assert( iLookAhead!=YYNOCODE );
-         assert( iLookAhead < YYNTOKEN );
-         i += iLookAhead;
     ```
 
 1. All tests must be passed! To check it:
