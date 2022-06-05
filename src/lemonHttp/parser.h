@@ -26,8 +26,15 @@
 #include "../boolean.h"
 #include "lemonError.h"
 
+typedef enum {
+    GENERAL_HTTP,
+    JSON_PATH,
+    JSON_BODY
+} parsingMode;
+
 typedef struct {
     httpRequest *request;
+    char fallbackLayer;
     boolean isParsed;
     boolean isParseFailed;
     boolean isSyntaxIncorrect;

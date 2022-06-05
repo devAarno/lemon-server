@@ -30,98 +30,147 @@
 
 static const char* rawRequest1 = "GET /1.jpg?hello=world&value1=&value2=&test=test&yes= HTTP/1.1\r\nClient:           \r\nServer:\r\nThis:   is a value  \r\n\r\n";
 
+typedef struct {
+    string expectedValue;
+    char callCounter;
+} calledCallback;
+
 void setUp(void) {
 }
 
 void tearDown(void) {
 }
 
+static const lemonError fakeExecute(const string *value, calledCallback *data) {
+    printf("OOOUUUTTT %.*s\r\n", value->length, value->data);
+    TEST_ASSERT_EQUAL(data->expectedValue.length, value->length);
+    TEST_ASSERT_EQUAL_STRING_LEN(data->expectedValue.data, value->data, value->length);
+    ++(data->callCounter);
+    return LE_OK;
+}
+
 static void test_empty(void) {
     httpRequest request;
-    string* out;
+    calledCallback methodCallback;
+    calledCallback uriCallback;
+    calledCallback httpVersionCallback;
+    calledCallback helloCallback;
+    calledCallback value1Callback;
+    calledCallback value2Callback;
+    calledCallback testCallback;
+    calledCallback yesCallback;
+    calledCallback clientCallback;
+    calledCallback serverCallback;
+    calledCallback thisCallback;
 
     TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request, FAKE_DESCRIPTOR));
 
     strncpy(request.privateBuffer, rawRequest1, sizeof (request.privateBuffer));
 
+    methodCallback.callCounter = 0;
+    methodCallback.expectedValue.data = "GET";
+    methodCallback.expectedValue.length = 3;
+    TEST_ASSERT_EQUAL(LE_OK, appendHttpMethodRequest(&request, fakeExecute, &methodCallback));
+
+    uriCallback.callCounter = 0;
+    uriCallback.expectedValue.data = "/1.jpg";
+    uriCallback.expectedValue.length = 6;
+    TEST_ASSERT_EQUAL(LE_OK, appendHttpUriRequest(&request, fakeExecute, &uriCallback));
+
+    httpVersionCallback.callCounter = 0;
+    httpVersionCallback.expectedValue.data = "HTTP/1.1";
+    httpVersionCallback.expectedValue.length = 8;
+    TEST_ASSERT_EQUAL(LE_OK, appendHttpVersionRequest(&request, fakeExecute, &httpVersionCallback));
+
+    helloCallback.callCounter = 0;
+    helloCallback.expectedValue.data = "world";
+    helloCallback.expectedValue.length = 5;
+    TEST_ASSERT_EQUAL(LE_OK, appendHttpGetParameterQueryRequest(&request, "hello", fakeExecute, &helloCallback));
+
+    value1Callback.callCounter = 0;
+    value1Callback.expectedValue = getEmptyString();
+    TEST_ASSERT_EQUAL(LE_OK, appendHttpGetParameterQueryRequest(&request, "value1", fakeExecute, &value1Callback));
+
+    value2Callback.callCounter = 0;
+    value2Callback.expectedValue = getEmptyString();
+    TEST_ASSERT_EQUAL(LE_OK, appendHttpGetParameterQueryRequest(&request, "value2", fakeExecute, &value2Callback));
+
+    testCallback.callCounter = 0;
+    testCallback.expectedValue.data = "test";
+    testCallback.expectedValue.length = 4;
+    TEST_ASSERT_EQUAL(LE_OK, appendHttpGetParameterQueryRequest(&request, "test", fakeExecute, &testCallback));
+
+    yesCallback.callCounter = 0;
+    yesCallback.expectedValue = getEmptyString();
+    TEST_ASSERT_EQUAL(LE_OK, appendHttpGetParameterQueryRequest(&request, "yes", fakeExecute, &yesCallback));
+
+    clientCallback.callCounter = 0;
+    clientCallback.expectedValue = getEmptyString();
+    TEST_ASSERT_EQUAL(LE_OK, appendHttpHeaderQueryRequest(&request, "Client", fakeExecute, &clientCallback));
+
+    serverCallback.callCounter = 0;
+    serverCallback.expectedValue = getEmptyString();
+    TEST_ASSERT_EQUAL(LE_OK, appendHttpHeaderQueryRequest(&request, "Server", fakeExecute, &serverCallback));
+
+    thisCallback.callCounter = 0;
+    thisCallback.expectedValue.data = "is a value";
+    thisCallback.expectedValue.length = 10;
+    TEST_ASSERT_EQUAL(LE_OK, appendHttpHeaderQueryRequest(&request, "This", fakeExecute, &thisCallback));
+
     TEST_ASSERT_EQUAL(LE_OK, parseHTTP(&request));
 
-    out = (string *) getMethodOfHttpRequest(&request);
-    TEST_ASSERT_NOT_NULL(out);
-    TEST_ASSERT_EQUAL_STRING_LEN("GET", out->data, out->length);
+    TEST_ASSERT_EQUAL(1, methodCallback.callCounter);
+    TEST_ASSERT_EQUAL(1, uriCallback.callCounter);
+    TEST_ASSERT_EQUAL(1, httpVersionCallback.callCounter);
+    TEST_ASSERT_EQUAL(1, helloCallback.callCounter);
 
-    out = (string *) getUriOfHttpRequest(&request);
-    TEST_ASSERT_NOT_NULL(out);
-    TEST_ASSERT_EQUAL_STRING_LEN("/1.jpg", out->data, out->length);
+    TEST_ASSERT_EQUAL(1, value1Callback.callCounter);
+    TEST_ASSERT_EQUAL_PTR(getEmptyString().data, value1Callback.expectedValue.data);
+    TEST_ASSERT_EQUAL(TRUE, isStringEmpty(&(value1Callback.expectedValue)));
 
-    out = (string *) getVersionOfHttpRequest(&request);
-    TEST_ASSERT_NOT_NULL(out);
-    TEST_ASSERT_EQUAL_STRING_LEN("HTTP/1.1", out->data, out->length);
+    TEST_ASSERT_EQUAL(1, value2Callback.callCounter);
+    TEST_ASSERT_EQUAL_PTR(getEmptyString().data, value2Callback.expectedValue.data);
+    TEST_ASSERT_EQUAL(TRUE, isStringEmpty(&(value2Callback.expectedValue)));
 
+    TEST_ASSERT_EQUAL(1, testCallback.callCounter);
 
+    TEST_ASSERT_EQUAL(1, yesCallback.callCounter);
+    TEST_ASSERT_EQUAL_PTR(getEmptyString().data, yesCallback.expectedValue.data);
+    TEST_ASSERT_EQUAL(TRUE, isStringEmpty(&(yesCallback.expectedValue)));
 
-    out = (string *) getQueryParameterOfHttpRequest(&request, "hello");
-    TEST_ASSERT_NOT_NULL(out);
-    TEST_ASSERT_EQUAL(isStringEmpty(out), FALSE);
-    TEST_ASSERT_EQUAL_STRING_LEN("world", out->data, out->length);
+    TEST_ASSERT_EQUAL(1, clientCallback.callCounter);
+    TEST_ASSERT_EQUAL_PTR(getEmptyString().data, clientCallback.expectedValue.data);
+    TEST_ASSERT_EQUAL(TRUE, isStringEmpty(&(clientCallback.expectedValue)));
 
-    out = (string *) getQueryParameterOfHttpRequest(&request, "value1");
-    TEST_ASSERT_NOT_NULL(out);
-    TEST_ASSERT_EQUAL(isStringEmpty(out), TRUE);
-    TEST_ASSERT_EQUAL(0, out->length);
-    TEST_ASSERT_EQUAL_STRING_LEN("", out->data, out->length);
+    TEST_ASSERT_EQUAL(1, serverCallback.callCounter);
+    TEST_ASSERT_EQUAL_PTR(getEmptyString().data, serverCallback.expectedValue.data);
+    TEST_ASSERT_EQUAL(TRUE, isStringEmpty(&(serverCallback.expectedValue)));
 
-    out = (string *) getQueryParameterOfHttpRequest(&request, "value2");
-    TEST_ASSERT_NOT_NULL(out);
-    TEST_ASSERT_EQUAL(isStringEmpty(out), TRUE);
-    TEST_ASSERT_EQUAL(0, out->length);
-    TEST_ASSERT_EQUAL_STRING_LEN("", out->data, out->length);
-
-    out = (string *) getQueryParameterOfHttpRequest(&request, "test");
-    TEST_ASSERT_NOT_NULL(out);
-    TEST_ASSERT_EQUAL(isStringEmpty(out), FALSE);
-    TEST_ASSERT_EQUAL_STRING_LEN("test", out->data, out->length);
-
-    out = (string *) getQueryParameterOfHttpRequest(&request, "yes");
-    TEST_ASSERT_NOT_NULL(out);
-    TEST_ASSERT_EQUAL(isStringEmpty(out), TRUE);
-    TEST_ASSERT_EQUAL(0, out->length);
-    TEST_ASSERT_EQUAL_STRING_LEN("", out->data, out->length);
-
-
-    out = (string *) getHeaderOfHttpRequest(&request, "Client");
-    TEST_ASSERT_NOT_NULL(out);
-    TEST_ASSERT_EQUAL(isStringEmpty(out), TRUE);
-    TEST_ASSERT_EQUAL(0, out->length);
-    TEST_ASSERT_EQUAL_STRING_LEN("", out->data, out->length);
-
-    out = (string *) getHeaderOfHttpRequest(&request, "Server");
-    TEST_ASSERT_NOT_NULL(out);
-    TEST_ASSERT_EQUAL(isStringEmpty(out), TRUE);
-    TEST_ASSERT_EQUAL(0, out->length);
-    TEST_ASSERT_EQUAL_STRING_LEN("", out->data, out->length);
-
-    out = (string *) getHeaderOfHttpRequest(&request, "This");
-    TEST_ASSERT_NOT_NULL(out);
-    TEST_ASSERT_EQUAL(isStringEmpty(out), FALSE);
-    TEST_ASSERT_EQUAL_STRING_LEN("is a value", out->data, out->length);
+    TEST_ASSERT_EQUAL(1, thisCallback.callCounter);
 }
+
 
 static void test_absent(void) {
     httpRequest request;
-    string* out;
+    calledCallback absentGetParamCallback;
+    calledCallback absentHeaderParamCallback;
 
     TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request, FAKE_DESCRIPTOR));
 
     strncpy(request.privateBuffer, rawRequest1, sizeof (request.privateBuffer));
 
+    absentGetParamCallback.callCounter = 0;
+    absentGetParamCallback.expectedValue = getEmptyString();
+    TEST_ASSERT_EQUAL(LE_OK, appendHttpGetParameterQueryRequest(&request, "any", fakeExecute, &absentGetParamCallback));
+
+    absentHeaderParamCallback.callCounter = 0;
+    absentHeaderParamCallback.expectedValue = getEmptyString();
+    TEST_ASSERT_EQUAL(LE_OK, appendHttpHeaderQueryRequest(&request, "any", fakeExecute, &absentHeaderParamCallback));
+
     TEST_ASSERT_EQUAL(LE_OK, parseHTTP(&request));
 
-    out = (string *) getQueryParameterOfHttpRequest(&request, "zorg");
-    TEST_ASSERT_NULL(out);
-
-    out = (string *) getHeaderOfHttpRequest(&request, "zorg");
-    TEST_ASSERT_NULL(out);
+    TEST_ASSERT_EQUAL(0, absentGetParamCallback.callCounter);
+    TEST_ASSERT_EQUAL(0, absentHeaderParamCallback.callCounter);
 }
 
 int main() {

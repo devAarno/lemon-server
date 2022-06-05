@@ -26,29 +26,23 @@
 #include "./jsonPathQueryBuffer.h"
 
 typedef enum {
-    ROOT, /* 0 */
-    ANY, /* 1 */
-    ANYINDEX, /* 2 */
-    NAME, /* 3 */
-    NAME_WITH_OBJECT_OR_ARRAY, /* 4 */
-    INDEX, /* 5 */
-    RECURSIVE, /* 6 */
-    PARSED_ROOT, /* 7 */
-    PARSED_OBJECT, /* 8 */
-    JOINED_OBJECT, /* 9 */
-    HEAD_OF_JOINED_OBJECT, /* 10 */
-    PARSED_INDEX, /* 11 */
-    PARSED_FIELD, /* 12 */
-    PARSED_FIELD_WITH_OBJECT, /* 13 */
-    RESOLVED_FIELD /* 14 */,
-    /* PARSED_VALUE,
-    PARSED_ANY,
-    PARSED_ANYINDEX,
-    PARSED_NAME,
-    PARSED_INDEX,
-    PARSED_RECURSIVE, */
-    NONE
-} ruleType;
+    _JSONPATH_REQUEST_ROOT, /* 0 */
+    _JSONPATH_REQUEST_ANY, /* 1 */
+    _JSONPATH_REQUEST_ANYINDEX, /* 2 */
+    _JSONPATH_REQUEST_NAME, /* 3 */
+    _JSON_PATH_REQUEST_NAME_WITH_OBJECT_OR_ARRAY, /* 4 */
+    _JSONPATH_REQUEST_INDEX, /* 5 */
+    _JSONPATH_REQUEST_RECURSIVE, /* 6 */
+    _PARSED_JSON_ROOT, /* 7 */
+    _PARSED_JSON_OBJECT, /* 8 */
+    _PARSED_JSON_JOINED_OBJECT, /* 9 */
+    _PARSED_JSON_HEAD_OF_JOINED_OBJECT, /* 10 */
+    _PARSED_JSON_INDEX, /* 11 */
+    _PARSED_JSON_FIELD, /* 12 */
+    _PARSED_JSON_FIELD_WITH_OBJECT, /* 13 */
+    _PARSED_JSON_RESOLVED_FIELD /* 14 */,
+    _NONE
+} _ruleType;
 
 typedef void changingData;
 typedef const lemonError (*jsonPathExecutionHandler)(const string *value, changingData *data);
@@ -56,30 +50,17 @@ typedef const lemonError (*jsonPathExecutionHandler)(const string *value, changi
 typedef struct {
     jsonPathExecutionHandler handler;
     changingData *data;
-} jsonPathCallback;
-
-/*typedef struct jsonPathElement {
-    jsonPathCallback callback;
-    string value;
-    size_t level;
-    size_t index;
-    size_t realRootSize;
-    struct jsonPathElement *next;
-    struct jsonPathElement *recursiveRoot;
-    struct jsonPathElement *recursivePrevious;
-    char *containerStartPosition;
-    ruleType type;
-} jsonPathElement;*/
+} _jsonPathCallback;
 
 typedef struct {
     jsonPathCallback callback;
     size_t ruleSize;
-} rootRule;
+} _rootRule;
 
 typedef struct {
     char *containerStartPosition;
     size_t index;
-} indexRule;
+} _indexRule;
 
 typedef struct {
     union {

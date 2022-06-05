@@ -56,15 +56,15 @@ void tearDown(void) {
 
     TEST_ASSERT_EQUAL(3, fakeRequest.elementsCount);
 
-    TEST_ASSERT_EQUAL(ROOT, fakeRequest.elements[0].type);
+    TEST_ASSERT_EQUAL(JSONPATH_REQUEST_ROOT, fakeRequest.elements[0].type);
     TEST_ASSERT_EQUAL_PTR(getEmptyString().data, fakeRequest.elements[0].value.data);
     TEST_ASSERT_EQUAL(getEmptyString().length, fakeRequest.elements[0].value.length);
 
-    TEST_ASSERT_EQUAL(NAME, fakeRequest.elements[1].type);
+    TEST_ASSERT_EQUAL(JSONPATH_REQUEST_NAME, fakeRequest.elements[1].type);
     TEST_ASSERT_EQUAL_STRING_LEN("sto*re", fakeRequest.elements[1].value.data, fakeRequest.elements[1].value.length);
     TEST_ASSERT_EQUAL(6, fakeRequest.elements[1].value.length);
 
-    TEST_ASSERT_EQUAL(NAME, fakeRequest.elements[2].type);
+    TEST_ASSERT_EQUAL(JSONPATH_REQUEST_NAME, fakeRequest.elements[2].type);
     TEST_ASSERT_EQUAL_STRING_LEN("author", fakeRequest.elements[2].value.data, fakeRequest.elements[2].value.length);
     TEST_ASSERT_EQUAL(6, fakeRequest.elements[2].value.length);
 }
@@ -78,15 +78,15 @@ static void test2(void) {
 
     TEST_ASSERT_EQUAL(3, fakeRequest.elementsCount);
 
-    TEST_ASSERT_EQUAL(ROOT, fakeRequest.elements[0].type);
+    TEST_ASSERT_EQUAL(JSONPATH_REQUEST_ROOT, fakeRequest.elements[0].type);
     TEST_ASSERT_EQUAL_PTR(getEmptyString().data, fakeRequest.elements[0].value.data);
     TEST_ASSERT_EQUAL(getEmptyString().length, fakeRequest.elements[0].value.length);
 
-    TEST_ASSERT_EQUAL(NAME, fakeRequest.elements[1].type);
+    TEST_ASSERT_EQUAL(JSONPATH_REQUEST_NAME, fakeRequest.elements[1].type);
     TEST_ASSERT_EQUAL_STRING_LEN("store", fakeRequest.elements[1].value.data, fakeRequest.elements[1].value.length);
     TEST_ASSERT_EQUAL(5, fakeRequest.elements[1].value.length);
 
-    TEST_ASSERT_EQUAL(ANY, fakeRequest.elements[2].type);
+    TEST_ASSERT_EQUAL(JSONPATH_REQUEST_ANY, fakeRequest.elements[2].type);
     TEST_ASSERT_EQUAL_PTR(getEmptyString().data, fakeRequest.elements[2].value.data);
     TEST_ASSERT_EQUAL(getEmptyString().length, fakeRequest.elements[2].value.length);
 }
@@ -100,15 +100,15 @@ static void test3(void) {
 
     TEST_ASSERT_EQUAL(3, fakeRequest.elementsCount);
 
-    TEST_ASSERT_EQUAL(ROOT, fakeRequest.elements[0].type);
+    TEST_ASSERT_EQUAL(JSONPATH_REQUEST_ROOT, fakeRequest.elements[0].type);
     TEST_ASSERT_EQUAL_PTR(getEmptyString().data, fakeRequest.elements[0].value.data);
     TEST_ASSERT_EQUAL(getEmptyString().length, fakeRequest.elements[0].value.length);
 
-    TEST_ASSERT_EQUAL(NAME, fakeRequest.elements[1].type);
+    TEST_ASSERT_EQUAL(JSONPATH_REQUEST_NAME, fakeRequest.elements[1].type);
     TEST_ASSERT_EQUAL_STRING_LEN("book", fakeRequest.elements[1].value.data, fakeRequest.elements[1].value.length);
     TEST_ASSERT_EQUAL(4, fakeRequest.elements[1].value.length);
 
-    TEST_ASSERT_EQUAL(INDEX, fakeRequest.elements[2].type);
+    TEST_ASSERT_EQUAL(JSONPATH_REQUEST_INDEX, fakeRequest.elements[2].type);
     TEST_ASSERT_EQUAL_STRING_LEN("2", fakeRequest.elements[2].value.data, fakeRequest.elements[2].value.length);
     TEST_ASSERT_EQUAL(1, fakeRequest.elements[2].value.length);
 }
@@ -122,27 +122,27 @@ static void test4(void) {
 
     TEST_ASSERT_EQUAL(6, fakeRequest.elementsCount);
 
-    TEST_ASSERT_EQUAL(ROOT, fakeRequest.elements[0].type);
+    TEST_ASSERT_EQUAL(JSONPATH_REQUEST_ROOT, fakeRequest.elements[0].type);
     TEST_ASSERT_EQUAL_PTR(getEmptyString().data, fakeRequest.elements[0].value.data);
     TEST_ASSERT_EQUAL(getEmptyString().length, fakeRequest.elements[0].value.length);
 
-    TEST_ASSERT_EQUAL(NAME, fakeRequest.elements[1].type);
+    TEST_ASSERT_EQUAL(JSONPATH_REQUEST_NAME, fakeRequest.elements[1].type);
     TEST_ASSERT_EQUAL_STRING_LEN("book", fakeRequest.elements[1].value.data, fakeRequest.elements[1].value.length);
     TEST_ASSERT_EQUAL(4, fakeRequest.elements[1].value.length);
 
-    TEST_ASSERT_EQUAL(INDEX, fakeRequest.elements[2].type);
+    TEST_ASSERT_EQUAL(JSONPATH_REQUEST_INDEX, fakeRequest.elements[2].type);
     TEST_ASSERT_EQUAL_STRING_LEN("2", fakeRequest.elements[2].value.data, fakeRequest.elements[2].value.length);
     TEST_ASSERT_EQUAL(1, fakeRequest.elements[2].value.length);
 
-    TEST_ASSERT_EQUAL(NAME, fakeRequest.elements[3].type);
+    TEST_ASSERT_EQUAL(JSONPATH_REQUEST_NAME, fakeRequest.elements[3].type);
     TEST_ASSERT_EQUAL_STRING_LEN("zzz", fakeRequest.elements[3].value.data, fakeRequest.elements[3].value.length);
     TEST_ASSERT_EQUAL(3, fakeRequest.elements[3].value.length);
 
-    TEST_ASSERT_EQUAL(NAME, fakeRequest.elements[4].type);
+    TEST_ASSERT_EQUAL(JSONPATH_REQUEST_NAME, fakeRequest.elements[4].type);
     TEST_ASSERT_EQUAL_STRING_LEN("xxx", fakeRequest.elements[4].value.data, fakeRequest.elements[4].value.length);
     TEST_ASSERT_EQUAL(3, fakeRequest.elements[4].value.length);
 
-    TEST_ASSERT_EQUAL(NAME, fakeRequest.elements[5].type);
+    TEST_ASSERT_EQUAL(JSONPATH_REQUEST_NAME, fakeRequest.elements[5].type);
     TEST_ASSERT_EQUAL_STRING_LEN("yyy", fakeRequest.elements[5].value.data, fakeRequest.elements[5].value.length);
     TEST_ASSERT_EQUAL(3, fakeRequest.elements[5].value.length);
 }
@@ -156,23 +156,23 @@ static void test5(void) {
 
     TEST_ASSERT_EQUAL(5, fakeRequest.elementsCount);
 
-    TEST_ASSERT_EQUAL(ROOT, fakeRequest.elements[0].type);
+    TEST_ASSERT_EQUAL(JSONPATH_REQUEST_ROOT, fakeRequest.elements[0].type);
     TEST_ASSERT_EQUAL_PTR(getEmptyString().data, fakeRequest.elements[0].value.data);
     TEST_ASSERT_EQUAL(getEmptyString().length, fakeRequest.elements[0].value.length);
 
-    TEST_ASSERT_EQUAL(NAME, fakeRequest.elements[1].type);
+    TEST_ASSERT_EQUAL(JSONPATH_REQUEST_NAME, fakeRequest.elements[1].type);
     TEST_ASSERT_EQUAL_STRING_LEN("store", fakeRequest.elements[1].value.data, fakeRequest.elements[1].value.length);
     TEST_ASSERT_EQUAL(5, fakeRequest.elements[1].value.length);
 
-    TEST_ASSERT_EQUAL(NAME, fakeRequest.elements[2].type);
+    TEST_ASSERT_EQUAL(JSONPATH_REQUEST_NAME, fakeRequest.elements[2].type);
     TEST_ASSERT_EQUAL_STRING_LEN("book", fakeRequest.elements[2].value.data, fakeRequest.elements[2].value.length);
     TEST_ASSERT_EQUAL(4, fakeRequest.elements[2].value.length);
 
-    TEST_ASSERT_EQUAL(INDEX, fakeRequest.elements[3].type);
+    TEST_ASSERT_EQUAL(JSONPATH_REQUEST_INDEX, fakeRequest.elements[3].type);
     TEST_ASSERT_EQUAL_STRING_LEN("0", fakeRequest.elements[3].value.data, fakeRequest.elements[3].value.length);
     TEST_ASSERT_EQUAL(1, fakeRequest.elements[3].value.length);
 
-    TEST_ASSERT_EQUAL(NAME, fakeRequest.elements[4].type);
+    TEST_ASSERT_EQUAL(JSONPATH_REQUEST_NAME, fakeRequest.elements[4].type);
     TEST_ASSERT_EQUAL_STRING_LEN("title", fakeRequest.elements[4].value.data, fakeRequest.elements[4].value.length);
     TEST_ASSERT_EQUAL(5, fakeRequest.elements[4].value.length);
 }
@@ -186,31 +186,31 @@ static void test6(void) {
 
     TEST_ASSERT_EQUAL(7, fakeRequest.elementsCount);
 
-    TEST_ASSERT_EQUAL(ROOT, fakeRequest.elements[0].type);
+    TEST_ASSERT_EQUAL(JSONPATH_REQUEST_ROOT, fakeRequest.elements[0].type);
     TEST_ASSERT_EQUAL_PTR(getEmptyString().data, fakeRequest.elements[0].value.data);
     TEST_ASSERT_EQUAL(getEmptyString().length, fakeRequest.elements[0].value.length);
 
-    TEST_ASSERT_EQUAL(ANYINDEX, fakeRequest.elements[1].type);
+    TEST_ASSERT_EQUAL(JSONPATH_REQUEST_ANYINDEX, fakeRequest.elements[1].type);
     TEST_ASSERT_EQUAL_PTR(getEmptyString().data, fakeRequest.elements[1].value.data);
     TEST_ASSERT_EQUAL(getEmptyString().length, fakeRequest.elements[1].value.length);
 
-    TEST_ASSERT_EQUAL(ANY, fakeRequest.elements[2].type);
+    TEST_ASSERT_EQUAL(JSONPATH_REQUEST_ANY, fakeRequest.elements[2].type);
     TEST_ASSERT_EQUAL_PTR(getEmptyString().data, fakeRequest.elements[2].value.data);
     TEST_ASSERT_EQUAL(getEmptyString().length, fakeRequest.elements[2].value.length);
 
-    TEST_ASSERT_EQUAL(ANYINDEX, fakeRequest.elements[3].type);
+    TEST_ASSERT_EQUAL(JSONPATH_REQUEST_ANYINDEX, fakeRequest.elements[3].type);
     TEST_ASSERT_EQUAL_PTR(getEmptyString().data, fakeRequest.elements[3].value.data);
     TEST_ASSERT_EQUAL(getEmptyString().length, fakeRequest.elements[3].value.length);
 
-    TEST_ASSERT_EQUAL(ANY, fakeRequest.elements[4].type);
+    TEST_ASSERT_EQUAL(JSONPATH_REQUEST_ANY, fakeRequest.elements[4].type);
     TEST_ASSERT_EQUAL_PTR(getEmptyString().data, fakeRequest.elements[4].value.data);
     TEST_ASSERT_EQUAL(getEmptyString().length, fakeRequest.elements[4].value.length);
 
-    TEST_ASSERT_EQUAL(ANYINDEX, fakeRequest.elements[5].type);
+    TEST_ASSERT_EQUAL(JSONPATH_REQUEST_ANYINDEX, fakeRequest.elements[5].type);
     TEST_ASSERT_EQUAL_PTR(getEmptyString().data, fakeRequest.elements[5].value.data);
     TEST_ASSERT_EQUAL(getEmptyString().length, fakeRequest.elements[5].value.length);
 
-    TEST_ASSERT_EQUAL(NAME, fakeRequest.elements[6].type);
+    TEST_ASSERT_EQUAL(JSONPATH_REQUEST_NAME, fakeRequest.elements[6].type);
     TEST_ASSERT_EQUAL_STRING_LEN("tool", fakeRequest.elements[6].value.data, fakeRequest.elements[6].value.length);
     TEST_ASSERT_EQUAL(4, fakeRequest.elements[6].value.length);
 }
@@ -224,35 +224,35 @@ static void test7(void) {
 
     TEST_ASSERT_EQUAL(8, fakeRequest.elementsCount);
 
-    TEST_ASSERT_EQUAL(ROOT, fakeRequest.elements[0].type);
+    TEST_ASSERT_EQUAL(JSONPATH_REQUEST_ROOT, fakeRequest.elements[0].type);
     TEST_ASSERT_EQUAL_PTR(getEmptyString().data, fakeRequest.elements[0].value.data);
     TEST_ASSERT_EQUAL(getEmptyString().length, fakeRequest.elements[0].value.length);
 
-    TEST_ASSERT_EQUAL(RECURSIVE, fakeRequest.elements[1].type);
+    TEST_ASSERT_EQUAL(JSONPATH_REQUEST_RECURSIVE, fakeRequest.elements[1].type);
     TEST_ASSERT_EQUAL_PTR(getEmptyString().data, fakeRequest.elements[1].value.data);
     TEST_ASSERT_EQUAL(getEmptyString().length, fakeRequest.elements[1].value.length);
 
-    TEST_ASSERT_EQUAL(NAME, fakeRequest.elements[2].type);
+    TEST_ASSERT_EQUAL(JSONPATH_REQUEST_NAME, fakeRequest.elements[2].type);
     TEST_ASSERT_EQUAL_STRING_LEN("horse", fakeRequest.elements[2].value.data, fakeRequest.elements[2].value.length);
     TEST_ASSERT_EQUAL(5, fakeRequest.elements[2].value.length);
 
-    TEST_ASSERT_EQUAL(RECURSIVE, fakeRequest.elements[3].type);
+    TEST_ASSERT_EQUAL(JSONPATH_REQUEST_RECURSIVE, fakeRequest.elements[3].type);
     TEST_ASSERT_EQUAL_PTR(getEmptyString().data, fakeRequest.elements[3].value.data);
     TEST_ASSERT_EQUAL(getEmptyString().length, fakeRequest.elements[3].value.length);
 
-    TEST_ASSERT_EQUAL(ANYINDEX, fakeRequest.elements[4].type);
+    TEST_ASSERT_EQUAL(JSONPATH_REQUEST_ANYINDEX, fakeRequest.elements[4].type);
     TEST_ASSERT_EQUAL_PTR(getEmptyString().data, fakeRequest.elements[4].value.data);
     TEST_ASSERT_EQUAL(getEmptyString().length, fakeRequest.elements[4].value.length);
 
-    TEST_ASSERT_EQUAL(RECURSIVE, fakeRequest.elements[5].type);
+    TEST_ASSERT_EQUAL(JSONPATH_REQUEST_RECURSIVE, fakeRequest.elements[5].type);
     TEST_ASSERT_EQUAL_PTR(getEmptyString().data, fakeRequest.elements[5].value.data);
     TEST_ASSERT_EQUAL(getEmptyString().length, fakeRequest.elements[5].value.length);
 
-    TEST_ASSERT_EQUAL(ANY, fakeRequest.elements[6].type);
+    TEST_ASSERT_EQUAL(JSONPATH_REQUEST_ANY, fakeRequest.elements[6].type);
     TEST_ASSERT_EQUAL_PTR(getEmptyString().data, fakeRequest.elements[6].value.data);
     TEST_ASSERT_EQUAL(getEmptyString().length, fakeRequest.elements[6].value.length);
 
-    TEST_ASSERT_EQUAL(INDEX, fakeRequest.elements[7].type);
+    TEST_ASSERT_EQUAL(JSONPATH_REQUEST_INDEX, fakeRequest.elements[7].type);
     TEST_ASSERT_EQUAL_STRING_LEN("2", fakeRequest.elements[7].value.data, fakeRequest.elements[7].value.length);
     TEST_ASSERT_EQUAL(1, fakeRequest.elements[7].value.length);
 }
@@ -266,11 +266,11 @@ static void test8(void) {
 
     TEST_ASSERT_EQUAL(2, fakeRequest.elementsCount);
 
-    TEST_ASSERT_EQUAL(ROOT, fakeRequest.elements[0].type);
+    TEST_ASSERT_EQUAL(JSONPATH_REQUEST_ROOT, fakeRequest.elements[0].type);
     TEST_ASSERT_EQUAL_PTR(getEmptyString().data, fakeRequest.elements[0].value.data);
     TEST_ASSERT_EQUAL(getEmptyString().length, fakeRequest.elements[0].value.length);
 
-    TEST_ASSERT_EQUAL(RECURSIVE, fakeRequest.elements[1].type);
+    TEST_ASSERT_EQUAL(JSONPATH_REQUEST_RECURSIVE, fakeRequest.elements[1].type);
     TEST_ASSERT_EQUAL_PTR(getEmptyString().data, fakeRequest.elements[1].value.data);
     TEST_ASSERT_EQUAL(getEmptyString().length, fakeRequest.elements[1].value.length);
 }
@@ -284,27 +284,27 @@ static void test9(void) {
 
     TEST_ASSERT_EQUAL(6, fakeRequest.elementsCount);
 
-    TEST_ASSERT_EQUAL(ROOT, fakeRequest.elements[0].type);
+    TEST_ASSERT_EQUAL(JSONPATH_REQUEST_ROOT, fakeRequest.elements[0].type);
     TEST_ASSERT_EQUAL_PTR(getEmptyString().data, fakeRequest.elements[0].value.data);
     TEST_ASSERT_EQUAL(getEmptyString().length, fakeRequest.elements[0].value.length);
 
-    TEST_ASSERT_EQUAL(RECURSIVE, fakeRequest.elements[1].type);
+    TEST_ASSERT_EQUAL(JSONPATH_REQUEST_RECURSIVE, fakeRequest.elements[1].type);
     TEST_ASSERT_EQUAL_PTR(getEmptyString().data, fakeRequest.elements[1].value.data);
     TEST_ASSERT_EQUAL(getEmptyString().length, fakeRequest.elements[1].value.length);
 
-    TEST_ASSERT_EQUAL(NAME, fakeRequest.elements[2].type);
+    TEST_ASSERT_EQUAL(JSONPATH_REQUEST_NAME, fakeRequest.elements[2].type);
     TEST_ASSERT_EQUAL_STRING_LEN("horse", fakeRequest.elements[2].value.data, fakeRequest.elements[2].value.length);
     TEST_ASSERT_EQUAL(5, fakeRequest.elements[2].value.length);
 
-    TEST_ASSERT_EQUAL(RECURSIVE, fakeRequest.elements[3].type);
+    TEST_ASSERT_EQUAL(JSONPATH_REQUEST_RECURSIVE, fakeRequest.elements[3].type);
     TEST_ASSERT_EQUAL_PTR(getEmptyString().data, fakeRequest.elements[3].value.data);
     TEST_ASSERT_EQUAL(getEmptyString().length, fakeRequest.elements[3].value.length);
 
-    TEST_ASSERT_EQUAL(ANYINDEX, fakeRequest.elements[4].type);
+    TEST_ASSERT_EQUAL(JSONPATH_REQUEST_ANYINDEX, fakeRequest.elements[4].type);
     TEST_ASSERT_EQUAL_PTR(getEmptyString().data, fakeRequest.elements[4].value.data);
     TEST_ASSERT_EQUAL(getEmptyString().length, fakeRequest.elements[4].value.length);
 
-    TEST_ASSERT_EQUAL(RECURSIVE, fakeRequest.elements[5].type);
+    TEST_ASSERT_EQUAL(JSONPATH_REQUEST_RECURSIVE, fakeRequest.elements[5].type);
     TEST_ASSERT_EQUAL_PTR(getEmptyString().data, fakeRequest.elements[5].value.data);
     TEST_ASSERT_EQUAL(getEmptyString().length, fakeRequest.elements[5].value.length);
 }
@@ -318,23 +318,23 @@ static void test10(void) {
 
     TEST_ASSERT_EQUAL(5, fakeRequest.elementsCount);
 
-    TEST_ASSERT_EQUAL(ROOT, fakeRequest.elements[0].type);
+    TEST_ASSERT_EQUAL(JSONPATH_REQUEST_ROOT, fakeRequest.elements[0].type);
     TEST_ASSERT_EQUAL_PTR(getEmptyString().data, fakeRequest.elements[0].value.data);
     TEST_ASSERT_EQUAL(getEmptyString().length, fakeRequest.elements[0].value.length);
 
-    TEST_ASSERT_EQUAL(RECURSIVE, fakeRequest.elements[1].type);
+    TEST_ASSERT_EQUAL(JSONPATH_REQUEST_RECURSIVE, fakeRequest.elements[1].type);
     TEST_ASSERT_EQUAL_PTR(getEmptyString().data, fakeRequest.elements[1].value.data);
     TEST_ASSERT_EQUAL(getEmptyString().length, fakeRequest.elements[1].value.length);
 
-    TEST_ASSERT_EQUAL(NAME, fakeRequest.elements[2].type);
+    TEST_ASSERT_EQUAL(JSONPATH_REQUEST_NAME, fakeRequest.elements[2].type);
     TEST_ASSERT_EQUAL_STRING_LEN("horse", fakeRequest.elements[2].value.data, fakeRequest.elements[2].value.length);
     TEST_ASSERT_EQUAL(5, fakeRequest.elements[2].value.length);
 
-    TEST_ASSERT_EQUAL(RECURSIVE, fakeRequest.elements[3].type);
+    TEST_ASSERT_EQUAL(JSONPATH_REQUEST_RECURSIVE, fakeRequest.elements[3].type);
     TEST_ASSERT_EQUAL_PTR(getEmptyString().data, fakeRequest.elements[3].value.data);
     TEST_ASSERT_EQUAL(getEmptyString().length, fakeRequest.elements[3].value.length);
 
-    TEST_ASSERT_EQUAL(ANYINDEX, fakeRequest.elements[4].type);
+    TEST_ASSERT_EQUAL(JSONPATH_REQUEST_ANYINDEX, fakeRequest.elements[4].type);
     TEST_ASSERT_EQUAL_PTR(getEmptyString().data, fakeRequest.elements[4].value.data);
     TEST_ASSERT_EQUAL(getEmptyString().length, fakeRequest.elements[4].value.length);
 }
@@ -348,19 +348,19 @@ static void test11(void) {
 
     TEST_ASSERT_EQUAL(4, fakeRequest.elementsCount);
 
-    TEST_ASSERT_EQUAL(ROOT, fakeRequest.elements[0].type);
+    TEST_ASSERT_EQUAL(JSONPATH_REQUEST_ROOT, fakeRequest.elements[0].type);
     TEST_ASSERT_EQUAL_PTR(getEmptyString().data, fakeRequest.elements[0].value.data);
     TEST_ASSERT_EQUAL(getEmptyString().length, fakeRequest.elements[0].value.length);
 
-    TEST_ASSERT_EQUAL(RECURSIVE, fakeRequest.elements[1].type);
+    TEST_ASSERT_EQUAL(JSONPATH_REQUEST_RECURSIVE, fakeRequest.elements[1].type);
     TEST_ASSERT_EQUAL_PTR(getEmptyString().data, fakeRequest.elements[1].value.data);
     TEST_ASSERT_EQUAL(getEmptyString().length, fakeRequest.elements[1].value.length);
 
-    TEST_ASSERT_EQUAL(NAME, fakeRequest.elements[2].type);
+    TEST_ASSERT_EQUAL(JSONPATH_REQUEST_NAME, fakeRequest.elements[2].type);
     TEST_ASSERT_EQUAL_STRING_LEN("horse", fakeRequest.elements[2].value.data, fakeRequest.elements[2].value.length);
     TEST_ASSERT_EQUAL(5, fakeRequest.elements[2].value.length);
 
-    TEST_ASSERT_EQUAL(RECURSIVE, fakeRequest.elements[3].type);
+    TEST_ASSERT_EQUAL(JSONPATH_REQUEST_RECURSIVE, fakeRequest.elements[3].type);
     TEST_ASSERT_EQUAL_PTR(getEmptyString().data, fakeRequest.elements[3].value.data);
     TEST_ASSERT_EQUAL(getEmptyString().length, fakeRequest.elements[3].value.length);
 }
@@ -374,23 +374,23 @@ static void test12(void) {
 
     TEST_ASSERT_EQUAL(5, fakeRequest.elementsCount);
 
-    TEST_ASSERT_EQUAL(ROOT, fakeRequest.elements[0].type);
+    TEST_ASSERT_EQUAL(JSONPATH_REQUEST_ROOT, fakeRequest.elements[0].type);
     TEST_ASSERT_EQUAL_PTR(getEmptyString().data, fakeRequest.elements[0].value.data);
     TEST_ASSERT_EQUAL(getEmptyString().length, fakeRequest.elements[0].value.length);
 
-    TEST_ASSERT_EQUAL(RECURSIVE, fakeRequest.elements[1].type);
+    TEST_ASSERT_EQUAL(JSONPATH_REQUEST_RECURSIVE, fakeRequest.elements[1].type);
     TEST_ASSERT_EQUAL_PTR(getEmptyString().data, fakeRequest.elements[1].value.data);
     TEST_ASSERT_EQUAL(getEmptyString().length, fakeRequest.elements[1].value.length);
 
-    TEST_ASSERT_EQUAL(NAME, fakeRequest.elements[2].type);
+    TEST_ASSERT_EQUAL(JSONPATH_REQUEST_NAME, fakeRequest.elements[2].type);
     TEST_ASSERT_EQUAL_STRING_LEN("horse", fakeRequest.elements[2].value.data, fakeRequest.elements[2].value.length);
     TEST_ASSERT_EQUAL(5, fakeRequest.elements[2].value.length);
 
-    TEST_ASSERT_EQUAL(RECURSIVE, fakeRequest.elements[3].type);
+    TEST_ASSERT_EQUAL(JSONPATH_REQUEST_RECURSIVE, fakeRequest.elements[3].type);
     TEST_ASSERT_EQUAL_PTR(getEmptyString().data, fakeRequest.elements[3].value.data);
     TEST_ASSERT_EQUAL(getEmptyString().length, fakeRequest.elements[3].value.length);
 
-    TEST_ASSERT_EQUAL(ANY, fakeRequest.elements[4].type);
+    TEST_ASSERT_EQUAL(JSONPATH_REQUEST_ANY, fakeRequest.elements[4].type);
     TEST_ASSERT_EQUAL_PTR(getEmptyString().data, fakeRequest.elements[4].value.data);
     TEST_ASSERT_EQUAL(getEmptyString().length, fakeRequest.elements[4].value.length);
 }
@@ -404,15 +404,15 @@ static void test13(void) {
 
     TEST_ASSERT_EQUAL(3, fakeRequest.elementsCount);
 
-    TEST_ASSERT_EQUAL(ROOT, fakeRequest.elements[0].type);
+    TEST_ASSERT_EQUAL(JSONPATH_REQUEST_ROOT, fakeRequest.elements[0].type);
     TEST_ASSERT_EQUAL_PTR(getEmptyString().data, fakeRequest.elements[0].value.data);
     TEST_ASSERT_EQUAL(getEmptyString().length, fakeRequest.elements[0].value.length);
 
-    TEST_ASSERT_EQUAL(RECURSIVE, fakeRequest.elements[1].type);
+    TEST_ASSERT_EQUAL(JSONPATH_REQUEST_RECURSIVE, fakeRequest.elements[1].type);
     TEST_ASSERT_EQUAL_PTR(getEmptyString().data, fakeRequest.elements[1].value.data);
     TEST_ASSERT_EQUAL(getEmptyString().length, fakeRequest.elements[1].value.length);
 
-    TEST_ASSERT_EQUAL(ANY, fakeRequest.elements[2].type);
+    TEST_ASSERT_EQUAL(JSONPATH_REQUEST_ANY, fakeRequest.elements[2].type);
     TEST_ASSERT_EQUAL_PTR(getEmptyString().data, fakeRequest.elements[2].value.data);
     TEST_ASSERT_EQUAL(getEmptyString().length, fakeRequest.elements[2].value.length);
 }*/

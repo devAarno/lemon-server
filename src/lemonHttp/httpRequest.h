@@ -32,23 +32,101 @@
 
 #define PRIVATE_BUFFER_SIZE 2048
 
+/* ----------------- */
 typedef enum {
-    METHOD,
-    URI,
-    GET_QUERY_ELEMENT,
-    VALUE,
-    HTTP_VERSION,
-    HEADER
-} elementType;
+    HTTP_REQUEST_METHOD,
+    HTTP_REQUEST_URI,
+    HTTP_REQUEST_GET_QUERY_ELEMENT,
+    HTTP_REQUEST_VALUE,
+    HTTP_REQUEST_HTTP_VERSION,
+    HTTP_REQUEST_HEADER,
+    JSONPATH_REQUEST_ROOT,
+    JSONPATH_REQUEST_ANY,
+    JSONPATH_REQUEST_ANYINDEX,
+    JSONPATH_REQUEST_NAME,
+    JSON_PATH_REQUEST_NAME_WITH_OBJECT_OR_ARRAY,
+    JSONPATH_REQUEST_INDEX,
+    JSONPATH_REQUEST_RECURSIVE,
+    PARSED_JSON_ROOT,
+    PARSED_JSON_OBJECT,
+    PARSED_JSON_JOINED_OBJECT,
+    PARSED_JSON_HEAD_OF_JOINED_OBJECT,
+    PARSED_JSON_INDEX,
+    PARSED_JSON_FIELD,
+    PARSED_JSON_FIELD_WITH_OBJECT,
+    PARSED_JSON_RESOLVED_FIELD,
+    ZERO,
+    NONE
+} ruleType;
 
-typedef struct _linkedDataString {
-    string str;
-    struct _linkedDataString *nextVal;
-} linkedDataString;
+typedef void changingData;
+typedef const lemonError (*jsonPathExecutionHandler)(const string *value, changingData *data);
+
+/* HTTP */
+typedef const lemonError (*httpMethodExecutionHandler)(const string *value, changingData *data);
+typedef const lemonError (*httpUriExecutionHandler)(const string *value, changingData *data);
+typedef const lemonError (*httpVersionExecutionHandler)(const string *value, changingData *data);
+/*typedef char jsonPathQueryBuffer; */
+typedef char httpGetParameterQueryBuffer;
+typedef const lemonError (*httpGetParameterQueryExecutionHandler)(const string *value, changingData *data);
+typedef char httpHeaderQueryBuffer;
+typedef const lemonError (*httpHeaderQueryExecutionHandler)(const string *value, changingData *data);
 
 typedef struct {
-    linkedDataString value;
-    elementType type;
+    httpMethodExecutionHandler handler;
+    changingData *data;
+} httpMethodCallback;
+
+typedef struct {
+    httpUriExecutionHandler handler;
+    changingData *data;
+} httpUriCallback;
+
+typedef struct {
+    httpVersionExecutionHandler handler;
+    changingData *data;
+} httpVersionCallback;
+
+typedef struct {
+    httpGetParameterQueryExecutionHandler handler;
+    changingData *data;
+    string getParameter;
+} httpGetParameterCallback;
+
+typedef struct {
+    httpHeaderQueryExecutionHandler handler;
+    changingData *data;
+    string headerName;
+} httpHeaderQueryCallback;
+
+typedef struct {
+    jsonPathExecutionHandler handler;
+    changingData *data;
+} jsonPathCallback;
+
+typedef struct {
+    jsonPathCallback callback;
+    size_t ruleSize;
+} rootRule;
+
+typedef struct {
+    char *containerStartPosition;
+    size_t index;
+} indexRule;
+
+typedef struct {
+    union {
+        rootRule root;
+        httpMethodCallback httpMethodCallback;
+        httpUriCallback httpUriCallback;
+        httpVersionCallback httpVersionCallback;
+        httpGetParameterCallback httpGetParameterCallback;
+        httpHeaderQueryCallback httpHeaderQueryCallback;
+        string name;
+        indexRule index;
+        char *containerStartPosition;
+    } data;
+    ruleType type;
 } requestElement;
 
 typedef struct {
@@ -56,10 +134,27 @@ typedef struct {
     char privateBuffer[PRIVATE_BUFFER_SIZE];
     string body;
     size_t elementsCount;
+    size_t parsedStackSize;
     int descriptor;
+    unsigned char mode;
 } httpRequest;
 
+
+/* const lemonError appendJsonPathRequest(jsonPathRequest *p, jsonPathQueryBuffer *b, jsonPathExecutionHandler handler, changingData *data); */
+
 const lemonError initHttpRequest(httpRequest *r, const int fd);
+
+const lemonError appendHttpMethodRequest(httpRequest *r, httpMethodExecutionHandler handler, changingData *data);
+
+const lemonError appendHttpUriRequest(httpRequest *r, httpUriExecutionHandler handler, changingData *data);
+
+const lemonError appendHttpVersionRequest(httpRequest *r, httpVersionExecutionHandler handler, changingData *data);
+
+const lemonError appendHttpGetParameterQueryRequest(httpRequest *r, char *b, httpGetParameterQueryExecutionHandler handler, changingData *data);
+
+const lemonError appendHttpHeaderQueryRequest(httpRequest *r, char *b, httpHeaderQueryExecutionHandler handler, changingData *data);
+
+
 
 const string *getMethodOfHttpRequest(const httpRequest *r);
 

@@ -27,13 +27,23 @@
 
 const lemonError decodeValue(string *s, boolean replacePlusWithSpace);
 
-requestElement *appendElementOfHttpRequest(httpRequest *r, const string *s, const elementType type);
+requestElement *appendElementOfHttpRequest(httpRequest *r, const string *s, const ruleType type);
 
 const lemonError linkRequestElement(requestElement *key, const requestElement *value);
 
 const requestElement *getEmptyValueElement(const httpRequest *r);
 
 const lemonError trim(string *s);
+
+const lemonError executeHttpMethodCallback(httpRequest *r, const string *s);
+
+const lemonError executeHttpUriCallback(httpRequest *r, const string *s);
+
+const lemonError executeHttpVersionCallback(httpRequest *r, const string *s);
+
+const lemonError executeHeaderCallback(httpRequest *r, const string *key, const string *s);
+
+const lemonError executeGetParameterCallback(httpRequest *r, const string *key, const string *s);
 
 #endif /* HTTP_REQUEST_INT_H */
 
