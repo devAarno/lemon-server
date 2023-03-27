@@ -21,9 +21,9 @@
 #include <stdio.h>
 #include "jsonPathInternal.h"
 
-#include "../../string.h"
-#include "../../strncasecmp.h"
-#include "../../../boolean.h"
+#include "string.h"
+#include "strncasecmp.h"
+#include "../boolean.h"
 
 jsonPathElement *appendJsonPathElementOfHttpRequest(jsonPathRequest *r, const string *s, const ruleType type) {
     const string emptyString = getEmptyString();
@@ -55,7 +55,7 @@ jsonPathElement *appendJsonPathElementOfHttpRequest(jsonPathRequest *r, const st
     }
 }
 
-const string convertUtf16ToString(char *c1, char *c2, const char c3, const char c4) {
+/*const string convertUtf16ToString(char *c1, char *c2, const char c3, const char c4) {
     string res;
     if ((NULL == c1) || (NULL == c2)) {
         res.data = NULL;
@@ -75,7 +75,7 @@ const string convertUtf16ToString(char *c1, char *c2, const char c3, const char 
         }
         return res;
     }
-}
+}*/
 
 static lemonError printStack(jsonPathElement *lastStack, const char *name) {
     printf("OOOUUUTTT STACK %s <<< ", name);

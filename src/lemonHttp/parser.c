@@ -33,33 +33,42 @@ const static lemonError appendHttpToParser(parserState* ps, httpRequest *http) {
     if ((NULL == ps) || (NULL == http)) {
         return LE_NULL_IN_INPUT_VALUES;
     }
-    ps->request = http;
+    ps->container.httpRequest = http;
+    return LE_OK;
+}
+
+const static lemonError appendJsonPathToParser(parserState* ps, jsonPathRequest *http) {
+    if ((NULL == ps) || (NULL == http)) {
+        return LE_NULL_IN_INPUT_VALUES;
+    }
+    ps->container.jsonPathRequestData.jsonPathRequest = http;
+    ps->container.jsonPathRequestData.jsonPath = NULL; /* Not required for parser */
     return LE_OK;
 }
 
 const boolean isParsed(const parserState* ps) {
-    if ((NULL == ps) || (NULL == ps->request)) {
+    if ((NULL == ps)) {
         return FALSE;
     }
     return ps->isParsed;
 }
 
 const static boolean isParseFailed(const parserState* ps) {
-    if ((NULL == ps) || (NULL == ps->request)) {
+    if ((NULL == ps)) {
         return FALSE;
     }
     return ps->isParseFailed;
 }
 
 const static boolean isSyntaxIncorrect(const parserState* ps) {
-    if ((NULL == ps) || (NULL == ps->request)) {
+    if ((NULL == ps)) {
         return FALSE;
     }
     return ps->isSyntaxIncorrect;
 }
 
 const lemonError markAsParsed(parserState* ps) {
-    if ((NULL == ps) || (NULL == ps->request)) {
+    if ((NULL == ps)) {
         return LE_NULL_IN_INPUT_VALUES;
     }
     ps->isParsed = TRUE;
@@ -67,34 +76,34 @@ const lemonError markAsParsed(parserState* ps) {
 }
 
 const lemonError markAsParseFailed(parserState* ps) {
-    if ((NULL == ps) || (NULL == ps->request)) {
+    if ((NULL == ps)) {
         return LE_NULL_IN_INPUT_VALUES;
     }
-    if (0 >= ps->request->elementsCount) {
+    /*if (0 >= ps->request->elementsCount) {
         return LE_INCORRECT_INPUT_VALUES;
-    }
+    }*/
     ps->isParseFailed = TRUE;
     return LE_OK;
 }
 
 const lemonError markAsSyntaxIncorrect(parserState* ps) {
-    if ((NULL == ps) || (NULL == ps->request)) {
+    if ((NULL == ps)) {
         return LE_NULL_IN_INPUT_VALUES;
     }
-    if (0 >= ps->request->elementsCount) {
+    /*if (0 >= ps->request->elementsCount) {
         return LE_INCORRECT_INPUT_VALUES;
-    }
+    }*/
     ps->isSyntaxIncorrect = TRUE;
     return LE_OK;
 }
 
-static const lemonError parse(httpRequest *request, const parsingMode mode) {
-    if (NULL == request) {
+static const lemonError parse(dataContainer container, const parsingMode mode) {
+    /* if (NULL == request) {
         return LE_NULL_IN_INPUT_VALUES;
     }
     if (0 >= request->elementsCount) {
         return LE_INCORRECT_INPUT_VALUES;
-    }
+    }*/
     {
         yyParser pParser;
         const unsigned char ascii[256] = {
@@ -186,26 +195,44 @@ static const lemonError parse(httpRequest *request, const parsingMode mode) {
         size_t pos = 0;
 
         parserState ps;
-
-        {
-            const lemonError ret = appendHttpToParser(&ps, request);
-            if (LE_OK != ret) {
-                return ret;
-            }
-        }
+        char *buffer;
 
         ParseHTTP11Init(&pParser);
         ParseHTTP11Trace(stdout, "parser >>");
 
         switch (mode) {
             case GENERAL_HTTP:
+                {
+                    const lemonError ret = appendHttpToParser(&ps, container.httpRequest);
+                    if (LE_OK != ret) {
+                        return ret;
+                    }
+                }
                 ParseHTTP11(&pParser, TOK_ONE, 0, &ps);
+                buffer = container.httpRequest->privateBuffer;
                 break;
             case JSON_BODY:
+                {
+                    const lemonError ret = appendHttpToParser(&ps, container.httpRequest);
+                    if (LE_OK != ret) {
+                        return ret;
+                    }
+                }
                 ParseHTTP11(&pParser, TOK_TWO, 0, &ps);
+                buffer = container.httpRequest->privateBuffer;
                 break;
             case JSON_PATH:
+                {
+                    const lemonError ret = appendJsonPathToParser(&ps, container.jsonPathRequestData.jsonPathRequest);
+                    if (LE_OK != ret) {
+                        return ret;
+                    }
+                }
                 ParseHTTP11(&pParser, TOK_THREE, 0, &ps);
+                buffer = container.jsonPathRequestData.jsonPath;
+                break;
+            default:
+                assert(0);
                 break;
         }
 
@@ -215,20 +242,36 @@ static const lemonError parse(httpRequest *request, const parsingMode mode) {
                 (FALSE == isParseFailed(&ps)) &&
                 (FALSE == isSyntaxIncorrect(&ps))
                 ) {
-            ParseHTTP11(&pParser, ascii[(request->privateBuffer)[pos]], &((request->privateBuffer)[pos]), &ps);
+            ParseHTTP11(&pParser, ascii[(buffer)[pos]], &((buffer)[pos]), &ps);
             ++pos;
         }
 
         ParseHTTP11(&pParser, 0, NULL, &ps);
 
         --pos; /* Because of last JSONPATH_REQUEST_ANY */
-        request->body.data = &((request->privateBuffer)[pos]);
-        request->body.length -= pos;
+        container.httpRequest->body.data = &((container.httpRequest->privateBuffer)[pos]);
+        container.httpRequest->body.length -= pos;
 
         return (FALSE == isParseFailed(&ps)) ? ((FALSE == isSyntaxIncorrect(&ps)) ? LE_OK : LE_INCORRECT_SYNTAX) : LE_PARSING_IS_FAILED;
     }
 }
 
 const lemonError parseHTTP(httpRequest *request) {
-    return parse(request, GENERAL_HTTP);
+    dataContainer container;
+    container.httpRequest = request;
+    return parse(container, GENERAL_HTTP);
+}
+
+const lemonError parseJSONPath(jsonPathRequest *jsonPathRequest, char *jsonPath) {
+    dataContainer container;
+    container.jsonPathRequestData.jsonPathRequest = jsonPathRequest;
+    container.jsonPathRequestData.jsonPath = jsonPath;
+    return parse(container, JSON_PATH);
+}
+
+const lemonError parseJSON(httpRequest *request, jsonPathRequest *jsonRequest) {
+    dataContainer container;
+    container.httpRequest = request;
+    container.jsonPathRequestData.jsonPathRequest = jsonRequest;
+    return parse(container, JSON_BODY);
 }

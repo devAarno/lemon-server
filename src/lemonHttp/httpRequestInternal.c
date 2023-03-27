@@ -23,6 +23,7 @@
 #include <string.h>
 
 
+#include "parser.h"
 #include "string.h"
 #include "strncasecmp.h"
 #include "lemonError.h"
@@ -252,4 +253,26 @@ const lemonError executeGetParameterCallback(httpRequest *r, const string *key, 
         }
     }
     return LE_OK;
+}
+
+const string convertUtf16ToString(char *c1, char *c2, const char c3, const char c4) {
+    string res;
+    if ((NULL == c1) || (NULL == c2)) {
+        res.data = NULL;
+        res.length = 0;
+        return res;
+    }
+    {
+        res.data = c1;
+        if (('0' == *c1) && ('0' == *c2)) {
+
+            res.data[0] = (((c3 <= '9') ? (c3 - '0') : ((c3 - 'A') % 32)) << 4) | ((c4 <= '9') ? (c4 - '0') : ((c4 - 'A') % 32));
+            res.length = 1;
+        } else {
+            res.data[0] = (((*c1 <= '9') ? (*c1 - '0') : ((*c1 - 'A') % 32)) << 4) | ((*c2 <= '9') ? (*c2 - '0') : ((*c2 - 'A') % 32));
+            res.data[1] = (((c3 <= '9') ? (c3 - '0') : ((c3 - 'A') % 32)) << 4) | ((c4 <= '9') ? (c4 - '0') : ((c4 - 'A') % 32));
+            res.length = 2;
+        }
+        return res;
+    }
 }

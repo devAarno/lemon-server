@@ -27,6 +27,7 @@
 #include "lemonError.h"
 #include "httpRequestInternal.h"
 #include "strncasecmp.h"
+#include "changingData.h"
 
 const lemonError initHttpRequest(httpRequest *r, const int fd) {
     if (NULL == r) {

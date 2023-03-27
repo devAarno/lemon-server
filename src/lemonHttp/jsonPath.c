@@ -20,11 +20,10 @@
 #include "./jsonPath.h"
 
 #include <stddef.h>
-#include "../../lemonError.h"
+#include "lemonError.h"
 #include "./jsonPathQueryBuffer.h"
-#include "./jsonPathParser.h"
-#include "../../../../3rdParty/unity/git/src/unity.h"
-#include "../../../net/socket.h"
+/* #include "../../3rdParty/unity/git/src/unity.h" */
+#include "../net/socket.h"
 
 const lemonError initJsonPathRequest(jsonPathRequest *r) {
     if (NULL == r) {

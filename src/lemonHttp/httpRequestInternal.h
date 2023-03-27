@@ -24,6 +24,7 @@
 
 #include "httpRequest.h"
 #include "lemonError.h"
+#include "string.h"
 
 const lemonError decodeValue(string *s, boolean replacePlusWithSpace);
 
@@ -44,6 +45,8 @@ const lemonError executeHttpVersionCallback(httpRequest *r, const string *s);
 const lemonError executeHeaderCallback(httpRequest *r, const string *key, const string *s);
 
 const lemonError executeGetParameterCallback(httpRequest *r, const string *key, const string *s);
+
+const string convertUtf16ToString(char *c1, char *c2, const char c3, const char c4);
 
 #endif /* HTTP_REQUEST_INT_H */
 

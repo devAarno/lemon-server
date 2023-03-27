@@ -99,7 +99,7 @@ request_line ::= method SP request_target SP http_version crlf.
 
 /* method = token  */
 %type token {string}
-method ::= token(var_s). { executeHttpMethodCallback(ps->request, &var_s); }
+method ::= token(var_s). { executeHttpMethodCallback(ps->container.httpRequest, &var_s); }
 
 /* token = 1*tchar */
 token(var_s) ::= tchar(var_c). { var_s.length = 1; var_s.data = var_c; }
@@ -120,14 +120,14 @@ request_target ::= absolute_path(var_s). {
     if (LE_OK != decodeValue( &(var_s) , FALSE)) {
         markAsParseFailed(ps);
     } else {
-        executeHttpUriCallback(ps->request, &var_s);
+        executeHttpUriCallback(ps->container.httpRequest, &var_s);
     }
 }
 request_target ::= absolute_path(var_s) QUESTION query. {
     if (LE_OK != decodeValue( &(var_s) , FALSE)) {
         markAsParseFailed(ps);
     } else {
-        executeHttpUriCallback(ps->request, &var_s);
+        executeHttpUriCallback(ps->container.httpRequest, &var_s);
     }
 }
 
@@ -203,7 +203,7 @@ key_val ::= key(var_k) EQUALS. {
         markAsParseFailed(ps);
     } else {
         const string e = getEmptyString();
-        executeGetParameterCallback(ps->request, &var_k, &e);
+        executeGetParameterCallback(ps->container.httpRequest, &var_k, &e);
     }
 }
 key_val ::= key(var_k) EQUALS val(var_l). {
@@ -211,7 +211,7 @@ key_val ::= key(var_k) EQUALS val(var_l). {
             (LE_OK != decodeValue( &(var_l) , TRUE))) {
         markAsParseFailed(ps);
     } else {
-        executeGetParameterCallback(ps->request, &var_k, &var_l);
+        executeGetParameterCallback(ps->container.httpRequest, &var_k, &var_l);
     }
 }
 
@@ -237,7 +237,7 @@ pchar_kv(var_c) ::= QUESTION(var_cc). { var_c.length = 1; var_c.data = var_cc; }
 http_version(var_s) ::= H(var_c) T T P SLASH digit DOT digit. {
     var_s.length = 8;
     var_s.data = var_c;
-    executeHttpVersionCallback(ps->request, &var_s);
+    executeHttpVersionCallback(ps->container.httpRequest, &var_s);
 }
 
 /* HTTP-message   = start-line
@@ -258,11 +258,11 @@ http_headers ::= http_headers header_field crlf.
 %type field_value {string}
 header_field ::= token(var_k) COLON. {
     const string e = getEmptyString();
-    executeHeaderCallback(ps->request, &var_k, &e);
+    executeHeaderCallback(ps->container.httpRequest, &var_k, &e);
 }
 header_field ::= token(var_k) COLON field_value(var_v). {
     trim(&var_v);
-    executeHeaderCallback(ps->request, &var_k, &var_v);
+    executeHeaderCallback(ps->container.httpRequest, &var_k, &var_v);
 }
 
 field_value(var_f) ::= vchar(var_c). { var_f.length = 1; var_f.data = var_c; }
@@ -286,11 +286,11 @@ ows ::= ows HTAB. */
 
 jsonn ::= json NULL.
 
-json ::= json_ows start_root value end_root json_ows. { }
+json ::= json_ows start_root value end_root json_ows. {markAsParsed(ps); puts("DONE");}
 
-start_root ::= . {  }
+start_root ::= . { puts("ROOT_START"); updateJsonPathRequestStatusByRoot(ps->container.jsonPathRequestData.jsonPathRequest); }
 
-end_root ::= . {  }
+end_root ::= . { puts("ROOT_END"); rollbackJsonPathRequestStatusByRoot(ps->container.jsonPathRequestData.jsonPathRequest); }
 
 %type string {string}
 %type json_chars {string}
@@ -301,107 +301,145 @@ end_root ::= . {  }
 
 %type number {string}
 
-value ::= object(o).  { /* o */ }
-value ::= array(a). { /* a */ }
+value ::= object(o).  { printf("\nOBJ XVALUE -- %.*s\n", o.length, o.data); executeJsonPathCallbackWithValue(ps->container.jsonPathRequestData.jsonPathRequest, &o, TRUE); }
+value ::= array(a). { printf("\nARRAY XVALUE -- %.*s\n", a.length, a.data); executeJsonPathCallbackWithValue(ps->container.jsonPathRequestData.jsonPathRequest, &a, TRUE);}
 
-value ::= number(s1). { /* s1 */ }
-value ::= string(s1). { /* s1 */ }
-value ::= true. { }
-value ::= false. { }
-value ::= null. { }
+value ::= number(s1). { printf("\nNUM XVALUE -- %.*s\n", s1.length, s1.data); executeJsonPathCallbackWithValue(ps->container.jsonPathRequestData.jsonPathRequest, &s1, FALSE); }
+value ::= string(s1). { printf("\nSTR XVALUE -- %.*s\n", s1.length, s1.data); executeJsonPathCallbackWithValue(ps->container.jsonPathRequestData.jsonPathRequest, &s1, FALSE); }
+value ::= true. {
+  const string s = getTrueString();
+  printf("\nTRUE XVALUE\n");
+  executeJsonPathCallbackWithValue(ps->container.jsonPathRequestData.jsonPathRequest, &s, FALSE);
+}
+value ::= false. {
+  const string s = getFalseString();
+  printf("\nFALSE XVALUE\n");
+  executeJsonPathCallbackWithValue(ps->container.jsonPathRequestData.jsonPathRequest, &s, FALSE);
+}
+value ::= null. {
+  const string s = getNullString();
+  printf("\nFALSE XVALUE\n");
+  executeJsonPathCallbackWithValue(ps->container.jsonPathRequestData.jsonPathRequest, &s, FALSE);
+}
 
-object(o) ::= l_crl_brckt(o_start) json_ows r_crl_brckt(o_end). { /* o, o_start, o_end */ }
-object(o) ::= l_crl_brckt(o_start) json_ows object_content json_ows r_crl_brckt(o_end). { /* o, o_start, o_end */ }
+object(o) ::= l_crl_brckt(o_start) json_ows r_crl_brckt(o_end). {
+  o.data = o_start;
+  o.length = o_end - o_start + 1;
+}
+object(o) ::= l_crl_brckt(o_start) json_ows object_content json_ows r_crl_brckt(o_end). {
+  o.data = o_start;
+  o.length = o_end - o_start + 1;
+}
 
-json_key(s1) ::= string(s1). { /* s1 */ }
+json_key(s1) ::= string(s1). {
+  printf("\nKEY IN -- %.*s\n", s1.length, s1.data);
+  updateJsonPathRequestStatusByFieldName(ps->container.jsonPathRequestData.jsonPathRequest, &s1);
+}
 
-object_content ::= json_key(s1) json_ows COLON json_ows value. { /* s1 */ }
-object_content ::= object_content json_ows COMMA json_ows json_key(s1) json_ows COLON json_ows value. { /* s1 */ }
+object_content ::= json_key(s1) json_ows COLON json_ows value. { rollbackJsonPathRequestStatusByFieldName(ps->container.jsonPathRequestData.jsonPathRequest, &s1); }
+object_content ::= object_content json_ows COMMA json_ows json_key(s1) json_ows COLON json_ows value. { rollbackJsonPathRequestStatusByFieldName(ps->container.jsonPathRequestData.jsonPathRequest, &s1); }
 
-array(a) ::= l_sqr_brckt(a_start) json_ows r_sqr_brckt(a_end). { /* a, a_start, a_end */ }
-array(a) ::= l_sqr_brckt(a_start) json_ows array_content json_ows r_sqr_brckt(a_end). { /* a, a_start, a_end */ }
+array(a) ::= l_sqr_brckt(a_start) json_ows r_sqr_brckt(a_end). {
+  a.data = a_start;
+  a.length = a_end - a_start + 1;
+}
+array(a) ::= l_sqr_brckt(a_start) json_ows array_content json_ows r_sqr_brckt(a_end). {
+  a.data = a_start;
+  a.length = a_end - a_start + 1;
+}
 
 array_content ::= value array_inc.
 array_content ::= array_content json_ows COMMA json_ows value array_inc.
 
-array_inc ::= . { }
+array_inc ::= . { puts("ARRAY ELEMENT"); updateJsonPathRequestStatusByArrayElement(ps->container.jsonPathRequestData.jsonPathRequest); }
 
 %type mantissa {string}
 %type exponent {string}
 
-number(n) ::= MINUS(minus) mantissa(mantissa). { /* n, minus, mantissa */ }
-number(n) ::= mantissa(mantissa). { /* n, mantissa */ }
-number(n) ::= MINUS(minus) mantissa(mantissa) exponent(exponent). { /* n, minus, mantissa, exponent */ }
-number(n) ::= mantissa(mantissa) exponent(exponent). { /* n, mantissa, exponent */ }
+number(n) ::= MINUS(minus) mantissa(mantissa). { n.data = minus; n.length = 1 + mantissa.length; }
+number(n) ::= mantissa(mantissa). { n.data = mantissa.data; n.length = mantissa.length; }
+number(n) ::= MINUS(minus) mantissa(mantissa) exponent(exponent). {
+  n.data = minus;
+  n.length = 1 + mantissa.length + exponent.length;
+}
+number(n) ::= mantissa(mantissa) exponent(exponent). {
+  n.data = mantissa.data;
+  n.length = mantissa.length + exponent.length;
+}
 
-mantissa(m) ::= ZERO(z). { /* m, z */ }
-mantissa(m) ::= ZERO(z) DOT digits(d). { /* m, z, d */ }
-mantissa(m) ::= digit_without_zero(d). { /* m, d */ }
-mantissa(m) ::= digit_without_zero(d) DOT digits(ds). { /* m, d, ds */ }
-mantissa(m) ::= digit_without_zero(d) digits(ds). { /* m, d, ds */ }
-mantissa(m) ::= digit_without_zero(d) digits(ds1) DOT digits(ds2). { /* m, d, ds1, ds2 */ }
+mantissa(m) ::= ZERO(z). { m.data = z; m.length = 1; }
+mantissa(m) ::= ZERO(z) DOT digits(d). { m.data = z; m.length = 2 + d.length; }
+mantissa(m) ::= digit_without_zero(d). { m.data = d; m.length = 1; }
+mantissa(m) ::= digit_without_zero(d) DOT digits(ds). { m.data = d; m.length = 2 + ds.length; }
+mantissa(m) ::= digit_without_zero(d) digits(ds). { m.data = d; m.length = 1 + ds.length; }
+mantissa(m) ::= digit_without_zero(d) digits(ds1) DOT digits(ds2). { m.data = d; m.length = 2 + ds1.length + ds2.length; }
 
-exponent(exp) ::= exp(e) sign(s) digits(d). { /* exp, e, s, d */ }
+exponent(exp) ::= exp(e) sign(s) digits(d). { exp.data = e; exp.length = 1 + s.length + d.length; }
 
 exp ::= LE.
 exp ::= E.
 
 %type sign {string}
 
-sign(s) ::= . { /* s */ }
-sign(s) ::= PLUS(p). { /* s, p */ }
-sign(s) ::= MINUS(m). { /* s, m */ }
+sign(s) ::= . { s = getEmptyString(); }
+sign(s) ::= PLUS(p). { s.data = p; s.length = 1; }
+sign(s) ::= MINUS(m). { s.data = m; s.length = 1; }
 
 %type digits {string}
 
-digits(ds) ::= digit(d). { /* ds, d */ }
-digits(ds) ::= digits digit. { /* ds */ }
+digits(ds) ::= digit(d). { ds.data = d; ds.length = 1; }
+digits(ds) ::= digits digit. { ++(ds.length); }
 
-string(s) ::= QUOTATION QUOTATION. { /* s */ }
-string(s) ::= QUOTATION json_chars(cs) QUOTATION. { /* s, cs */ }
+string(s) ::= QUOTATION QUOTATION. { s = getEmptyString(); }
+string(s) ::= QUOTATION json_chars(cs) QUOTATION. { s.data = cs.data; s.length = cs.length; }
 
-json_chars(cs) ::= json_char(c). { /* cs, c */ }
-json_chars(cs) ::= json_chars json_char(c). { /* cs, c */ }
+json_chars(cs) ::= json_char(c). { cs.data = c.data; cs.length = c.length; }
+json_chars(cs) ::= json_chars json_char(c). {
+    while (c.length > 0) {
+        (cs.data)[cs.length++] = *(c.data++);
+        --(c.length);
+    }
+}
 
-json_char(c) ::= json_sym(s). { /* c, s */ }
-json_char(c) ::= BACKSLASH QUOTATION(s). { /* c, s */ }
-json_char(c) ::= BACKSLASH BACKSLASH(s). { /* c, s */ }
-json_char(c) ::= BACKSLASH SLASH(s). { /* c, s */ }
-json_char(c) ::= BACKSLASH BACKSPACE(s). { /* c, s */ }
-json_char(c) ::= BACKSLASH FORMFEED(s). { /* c, s */ }
-json_char(c) ::= BACKSLASH CLF(s). { /* c, s */ }
-json_char(c) ::= BACKSLASH CR(s). { /* c, s */ }
-json_char(c) ::= BACKSLASH HTAB(s). { /* c, s */ }
-json_char(c) ::= BACKSLASH LU hexdig(h1) hexdig(h2) hexdig(h3) hexdig(h4). { /* c, h1, h2, h3, h4 */ }
-json_char(c) ::= LT(s). { /* c, s */ }
-json_char(c) ::= LR(s). { /* c, s */ }
-json_char(c) ::= LU(s). { /* c, s */ }
-json_char(c) ::= LL(s). { /* c, s */ }
-json_char(c) ::= LS(s). { /* c, s */ }
-json_char(c) ::= LN(s). { /* c, s */ }
-json_char(c) ::= hexdig(s). { /* c, s */ }
-json_char(c) ::= SP(s). { /* c, s */ }
-json_char(c) ::= HTAB(s). { /* c, s */ }
-json_char(c) ::= COLON(s). { /* c, s */ }
-json_char(c) ::= COMMA(s). { /* c, s */ }
-json_char(c) ::= PLUS(s). { /* c, s */ }
-json_char(c) ::= MINUS(s). { /* c, s */ }
-json_char(c) ::= DOT(s). { /* c, s */ }
-json_char(c) ::= control(s). { /* c, s */ }
-json_char(c) ::= OBSTEXT(s). { /* c, s */ }
+json_char(c) ::= json_sym(s). { c.data = s; c.length = 1; }
+json_char(c) ::= BACKSLASH QUOTATION(s). { c.data = s; c.length = 1; }
+json_char(c) ::= BACKSLASH BACKSLASH(s). { c.data = s; c.length = 1; }
+json_char(c) ::= BACKSLASH SLASH(s). { c.data = s; c.length = 1; }
+json_char(c) ::= BACKSLASH BACKSPACE(s). { c.data = s; c.length = 1; }
+json_char(c) ::= BACKSLASH FORMFEED(s). { c.data = s; c.length = 1; }
+json_char(c) ::= BACKSLASH CLF(s). { c.data = s; c.length = 1; }
+json_char(c) ::= BACKSLASH CR(s). { c.data = s; c.length = 1; }
+json_char(c) ::= BACKSLASH HTAB(s). { c.data = s; c.length = 1; }
+json_char(c) ::= BACKSLASH LU hexdig(h1) hexdig(h2) hexdig(h3) hexdig(h4). { c = convertUtf16ToString(h1, h2, *h3, *h4); }
+json_char(c) ::= LT(s). { c.data = s; c.length = 1; }
+json_char(c) ::= LR(s). { c.data = s; c.length = 1; }
+json_char(c) ::= LU(s). { c.data = s; c.length = 1; }
+json_char(c) ::= LL(s). { c.data = s; c.length = 1; }
+json_char(c) ::= LS(s). { c.data = s; c.length = 1; }
+json_char(c) ::= LN(s). { c.data = s; c.length = 1; }
+json_char(c) ::= hexdig(s). { c.data = s; c.length = 1; }
+json_char(c) ::= SP(s). { c.data = s; c.length = 1; }
+json_char(c) ::= HTAB(s). { c.data = s; c.length = 1; }
+json_char(c) ::= COLON(s). { c.data = s; c.length = 1; }
+json_char(c) ::= COMMA(s). { c.data = s; c.length = 1; }
+json_char(c) ::= PLUS(s). { c.data = s; c.length = 1; }
+json_char(c) ::= MINUS(s). { c.data = s; c.length = 1; }
+json_char(c) ::= DOT(s). { c.data = s; c.length = 1; }
+json_char(c) ::= control(s). { c.data = s; c.length = 1; }
+json_char(c) ::= OBSTEXT(s). { c.data = s; c.length = 1; }
 
 
 true ::= LT LR LU LE.
 false ::= LF LA LL LS LE.
 null ::= LN LU LL LL.
 
-l_crl_brckt ::= LBRACE(c). { /* c */ }
+l_crl_brckt ::= LBRACE(c). { puts("VAL_START"); puts(c); updateJsonPathRequestStatusByObject(ps->container.jsonPathRequestData.jsonPathRequest, c); }
 
-r_crl_brckt ::= RBRACE(c). { /* c */ }
+r_crl_brckt ::= RBRACE(c). { puts("VAL_END"); puts(c); rollbackJsonPathRequestStatusByObject(ps->container.jsonPathRequestData.jsonPathRequest, c); }
 
-l_sqr_brckt ::= LBRACKET(c). { /* c */ }
+l_sqr_brckt ::= LBRACKET(c). { puts("ARRAY_START"); puts(c); updateJsonPathRequestStatusByArray(ps->container.jsonPathRequestData.jsonPathRequest, c); }
 
-r_sqr_brckt ::= RBRACKET(c). { /* c */ }
+r_sqr_brckt ::= RBRACKET(c). { puts("ARRAY_END"); puts(c); rollbackJsonPathRequestStatusByArray(ps->container.jsonPathRequestData.jsonPathRequest, c); }
 
 json_ows ::= .
 json_ows ::= json_ows SP.
@@ -413,56 +451,140 @@ json_ows ::= json_ows CR.
 /* ---------------- JSONPATH ---------------- */
 mmainn ::= mmain NULL.
 
-mmain ::= jsonpath. { /* DONE1 */ }
-mmain ::= jsonpath DOT. { /* DONE2 */ }
-mmain ::= jsonpath DOT DOT. { /* DONE3 */}
+mmain ::= jsonpath. { markAsParsed(ps); puts("DONE1"); }
+mmain ::= jsonpath DOT. { markAsParsed(ps); puts("DONE2"); }
+mmain ::= jsonpath DOT DOT. {
+    const string emptyString = getEmptyString();
+    if (NULL == appendJsonPathElementOfHttpRequest(ps->container.jsonPathRequestData.jsonPathRequest, &(emptyString), JSONPATH_REQUEST_RECURSIVE)) {
+        /* TODO: Fix markJSONPathAsParseFailed !!!! */
+        markAsParseFailed(ps);
+    };
+    markAsParsed(ps); puts("DONE3");
+}
 
-jsonpath ::= DOLLAR. {}
+jsonpath ::= DOLLAR. {
+    const string emptyString = getEmptyString();
+    if (NULL == appendJsonPathElementOfHttpRequest(ps->container.jsonPathRequestData.jsonPathRequest, &(emptyString), JSONPATH_REQUEST_ROOT)) {
+        markAsParseFailed(ps);
+    }
+}
 
 %type dotobjectname {string}
 %type objectname {string}
 %type jsonpath_char {string}
 %type arrayindex {string}
-jsonpath ::= jsonpath DOT dotobjectname(var_s). { /* var_s */ }
-jsonpath ::= jsonpath DOT ASTERISK. {}
-jsonpath ::= jsonpath LBRACKET APOSTROPHE objectname(var_s) APOSTROPHE RBRACKET. {/* var_s */}
-jsonpath ::= jsonpath LBRACKET arrayindex(var_s) RBRACKET. {/* var_s */}
-jsonpath ::= jsonpath LBRACKET ASTERISK RBRACKET. {}
-jsonpath ::= jsonpath DOT DOT dotobjectname(var_s). {/* var_s */}
-jsonpath ::= jsonpath DOT DOT ASTERISK. {}
-jsonpath ::= jsonpath DOT DOT LBRACKET APOSTROPHE objectname(var_s) APOSTROPHE RBRACKET. {/* var_s */}
-jsonpath ::= jsonpath DOT DOT LBRACKET arrayindex(var_s) RBRACKET. {/* var_s */}
-jsonpath ::= jsonpath DOT DOT LBRACKET ASTERISK RBRACKET. {}
+jsonpath ::= jsonpath DOT dotobjectname(var_s). {
+    if (NULL == appendJsonPathElementOfHttpRequest(ps->container.jsonPathRequestData.jsonPathRequest, &var_s, JSONPATH_REQUEST_NAME)) {
+        markAsParseFailed(ps);
+    }
+}
+jsonpath ::= jsonpath DOT ASTERISK. {
+    const string emptyString = getEmptyString();
+    if (NULL == appendJsonPathElementOfHttpRequest(ps->container.jsonPathRequestData.jsonPathRequest, &(emptyString), JSONPATH_REQUEST_ANY)) {
+        markAsParseFailed(ps);
+    }
+}
+jsonpath ::= jsonpath LBRACKET APOSTROPHE objectname(var_s) APOSTROPHE RBRACKET. {
+    if (NULL == appendJsonPathElementOfHttpRequest(ps->container.jsonPathRequestData.jsonPathRequest, &var_s, JSONPATH_REQUEST_NAME)) {
+        markAsParseFailed(ps);
+    }
+}
+jsonpath ::= jsonpath LBRACKET arrayindex(var_s) RBRACKET. {
+    if (NULL == appendJsonPathElementOfHttpRequest(ps->container.jsonPathRequestData.jsonPathRequest, &var_s, JSONPATH_REQUEST_INDEX)) {
+        markAsParseFailed(ps);
+    }
+}
+jsonpath ::= jsonpath LBRACKET ASTERISK RBRACKET. {
+    const string emptyString = getEmptyString();
+    if (NULL == appendJsonPathElementOfHttpRequest(ps->container.jsonPathRequestData.jsonPathRequest, &(emptyString), JSONPATH_REQUEST_ANYINDEX)) {
+        markAsParseFailed(ps);
+    }
+}
+jsonpath ::= jsonpath DOT DOT dotobjectname(var_s). {
+    const string emptyString = getEmptyString();
+    if (NULL == appendJsonPathElementOfHttpRequest(ps->container.jsonPathRequestData.jsonPathRequest, &(emptyString), JSONPATH_REQUEST_RECURSIVE)) {
+        markAsParseFailed(ps);
+    }
+    if (NULL == appendJsonPathElementOfHttpRequest(ps->container.jsonPathRequestData.jsonPathRequest, &var_s, JSONPATH_REQUEST_NAME)) {
+        markAsParseFailed(ps);
+    }
+}
+jsonpath ::= jsonpath DOT DOT ASTERISK. {
+    const string emptyString = getEmptyString();
+    if (NULL == appendJsonPathElementOfHttpRequest(ps->container.jsonPathRequestData.jsonPathRequest, &(emptyString), JSONPATH_REQUEST_RECURSIVE)) {
+        markAsParseFailed(ps);
+    }
+    if (NULL == appendJsonPathElementOfHttpRequest(ps->container.jsonPathRequestData.jsonPathRequest, &(emptyString), JSONPATH_REQUEST_ANY)) {
+        markAsParseFailed(ps);
+    }
+}
+jsonpath ::= jsonpath DOT DOT LBRACKET APOSTROPHE objectname(var_s) APOSTROPHE RBRACKET. {
+    const string emptyString = getEmptyString();
+    if (NULL == appendJsonPathElementOfHttpRequest(ps->container.jsonPathRequestData.jsonPathRequest, &(emptyString), JSONPATH_REQUEST_RECURSIVE)) {
+        markAsParseFailed(ps);
+    }
+    if (NULL == appendJsonPathElementOfHttpRequest(ps->container.jsonPathRequestData.jsonPathRequest, &var_s, JSONPATH_REQUEST_NAME)) {
+        markAsParseFailed(ps);
+    }
+}
+jsonpath ::= jsonpath DOT DOT LBRACKET arrayindex(var_s) RBRACKET. {
+    const string emptyString = getEmptyString();
+    if (NULL == appendJsonPathElementOfHttpRequest(ps->container.jsonPathRequestData.jsonPathRequest, &(emptyString), JSONPATH_REQUEST_RECURSIVE)) {
+        markAsParseFailed(ps);
+    }
+    if (NULL == appendJsonPathElementOfHttpRequest(ps->container.jsonPathRequestData.jsonPathRequest, &var_s, JSONPATH_REQUEST_INDEX)) {
+        markAsParseFailed(ps);
+    }
+}
+jsonpath ::= jsonpath DOT DOT LBRACKET ASTERISK RBRACKET. {
+    const string emptyString = getEmptyString();
+    if (NULL == appendJsonPathElementOfHttpRequest(ps->container.jsonPathRequestData.jsonPathRequest, &(emptyString), JSONPATH_REQUEST_RECURSIVE)) {
+        markAsParseFailed(ps);
+    }
+    if (NULL == appendJsonPathElementOfHttpRequest(ps->container.jsonPathRequestData.jsonPathRequest, &(emptyString), JSONPATH_REQUEST_ANYINDEX)) {
+        markAsParseFailed(ps);
+    }
+}
 
-dotobjectname(var_s) ::= jsonpath_char(var_ch). { /* var_s, var_ch */ }
-dotobjectname(var_s) ::= BACKSLASH ASTERISK(var_c). { /* var_s, var_c */ }
-dotobjectname(var_s) ::= dotobjectname jsonpath_char(var_ch). { /* var_s, var_ch */ }
-dotobjectname(var_s) ::= dotobjectname BACKSLASH ASTERISK(var_c). { /* var_s, var_c */ }
+dotobjectname(var_s) ::= jsonpath_char(var_ch). { var_s.length = var_ch.length; var_s.data = var_ch.data; }
+dotobjectname(var_s) ::= BACKSLASH ASTERISK(var_c). { var_s.length = 1; var_s.data = var_c; }
+dotobjectname(var_s) ::= dotobjectname jsonpath_char(var_ch). {
+    while (var_ch.length > 0) {
+        (var_s.data)[var_s.length++] = *(var_ch.data++);
+        --(var_ch.length);
+    }
+}
+dotobjectname(var_s) ::= dotobjectname BACKSLASH ASTERISK(var_c). { (var_s.data)[var_s.length] = *var_c; ++(var_s.length); }
 
 /*dotobjectname(var_s) ::= dotobjectname jsonpath_char(var_ch). { (var_s.data)[var_s.length] = *var_ch; ++(var_s.length); }
 dotobjectname(var_s) ::= dotobjectname BACKSLASH ASTERISK(var_c). { (var_s.data)[var_s.length] = *var_c; ++(var_s.length); }*/
 
-objectname(var_s) ::= jsonpath_char(var_ch). { /* var_s, var_ch */ }
-objectname(var_s) ::= BACKSLASH APOSTROPHE(var_c). { /* var_s, var_c */ }
-objectname(var_s) ::= BACKSLASH LBRACKET(var_c). { /* var_s, var_c */ }
-objectname(var_s) ::= BACKSLASH RBRACKET(var_c). { /* var_s, var_c */ }
-objectname(var_s) ::= objectname jsonpath_char(var_ch). { /* var_s, var_ch */ }
-objectname(var_s) ::= objectname BACKSLASH APOSTROPHE(var_c). { /* var_s, var_c */ }
-objectname(var_s) ::= objectname BACKSLASH LBRACKET(var_c). { /* var_s, var_c */ }
-objectname(var_s) ::= objectname BACKSLASH RBRACKET(var_c). { /* var_s, var_c */ }
+objectname(var_s) ::= jsonpath_char(var_ch). { var_s.length = var_ch.length; var_s.data = var_ch.data; }
+objectname(var_s) ::= BACKSLASH APOSTROPHE(var_c). { var_s.length = 1; var_s.data = var_c; }
+objectname(var_s) ::= BACKSLASH LBRACKET(var_c). { var_s.length = 1; var_s.data = var_c; }
+objectname(var_s) ::= BACKSLASH RBRACKET(var_c). { var_s.length = 1; var_s.data = var_c; }
+objectname(var_s) ::= objectname jsonpath_char(var_ch). {
+    while (var_ch.length > 0) {
+        (var_s.data)[var_s.length++] = *(var_ch.data++);
+        --(var_ch.length);
+    }
+}
+objectname(var_s) ::= objectname BACKSLASH APOSTROPHE(var_c). { (var_s.data)[var_s.length] = *var_c; ++(var_s.length); }
+objectname(var_s) ::= objectname BACKSLASH LBRACKET(var_c). { (var_s.data)[var_s.length] = *var_c; ++(var_s.length); }
+objectname(var_s) ::= objectname BACKSLASH RBRACKET(var_c). { (var_s.data)[var_s.length] = *var_c; ++(var_s.length); }
 
-arrayindex(var_s) ::= digit(var_ch). { /* var_s, var_ch */ }
-arrayindex(var_s) ::= arrayindex digit(var_ch). { /* var_s, var_ch */ }
+arrayindex(var_s) ::= digit(var_ch). { var_s.length = 1; var_s.data = var_ch; }
+arrayindex(var_s) ::= arrayindex digit(var_ch). { (var_s.data)[var_s.length] = *var_ch; ++(var_s.length); }
 
-jsonpath_char(var_ch) ::= jsonpath_sym(var_cc). { /* var_ch, var_cc */ }
-jsonpath_char(var_ch) ::= hexdig(var_cc). { /* var_ch, var_cc */ }
-jsonpath_char(var_ch) ::= LU(var_cc). { /* var_ch, var_cc */ }
-jsonpath_char(var_ch) ::= BACKSLASH QUOTATION(var_cc). { /* var_ch, var_cc */ }
-jsonpath_char(var_ch) ::= BACKSLASH BACKSLASH(var_cc). { /* var_ch, var_cc */ }
-jsonpath_char(var_ch) ::= BACKSLASH SLASH(var_cc). { /* var_ch, var_cc */ }
-jsonpath_char(var_ch) ::= BACKSLASH BACKSPACE(var_cc). { /* var_ch, var_cc */ }
-jsonpath_char(var_ch) ::= BACKSLASH FORMFEED(var_cc). { /* var_ch, var_cc */ }
-jsonpath_char(var_ch) ::= BACKSLASH CLF(var_cc). { /* var_ch, var_cc */ }
-jsonpath_char(var_ch) ::= BACKSLASH CR(var_cc). { /* var_ch, var_cc */ }
-jsonpath_char(var_ch) ::= BACKSLASH HTAB(var_cc). { /* var_ch, var_cc */ }
-jsonpath_char(var_ch) ::= BACKSLASH LU hexdig(h1) hexdig(h2) hexdig(h3) hexdig(h4). { /* var_ch, h1 ,h2, h3, h4 */ }
+jsonpath_char(var_ch) ::= jsonpath_sym(var_cc). { var_ch.data = var_cc; var_ch.length = 1; }
+jsonpath_char(var_ch) ::= hexdig(var_cc). { var_ch.data = var_cc; var_ch.length = 1; }
+jsonpath_char(var_ch) ::= LU(var_cc). { var_ch.data = var_cc; var_ch.length = 1; }
+jsonpath_char(var_ch) ::= BACKSLASH QUOTATION(var_cc). { var_ch.data = var_cc; var_ch.length = 1; }
+jsonpath_char(var_ch) ::= BACKSLASH BACKSLASH(var_cc). { var_ch.data = var_cc; var_ch.length = 1; }
+jsonpath_char(var_ch) ::= BACKSLASH SLASH(var_cc). { var_ch.data = var_cc; var_ch.length = 1; }
+jsonpath_char(var_ch) ::= BACKSLASH BACKSPACE(var_cc). { var_ch.data = var_cc; var_ch.length = 1; }
+jsonpath_char(var_ch) ::= BACKSLASH FORMFEED(var_cc). { var_ch.data = var_cc; var_ch.length = 1; }
+jsonpath_char(var_ch) ::= BACKSLASH CLF(var_cc). { var_ch.data = var_cc; var_ch.length = 1; }
+jsonpath_char(var_ch) ::= BACKSLASH CR(var_cc). { var_ch.data = var_cc; var_ch.length = 1; }
+jsonpath_char(var_ch) ::= BACKSLASH HTAB(var_cc). { var_ch.data = var_cc; var_ch.length = 1; }
+jsonpath_char(var_ch) ::= BACKSLASH LU hexdig(h1) hexdig(h2) hexdig(h3) hexdig(h4). { var_ch = convertUtf16ToString(h1, h2, *h3, *h4); }

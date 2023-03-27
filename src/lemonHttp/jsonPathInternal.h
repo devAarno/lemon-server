@@ -21,11 +21,11 @@
 #define LEMONSERVER_JSONPATHINTERNAL_H
 
 #include "./jsonPath.h"
-#include "../../lemonError.h"
+#include "lemonError.h"
 
 jsonPathElement *appendJsonPathElementOfHttpRequest(jsonPathRequest *r, const string *s, const ruleType type);
 
-const string convertUtf16ToString(char *c1, char *c2, const char c3, const char c4);
+/* const string convertUtf16ToString(char *c1, char *c2, const char c3, const char c4); */
 
 const lemonError updateJsonPathRequestStatusByFieldName(jsonPathRequest *jsonRequest, const string *key);
 

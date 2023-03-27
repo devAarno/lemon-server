@@ -22,7 +22,7 @@
 #include <stdlib.h>
 
 #include "../3rdParty/unity/git/src/unity.h"
-#include "../src/lemonHttp/bodyEngines/json/jsonPathParser.h"
+/* #include "../src/lemonHttp/jsonPathParser.h" */
 #include "../src/lemonHttp/string.h"
 
 #define TESTNAME TestJSONPath

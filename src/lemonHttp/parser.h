@@ -25,6 +25,9 @@
 #include "httpRequest.h"
 #include "../boolean.h"
 #include "lemonError.h"
+#include "jsonPath.h"
+
+#warning I AM HHHHHHHHHHHHHHHHHHHHHHHHEEEEEEEEEEEEEEEEEEEEEEEEEEEERRRRRRRRRRRRRRRRRRRRRRRRRRRRRREEEEEEEEEEEEEEEEEEEEEEE
 
 typedef enum {
     GENERAL_HTTP,
@@ -33,7 +36,15 @@ typedef enum {
 } parsingMode;
 
 typedef struct {
-    httpRequest *request;
+    httpRequest *httpRequest;
+    struct {
+        jsonPathRequest *jsonPathRequest;
+        char *jsonPath;
+    } jsonPathRequestData;
+} dataContainer;
+
+typedef struct {
+    dataContainer container;
     char fallbackLayer;
     boolean isParsed;
     boolean isParseFailed;
@@ -41,6 +52,10 @@ typedef struct {
 } parserState;
 
 const lemonError parseHTTP(httpRequest *request);
+
+const lemonError parseJSON(httpRequest *request, jsonPathRequest *jsonRequest);
+
+const lemonError parseJSONPath(jsonPathRequest *jsonPathRequest, char *jsonPath);
 
 const boolean isParsed(const parserState* ps);
 

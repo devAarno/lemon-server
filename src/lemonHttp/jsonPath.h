@@ -20,9 +20,10 @@
 #ifndef LEMONSERVER_JSONPATH_H
 #define LEMONSERVER_JSONPATH_H
 
-#include "../../string.h"
-#include "../../httpRequest.h"
-#include "../../lemonError.h"
+#include "jsonCallbackType.h"
+#include "string.h"
+#include "httpRequest.h"
+#include "lemonError.h"
 #include "./jsonPathQueryBuffer.h"
 
 typedef enum {
@@ -44,8 +45,8 @@ typedef enum {
     _NONE
 } _ruleType;
 
-typedef void changingData;
-typedef const lemonError (*jsonPathExecutionHandler)(const string *value, changingData *data);
+/* typedef void changingData;
+typedef const lemonError (*jsonPathExecutionHandler)(const string *value, changingData *data); */
 
 typedef struct {
     jsonPathExecutionHandler handler;

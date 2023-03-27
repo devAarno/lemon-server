@@ -25,6 +25,9 @@
 #include "string.h"
 #include "../boolean.h"
 #include "lemonError.h"
+#include "rules.h"
+#include "httpCallbackType.h"
+#include "changingData.h"
 
 #ifndef MAX_ELEMENTS
 #define MAX_ELEMENTS 128
@@ -33,86 +36,6 @@
 #define PRIVATE_BUFFER_SIZE 2048
 
 /* ----------------- */
-typedef enum {
-    HTTP_REQUEST_METHOD,
-    HTTP_REQUEST_URI,
-    HTTP_REQUEST_GET_QUERY_ELEMENT,
-    HTTP_REQUEST_VALUE,
-    HTTP_REQUEST_HTTP_VERSION,
-    HTTP_REQUEST_HEADER,
-    JSONPATH_REQUEST_ROOT,
-    JSONPATH_REQUEST_ANY,
-    JSONPATH_REQUEST_ANYINDEX,
-    JSONPATH_REQUEST_NAME,
-    JSON_PATH_REQUEST_NAME_WITH_OBJECT_OR_ARRAY,
-    JSONPATH_REQUEST_INDEX,
-    JSONPATH_REQUEST_RECURSIVE,
-    PARSED_JSON_ROOT,
-    PARSED_JSON_OBJECT,
-    PARSED_JSON_JOINED_OBJECT,
-    PARSED_JSON_HEAD_OF_JOINED_OBJECT,
-    PARSED_JSON_INDEX,
-    PARSED_JSON_FIELD,
-    PARSED_JSON_FIELD_WITH_OBJECT,
-    PARSED_JSON_RESOLVED_FIELD,
-    ZERO,
-    NONE
-} ruleType;
-
-typedef void changingData;
-typedef const lemonError (*jsonPathExecutionHandler)(const string *value, changingData *data);
-
-/* HTTP */
-typedef const lemonError (*httpMethodExecutionHandler)(const string *value, changingData *data);
-typedef const lemonError (*httpUriExecutionHandler)(const string *value, changingData *data);
-typedef const lemonError (*httpVersionExecutionHandler)(const string *value, changingData *data);
-/*typedef char jsonPathQueryBuffer; */
-typedef char httpGetParameterQueryBuffer;
-typedef const lemonError (*httpGetParameterQueryExecutionHandler)(const string *value, changingData *data);
-typedef char httpHeaderQueryBuffer;
-typedef const lemonError (*httpHeaderQueryExecutionHandler)(const string *value, changingData *data);
-
-typedef struct {
-    httpMethodExecutionHandler handler;
-    changingData *data;
-} httpMethodCallback;
-
-typedef struct {
-    httpUriExecutionHandler handler;
-    changingData *data;
-} httpUriCallback;
-
-typedef struct {
-    httpVersionExecutionHandler handler;
-    changingData *data;
-} httpVersionCallback;
-
-typedef struct {
-    httpGetParameterQueryExecutionHandler handler;
-    changingData *data;
-    string getParameter;
-} httpGetParameterCallback;
-
-typedef struct {
-    httpHeaderQueryExecutionHandler handler;
-    changingData *data;
-    string headerName;
-} httpHeaderQueryCallback;
-
-typedef struct {
-    jsonPathExecutionHandler handler;
-    changingData *data;
-} jsonPathCallback;
-
-typedef struct {
-    jsonPathCallback callback;
-    size_t ruleSize;
-} rootRule;
-
-typedef struct {
-    char *containerStartPosition;
-    size_t index;
-} indexRule;
 
 typedef struct {
     union {
@@ -132,13 +55,12 @@ typedef struct {
 typedef struct {
     requestElement elements[MAX_ELEMENTS];
     char privateBuffer[PRIVATE_BUFFER_SIZE];
-    string body;
+    string body; /* possible to delete */
     size_t elementsCount;
     size_t parsedStackSize;
     int descriptor;
     unsigned char mode;
 } httpRequest;
-
 
 /* const lemonError appendJsonPathRequest(jsonPathRequest *p, jsonPathQueryBuffer *b, jsonPathExecutionHandler handler, changingData *data); */
 
