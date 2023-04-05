@@ -237,6 +237,7 @@ static const lemonError parse(dataContainer container, const parsingMode mode) {
         }
 
         ps.isParsed = ps.isParseFailed = ps.isSyntaxIncorrect = FALSE;
+        ps.container = container;
         while (
                 (FALSE == isParsed(&ps)) &&
                 (FALSE == isParseFailed(&ps)) &&
@@ -248,9 +249,9 @@ static const lemonError parse(dataContainer container, const parsingMode mode) {
 
         ParseHTTP11(&pParser, 0, NULL, &ps);
 
-        --pos; /* Because of last JSONPATH_REQUEST_ANY */
+        /* --pos;  Because of last JSONPATH_REQUEST_ANY
         container.httpRequest->body.data = &((container.httpRequest->privateBuffer)[pos]);
-        container.httpRequest->body.length -= pos;
+        container.httpRequest->body.length -= pos;*/
 
         return (FALSE == isParseFailed(&ps)) ? ((FALSE == isSyntaxIncorrect(&ps)) ? LE_OK : LE_INCORRECT_SYNTAX) : LE_PARSING_IS_FAILED;
     }

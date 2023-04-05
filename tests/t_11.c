@@ -2542,7 +2542,7 @@ static const lemonError fakeExecuteForTest29Buffer9(const string *value, calledC
 
 
 static void test29(void) {
-    const char* rawRequest = "{\"a\":{\"a\":{\"a\":{}}}}}";
+    const char* rawRequest = "{\"a\":{\"a\":{\"a\":{}}}}";
     httpRequest request;
     jsonPathRequest jsonRequest, jsonRequest_backup;
     jsonPathQueryBuffer jsonPathQueryBuffer1[] = "$..a..a";
@@ -2734,7 +2734,7 @@ static const lemonError fakeExecuteForTest30Buffer9(const string *value, calledC
 
 
 static void test30(void) {
-    const char* rawRequest = "{\"a\":{\"a\":{\"a\":[]}}}}";
+    const char* rawRequest = "{\"a\":{\"a\":{\"a\":[]}}}";
     httpRequest request;
     jsonPathRequest jsonRequest, jsonRequest_backup;
     jsonPathQueryBuffer jsonPathQueryBuffer1[] = "$..a..a";
