@@ -17,12 +17,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <string.h>
-#include <unistd.h>
-
-#include "../src/lemonHttp/httpRequest.h"
-#include "../src/net/socket.h"
-
 static const char *response = "HTTP/1.1 200 OK\r\n\
 Server: Lemon Server v0.0\r\n\
 Content-Length: 88\r\n\
@@ -35,13 +29,6 @@ Connection: Closed\r\n\
 </body>\
 </html>";
 
-static void page(int fd, const httpRequest *r) {
-    if (strncmp("hello.html", getUriOfHttpRequest(r)->data, 10)) {
-        write(fd, response, strlen(response));
-        close(fd);
-    }
-}
-
 int main() {
-    runServer(40000, page);
+    /* Under construction */
 }

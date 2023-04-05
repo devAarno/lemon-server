@@ -76,20 +76,6 @@ const lemonError appendHttpGetParameterQueryRequest(httpRequest *r, char *b, htt
 
 const lemonError appendHttpHeaderQueryRequest(httpRequest *r, char *b, httpHeaderQueryExecutionHandler handler, changingData *data);
 
-
-
-const string *getMethodOfHttpRequest(const httpRequest *r);
-
-const string *getUriOfHttpRequest(const httpRequest *r);
-
-const string *getVersionOfHttpRequest(const httpRequest *r);
-
-const string *getQueryParameterOfHttpRequest(const httpRequest *r, const char *name);
-
-const string *getHeaderOfHttpRequest(const httpRequest *r, const char *name);
-
-const string *getBodyBufferOfHttpRequest(const httpRequest *r);
-
 const boolean isStringEmpty(const string *s);
 
 #endif /* HTTP_REQUEST_H */

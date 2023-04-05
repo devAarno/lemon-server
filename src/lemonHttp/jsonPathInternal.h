@@ -25,8 +25,6 @@
 
 jsonPathElement *appendJsonPathElementOfHttpRequest(jsonPathRequest *r, const string *s, const ruleType type);
 
-/* const string convertUtf16ToString(char *c1, char *c2, const char c3, const char c4); */
-
 const lemonError updateJsonPathRequestStatusByFieldName(jsonPathRequest *jsonRequest, const string *key);
 
 const lemonError rollbackJsonPathRequestStatusByFieldName(jsonPathRequest *jsonRequest, const string *key);
@@ -41,14 +39,10 @@ const lemonError rollbackJsonPathRequestStatusByArray(jsonPathRequest *jsonReque
 
 const lemonError executeJsonPathCallbackWithValue(jsonPathRequest *jsonRequest, const string *s, const boolean isComplex);
 
-const lemonError executeJsonPathCallbackByObject(jsonPathRequest *jsonRequest);
-
 const lemonError updateJsonPathRequestStatusByArrayElement(jsonPathRequest *jsonRequest);
 
 const lemonError updateJsonPathRequestStatusByRoot(jsonPathRequest *jsonRequest);
 
 const lemonError rollbackJsonPathRequestStatusByRoot(jsonPathRequest *jsonRequest);
-
-const lemonError executeJsonPathCallbackByRoot(jsonPathRequest *jsonRequest);
 
 #endif /* LEMONSERVER_JSONPATHINTERNAL_H */

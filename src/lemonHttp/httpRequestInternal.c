@@ -103,49 +103,6 @@ const lemonError decodeValue(string *s, boolean replacePlusWithSpace) {
     return LE_OK;
 }
 
-requestElement *appendElementOfHttpRequest(httpRequest *r, const string *s, const ruleType type) {
-    /*const string emptyString = getEmptyString();
-    if ((NULL == r) || (NULL == s) || (NULL == s->data) ||
-            (0 >= r->elementsCount) ||
-            (((emptyString.length == s->length) && (emptyString.data != s->data)) || ((emptyString.length != s->length) && (emptyString.data == s->data))) ||
-            ((emptyString.length == s->length) && (emptyString.data == s->data) && (VALUE != type)) ||
-            (emptyString.length > s->length)) {
-        return NULL;
-    }
-    {
-        const size_t elementNo = (r->elementsCount)++;
-        ((r->elements)[elementNo]).type = type;
-        ((r->elements)[elementNo]).value.str.data = s->data;
-        ((r->elements)[elementNo]).value.str.length = s->length;
-        ((r->elements)[elementNo]).value.nextVal = NULL;
-        return &((r->elements)[elementNo]);
-    }*/
-    return LE_OK;
-}
-
-const lemonError linkRequestElement(requestElement *key, const requestElement *value) {
-    /*if ((NULL == key) || (NULL == key->value.str.data) ||
-            (NULL == value) || (NULL == value->value.str.data)) {
-        return LE_NULL_IN_INPUT_VALUES;
-    }
-    {
-        linkedDataString *pos = &(key->value);
-        while (NULL != pos->nextVal) {
-            pos = pos->nextVal;
-        };
-        pos->nextVal = (linkedDataString *)(&(value->value));
-        return LE_OK;
-    }*/
-    return LE_OK;
-}
-
-const requestElement *getEmptyValueElement(const httpRequest *r) {
-    if ((NULL == r) || (0 >= r->elementsCount)) {
-        return NULL;
-    }
-    return &(r->elements[0]);
-}
-
 const lemonError trim(string *s) {
     const string emptyString = getEmptyString();
     if ((NULL == s) || (NULL == s->data)) {

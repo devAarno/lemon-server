@@ -51,25 +51,6 @@ const lemonError initHttpRequest(httpRequest *r, const int fd) {
     }
 }
 
-/*const lemonError appendJsonPathRequest(jsonPathRequest *p, jsonPathQueryBuffer *b, jsonPathExecutionHandler handler, changingData *data) {
-    if ((NULL == b) || (NULL == p) || (NULL == handler) || (NULL == data)) {
-        return LE_NULL_IN_INPUT_VALUES;
-    }
-    {
-        const size_t newRootPlace = p->elementsCount;
-        const lemonError err = parseJSONPath(p, b);
-
-        if (LE_OK != err) {
-            return err;
-        }
-
-        (p->elements)[newRootPlace].data.root.callback.handler = handler;
-        (p->elements)[newRootPlace].data.root.callback.data = data;
-        (p->elements)[newRootPlace].data.root.ruleSize = p->elementsCount - newRootPlace;
-    }
-    return LE_OK;
-}*/
-
 const lemonError appendHttpMethodRequest(httpRequest *r, httpMethodExecutionHandler handler, changingData *data) {
     if ((NULL == r) || (NULL == handler) || (NULL == data)) {
         return LE_NULL_IN_INPUT_VALUES;
@@ -140,100 +121,6 @@ const lemonError appendHttpHeaderQueryRequest(httpRequest *r, char *b, httpHeade
         ++(r->elementsCount);
     }
     return LE_OK;
-}
-
-const string *getMethodOfHttpRequest(const httpRequest *r) {
-    if ((NULL == r) || (0 >= r->elementsCount)) {
-        return NULL;
-    }
-    /*{
-        const size_t elementsCount = r->elementsCount;
-        size_t i;
-        for (i = 0; i < elementsCount; ++i) {
-            if (METHOD == ((r->elements)[i]).type) {
-                return &(((r->elements)[i]).value.str);
-            };
-        };
-        return NULL;
-    }*/
-    return NULL;
-}
-
-const string *getUriOfHttpRequest(const httpRequest *r) {
-    if ((NULL == r) || (0 >= r->elementsCount)) {
-        return NULL;
-    }
-    /*{
-        const size_t elementsCount = r->elementsCount;
-        size_t i;
-        for (i = 0; i < elementsCount; ++i) {
-            if (URI == ((r->elements)[i]).type) {
-                return &(((r->elements)[i]).value.str);
-            };
-        };
-        return NULL;
-    }*/
-    return NULL;
-}
-
-const string *getVersionOfHttpRequest(const httpRequest *r) {
-    if ((NULL == r) || (0 >= r->elementsCount)) {
-        return NULL;
-    }
-    /*{
-        const size_t elementsCount = r->elementsCount;
-        size_t i;
-        for (i = 0; i < elementsCount; ++i) {
-            if (HTTP_VERSION == ((r->elements)[i]).type) {
-                return &(((r->elements)[i]).value.str);
-            };
-        };
-        return NULL;
-    }*/
-    return NULL;
-}
-
-const string *getQueryParameterOfHttpRequest(const httpRequest *r, const char *name) {
-    if ((NULL == r) || (NULL == name) || (0 >= r->elementsCount)) {
-        return NULL;
-    }
-    /*{
-        const size_t nameLength = strlen(name);
-        const size_t elementsCount = r->elementsCount;
-        size_t i;
-        for (i = 0; i < elementsCount; ++i) {
-            if ((GET_QUERY_ELEMENT == ((r->elements)[i]).type) && (nameLength == ((r->elements)[i]).value.str.length) && (0 == STRNCASECMP(name, ((r->elements)[i]).value.str.data, nameLength))) {
-                return &(((r->elements)[i]).value.nextVal->str);
-            };
-        };
-        return NULL;
-    }*/
-    return NULL;
-}
-
-const string *getHeaderOfHttpRequest(const httpRequest *r, const char *name) {
-    if ((NULL == r) || (NULL == name) || (0 >= r->elementsCount)) {
-        return NULL;
-    }
-    /*{
-        const size_t nameLength = strlen(name);
-        const size_t elementsCount = r->elementsCount;
-        size_t i;
-        for (i = 0; i < elementsCount; ++i) {
-            if ((HEADER == ((r->elements)[i]).type) && (nameLength == ((r->elements)[i]).value.str.length) && (0 == STRNCASECMP(name, ((r->elements)[i]).value.str.data, nameLength))) {
-                return &(((r->elements)[i]).value.nextVal->str);
-            };
-        };
-        return NULL;
-    }*/
-    return NULL;
-}
-
-const string *getBodyBufferOfHttpRequest(const httpRequest *r) {
-    if ((NULL == r) || (0 >= r->elementsCount)) {
-        return NULL;
-    }
-    return &(r->body);
 }
 
 const boolean isStringEmpty(const string *s) {

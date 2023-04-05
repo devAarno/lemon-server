@@ -26,43 +26,6 @@
 #include "lemonError.h"
 #include "./jsonPathQueryBuffer.h"
 
-typedef enum {
-    _JSONPATH_REQUEST_ROOT, /* 0 */
-    _JSONPATH_REQUEST_ANY, /* 1 */
-    _JSONPATH_REQUEST_ANYINDEX, /* 2 */
-    _JSONPATH_REQUEST_NAME, /* 3 */
-    _JSON_PATH_REQUEST_NAME_WITH_OBJECT_OR_ARRAY, /* 4 */
-    _JSONPATH_REQUEST_INDEX, /* 5 */
-    _JSONPATH_REQUEST_RECURSIVE, /* 6 */
-    _PARSED_JSON_ROOT, /* 7 */
-    _PARSED_JSON_OBJECT, /* 8 */
-    _PARSED_JSON_JOINED_OBJECT, /* 9 */
-    _PARSED_JSON_HEAD_OF_JOINED_OBJECT, /* 10 */
-    _PARSED_JSON_INDEX, /* 11 */
-    _PARSED_JSON_FIELD, /* 12 */
-    _PARSED_JSON_FIELD_WITH_OBJECT, /* 13 */
-    _PARSED_JSON_RESOLVED_FIELD /* 14 */,
-    _NONE
-} _ruleType;
-
-/* typedef void changingData;
-typedef const lemonError (*jsonPathExecutionHandler)(const string *value, changingData *data); */
-
-typedef struct {
-    jsonPathExecutionHandler handler;
-    changingData *data;
-} _jsonPathCallback;
-
-typedef struct {
-    jsonPathCallback callback;
-    size_t ruleSize;
-} _rootRule;
-
-typedef struct {
-    char *containerStartPosition;
-    size_t index;
-} _indexRule;
-
 typedef struct {
     union {
         rootRule root;
