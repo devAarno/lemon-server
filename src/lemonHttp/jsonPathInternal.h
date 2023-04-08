@@ -25,24 +25,24 @@
 
 jsonPathElement *appendJsonPathElementOfHttpRequest(jsonPathRequest *r, const string *s, const ruleType type);
 
-const lemonError updateJsonPathRequestStatusByFieldName(jsonPathRequest *jsonRequest, const string *key);
+lemonError updateJsonPathRequestStatusByFieldName(jsonPathRequest *jsonRequest, const string *key);
 
-const lemonError rollbackJsonPathRequestStatusByFieldName(jsonPathRequest *jsonRequest, const string *key);
+lemonError rollbackJsonPathRequestStatusByFieldName(jsonPathRequest *jsonRequest, const string *key);
 
-const lemonError updateJsonPathRequestStatusByObject(jsonPathRequest *jsonRequest, const char *startObjectPosition);
+lemonError updateJsonPathRequestStatusByObject(jsonPathRequest *jsonRequest, const char *startObjectPosition);
 
-const lemonError rollbackJsonPathRequestStatusByObject(jsonPathRequest *jsonRequest, const char *endObjectPosition);
+lemonError rollbackJsonPathRequestStatusByObject(jsonPathRequest *jsonRequest, const char *endObjectPosition);
 
-const lemonError updateJsonPathRequestStatusByArray(jsonPathRequest *jsonRequest, const char *startArrayPosition);
+lemonError updateJsonPathRequestStatusByArray(jsonPathRequest *jsonRequest, const char *startArrayPosition);
 
-const lemonError rollbackJsonPathRequestStatusByArray(jsonPathRequest *jsonRequest, const char *endArrayPosition);
+lemonError rollbackJsonPathRequestStatusByArray(jsonPathRequest *jsonRequest, const char *endArrayPosition);
 
-const lemonError executeJsonPathCallbackWithValue(jsonPathRequest *jsonRequest, const string *s, const boolean isComplex);
+lemonError executeJsonPathCallbackWithValue(jsonPathRequest *jsonRequest, const string *s, const boolean isComplex);
 
-const lemonError updateJsonPathRequestStatusByArrayElement(jsonPathRequest *jsonRequest);
+lemonError updateJsonPathRequestStatusByArrayElement(jsonPathRequest *jsonRequest);
 
-const lemonError updateJsonPathRequestStatusByRoot(jsonPathRequest *jsonRequest);
+lemonError updateJsonPathRequestStatusByRoot(jsonPathRequest *jsonRequest);
 
-const lemonError rollbackJsonPathRequestStatusByRoot(jsonPathRequest *jsonRequest);
+lemonError rollbackJsonPathRequestStatusByRoot(jsonPathRequest *jsonRequest);
 
 #endif /* LEMONSERVER_JSONPATHINTERNAL_H */

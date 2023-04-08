@@ -26,21 +26,21 @@
 #include "lemonError.h"
 #include "string.h"
 
-const lemonError decodeValue(string *s, boolean replacePlusWithSpace);
+lemonError decodeValue(string *s, boolean replacePlusWithSpace);
 
-const lemonError trim(string *s);
+lemonError trim(string *s);
 
-const lemonError executeHttpMethodCallback(httpRequest *r, const string *s);
+lemonError executeHttpMethodCallback(httpRequest *r, const string *s);
 
-const lemonError executeHttpUriCallback(httpRequest *r, const string *s);
+lemonError executeHttpUriCallback(httpRequest *r, const string *s);
 
-const lemonError executeHttpVersionCallback(httpRequest *r, const string *s);
+lemonError executeHttpVersionCallback(httpRequest *r, const string *s);
 
-const lemonError executeHeaderCallback(httpRequest *r, const string *key, const string *s);
+lemonError executeHeaderCallback(httpRequest *r, const string *key, const string *s);
 
-const lemonError executeGetParameterCallback(httpRequest *r, const string *key, const string *s);
+lemonError executeGetParameterCallback(httpRequest *r, const string *key, const string *s);
 
-const string convertUtf16ToString(char *c1, char *c2, const char c3, const char c4);
+string convertUtf16ToString(char *c1, char *c2, const char c3, const char c4);
 
 #endif /* HTTP_REQUEST_INT_H */
 

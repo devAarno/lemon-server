@@ -33,21 +33,21 @@ typedef string buffer;
 
 string createString(char* chars);
 
-const string getEmptyString();
+string getEmptyString();
 
-const boolean isEmptyString(const string s);
+boolean isEmptyString(const string s);
 
-const string getTrueString();
+string getTrueString();
 
-const boolean isTrueString(const string s);
+boolean isTrueString(const string s);
 
-const string getFalseString();
+string getFalseString();
 
-const boolean isFalseString(const string s);
+boolean isFalseString(const string s);
 
-const string getNullString();
+string getNullString();
 
-const boolean isNullString(const string s);
+boolean isNullString(const string s);
 
 #endif /* STRING_H */
 

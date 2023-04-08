@@ -43,7 +43,7 @@ void tearDown(void) {
 
 }
 
-static const lemonError fakeExecute(const string *value, calledCallback *data) {
+static lemonError fakeExecute(const string *value, calledCallback *data) {
     printf("OOOUUUTTT %.*s\r\n", value->length, value->data);
     TEST_ASSERT_EQUAL(data->expectedValue.length, value->length);
     TEST_ASSERT_EQUAL_STRING_LEN(data->expectedValue.data, value->data, value->length);

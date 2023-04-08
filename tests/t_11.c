@@ -40,7 +40,7 @@ void setUp(void) {
 void tearDown(void) {
 }
 
-static const lemonError fakeExecute(const string *value, calledCallback *data) {
+static lemonError fakeExecute(const string *value, calledCallback *data) {
     printf("OOOUUUTTT %.*s\r\n", value->length, value->data);
     TEST_ASSERT_EQUAL(data->expectedValue.length, value->length);
     TEST_ASSERT_EQUAL_STRING_LEN(data->expectedValue.data, value->data, value->length);
@@ -72,7 +72,7 @@ static void test1(void) {
     /* TEST_ASSERT_EQUAL_MEMORY(&jsonRequest_backup, &jsonRequest, sizeof(jsonRequest)); */
 }
 
-static const lemonError fakeExecuteForTest2AndTest3(const string *value, calledCallback *data) {
+static lemonError fakeExecuteForTest2AndTest3(const string *value, calledCallback *data) {
     printf("FAIL OOOUUUTTT %.*s\r\n", value->length, value->data);
     switch (data->callCounter) {
         case 0:
@@ -211,7 +211,7 @@ static void test4(void) {
     /* TEST_ASSERT_EQUAL_MEMORY(&jsonRequest_backup, &jsonRequest, sizeof(jsonRequest)); */
 }
 
-static const lemonError fakeExecuteForTest5(const string *value, calledCallback *data) {
+static lemonError fakeExecuteForTest5(const string *value, calledCallback *data) {
     switch (data->callCounter) {
         case 0:
             TEST_ASSERT_EQUAL(3, value->length);
@@ -278,7 +278,7 @@ static void test6(void) {
     /* TEST_ASSERT_EQUAL_MEMORY(&jsonRequest_backup, &jsonRequest, sizeof(jsonRequest)); */
 }
 
-static const lemonError fakeExecuteForTest7(const string *value, calledCallback *data) {
+static lemonError fakeExecuteForTest7(const string *value, calledCallback *data) {
     switch (data->callCounter) {
         case 0:
             TEST_ASSERT_EQUAL(3, value->length);
@@ -345,7 +345,7 @@ static void test8(void) {
     /* TEST_ASSERT_EQUAL_MEMORY(&jsonRequest_backup, &jsonRequest, sizeof(jsonRequest)); */
 }
 
-static const lemonError fakeExecuteForTest9AndTest10Buffer5And6(const string *value, calledCallback *data) {
+static lemonError fakeExecuteForTest9AndTest10Buffer5And6(const string *value, calledCallback *data) {
     switch (data->callCounter) {
         case 0:
             TEST_ASSERT_EQUAL(1, value->length);
@@ -388,7 +388,7 @@ static void test9(void) {
     /* TEST_ASSERT_EQUAL_MEMORY(&jsonRequest_backup, &jsonRequest, sizeof(jsonRequest)); */
 }
 
-static const lemonError fakeExecuteForTest10Buffer1And7And8(const string *value, calledCallback *data) {
+static lemonError fakeExecuteForTest10Buffer1And7And8(const string *value, calledCallback *data) {
     printf("XOOOUUUTTT %.*s\r\n", value->length, value->data);
     switch (data->callCounter) {
         case 0:
@@ -409,7 +409,7 @@ static const lemonError fakeExecuteForTest10Buffer1And7And8(const string *value,
     return LE_OK;
 }
 
-static const lemonError fakeExecuteForTest10Buffer9(const string *value, calledCallback *data) {
+static lemonError fakeExecuteForTest10Buffer9(const string *value, calledCallback *data) {
     switch (data->callCounter) {
         case 0:
             TEST_ASSERT_EQUAL(1, value->length);
@@ -532,7 +532,7 @@ static void test10(void) {
     /* TEST_ASSERT_EQUAL_MEMORY(&jsonRequest_backup, &jsonRequest, sizeof(jsonRequest)); */
 }
 
-static const lemonError fakeExecuteForTest11Buffer1(const string *value, calledCallback *data) {
+static lemonError fakeExecuteForTest11Buffer1(const string *value, calledCallback *data) {
     switch (data->callCounter) {
         case 0:
         case 1:
@@ -560,7 +560,7 @@ static const lemonError fakeExecuteForTest11Buffer1(const string *value, calledC
     return LE_OK;
 }
 
-static const lemonError fakeExecuteForTest11Buffer234567(const string *value, calledCallback *data) {
+static lemonError fakeExecuteForTest11Buffer234567(const string *value, calledCallback *data) {
     switch (data->callCounter) {
         case 0:
         case 1:
@@ -587,7 +587,7 @@ static const lemonError fakeExecuteForTest11Buffer234567(const string *value, ca
     return LE_OK;
 }
 
-static const lemonError fakeExecuteForTest11Buffer89(const string *value, calledCallback *data) {
+static lemonError fakeExecuteForTest11Buffer89(const string *value, calledCallback *data) {
     switch (data->callCounter) {
         case 0:
         case 1:
@@ -700,7 +700,7 @@ static void test11(void) {
     /* TEST_ASSERT_EQUAL_MEMORY(&jsonRequest_backup, &jsonRequest, sizeof(jsonRequest)); */
 }
 
-static const lemonError fakeExecuteForTest12Buffer1(const string *value, calledCallback *data) {
+static lemonError fakeExecuteForTest12Buffer1(const string *value, calledCallback *data) {
     switch (data->callCounter) {
         case 0:
         case 1:
@@ -737,7 +737,7 @@ static const lemonError fakeExecuteForTest12Buffer1(const string *value, calledC
     return LE_OK;
 }
 
-static const lemonError fakeExecuteForTest12Buffer2(const string *value, calledCallback *data) {
+static lemonError fakeExecuteForTest12Buffer2(const string *value, calledCallback *data) {
     switch (data->callCounter) {
         case 0:
         case 1:
@@ -793,7 +793,7 @@ static void test12(void) {
     /* TEST_ASSERT_EQUAL_MEMORY(&jsonRequest_backup, &jsonRequest, sizeof(jsonRequest)); */
 }
 
-static const lemonError fakeExecuteForTest13Buffer1(const string *value, calledCallback *data) {
+static lemonError fakeExecuteForTest13Buffer1(const string *value, calledCallback *data) {
     switch (data->callCounter) {
         case 0:
         case 1:
@@ -861,7 +861,7 @@ static const lemonError fakeExecuteForTest13Buffer1(const string *value, calledC
     return LE_OK;
 }
 
-static const lemonError fakeExecuteForTest13Buffer2(const string *value, calledCallback *data) {
+static lemonError fakeExecuteForTest13Buffer2(const string *value, calledCallback *data) {
     switch (data->callCounter) {
         case 0:
         case 1:
@@ -995,7 +995,7 @@ static void test13(void) {
     /* TEST_ASSERT_EQUAL_MEMORY(&jsonRequest_backup, &jsonRequest, sizeof(jsonRequest)); */
 }
 
-static const lemonError fakeExecuteForTest14Buffer1(const string *value, calledCallback *data) {
+static lemonError fakeExecuteForTest14Buffer1(const string *value, calledCallback *data) {
     switch (data->callCounter) {
         case 0:
             TEST_ASSERT_EQUAL(1, value->length);
@@ -1029,7 +1029,7 @@ static const lemonError fakeExecuteForTest14Buffer1(const string *value, calledC
     return LE_OK;
 }
 
-static const lemonError fakeExecuteForTest14Buffer2(const string *value, calledCallback *data) {
+static lemonError fakeExecuteForTest14Buffer2(const string *value, calledCallback *data) {
     switch (data->callCounter) {
         case 0:
         case 1:
@@ -1118,7 +1118,7 @@ static void test14(void) {
 
 
 
-static const lemonError fakeExecuteForTest15Buffer1(const string *value, calledCallback *data) {
+static lemonError fakeExecuteForTest15Buffer1(const string *value, calledCallback *data) {
     /*printf("XOOOUUUTTT %.*s\r\n", value->length, value->data);
     ++(data->callCounter);*/
     switch (data->callCounter) {
@@ -1178,7 +1178,7 @@ static void test15(void) {
 }
 
 
-static const lemonError fakeExecuteForTest16Buffer1(const string *value, calledCallback *data) {
+static lemonError fakeExecuteForTest16Buffer1(const string *value, calledCallback *data) {
     printf("XOOOUUUTTT %.*s\r\n", value->length, value->data);
     switch (data->callCounter) {
         case 0:
@@ -1214,7 +1214,7 @@ static const lemonError fakeExecuteForTest16Buffer1(const string *value, calledC
     return LE_OK;
 }
 
-static const lemonError fakeExecuteForTest16Buffer3And4(const string *value, calledCallback *data) {
+static lemonError fakeExecuteForTest16Buffer3And4(const string *value, calledCallback *data) {
     printf("XOOOUUUTTT %.*s\r\n", value->length, value->data);
     switch (data->callCounter) {
         case 0:
@@ -1290,7 +1290,7 @@ static void test16(void) {
 }
 
 
-static const lemonError fakeExecuteForTest17Buffer1(const string *value, calledCallback *data) {
+static lemonError fakeExecuteForTest17Buffer1(const string *value, calledCallback *data) {
     printf("XOOOUUUTTT %.*s\r\n", value->length, value->data);
     switch (data->callCounter) {
         case 0:
@@ -1347,7 +1347,7 @@ static void test17(void) {
 }
 
 
-static const lemonError fakeExecuteForTest18Buffer1(const string *value, calledCallback *data) {
+static lemonError fakeExecuteForTest18Buffer1(const string *value, calledCallback *data) {
     printf("XOOOUUUTTT %.*s\r\n", value->length, value->data);
     switch (data->callCounter) {
         case 0:
@@ -1368,7 +1368,7 @@ static const lemonError fakeExecuteForTest18Buffer1(const string *value, calledC
     return LE_OK;
 }
 
-static const lemonError fakeExecuteForTest18Buffer3(const string *value, calledCallback *data) {
+static lemonError fakeExecuteForTest18Buffer3(const string *value, calledCallback *data) {
     printf("XOOOUUUTTT %.*s\r\n", value->length, value->data);
     switch (data->callCounter) {
         case 0:
@@ -1442,7 +1442,7 @@ static void test18(void) {
 }
 
 
-static const lemonError fakeExecuteForTest19Buffer1(const string *value, calledCallback *data) {
+static lemonError fakeExecuteForTest19Buffer1(const string *value, calledCallback *data) {
     printf("XOOOUUUTTT %.*s\r\n", value->length, value->data);
     switch (data->callCounter) {
         case 0:
@@ -1533,7 +1533,7 @@ static void test19(void) {
 }
 
 
-static const lemonError fakeExecuteForTest20Buffer1(const string *value, calledCallback *data) {
+static lemonError fakeExecuteForTest20Buffer1(const string *value, calledCallback *data) {
     printf("XOOOUUUTTT %.*s\r\n", value->length, value->data);
     switch (data->callCounter) {
         case 0:
@@ -1553,7 +1553,7 @@ static const lemonError fakeExecuteForTest20Buffer1(const string *value, calledC
     return LE_OK;
 }
 
-static const lemonError fakeExecuteForTest20Buffer3(const string *value, calledCallback *data) {
+static lemonError fakeExecuteForTest20Buffer3(const string *value, calledCallback *data) {
     printf("XOOOUUUTTT %.*s\r\n", value->length, value->data);
     switch (data->callCounter) {
         case 0:
@@ -1573,7 +1573,7 @@ static const lemonError fakeExecuteForTest20Buffer3(const string *value, calledC
     return LE_OK;
 }
 
-static const lemonError fakeExecuteForTest20Buffer4(const string *value, calledCallback *data) {
+static lemonError fakeExecuteForTest20Buffer4(const string *value, calledCallback *data) {
     printf("XOOOUUUTTT %.*s\r\n", value->length, value->data);
     switch (data->callCounter) {
         case 0:
@@ -1651,7 +1651,7 @@ static void test20(void) {
     /* TEST_ASSERT_EQUAL_MEMORY(&jsonRequest_backup, &jsonRequest, sizeof(jsonRequest)); */
 }
 
-static const lemonError fakeExecuteForTest21Buffer2(const string *value, calledCallback *data) {
+static lemonError fakeExecuteForTest21Buffer2(const string *value, calledCallback *data) {
     printf("XOOOUUUTTT %.*s\r\n", value->length, value->data);
     switch (data->callCounter) {
         case 0:
@@ -1672,7 +1672,7 @@ static const lemonError fakeExecuteForTest21Buffer2(const string *value, calledC
     return LE_OK;
 }
 
-static const lemonError fakeExecuteForTest21Buffer3(const string *value, calledCallback *data) {
+static lemonError fakeExecuteForTest21Buffer3(const string *value, calledCallback *data) {
     printf("XOOOUUUTTT %.*s\r\n", value->length, value->data);
     switch (data->callCounter) {
         case 0:
@@ -1745,7 +1745,7 @@ static void test21(void) {
     /* TEST_ASSERT_EQUAL_MEMORY(&jsonRequest_backup, &jsonRequest, sizeof(jsonRequest)); */
 }
 
-static const lemonError fakeExecuteForTest22Buffer2(const string *value, calledCallback *data) {
+static lemonError fakeExecuteForTest22Buffer2(const string *value, calledCallback *data) {
     printf("XOOOUUUTTT %.*s\r\n", value->length, value->data);
     switch (data->callCounter) {
         case 0:
@@ -1827,7 +1827,7 @@ static void test22(void) {
     /* TEST_ASSERT_EQUAL_MEMORY(&jsonRequest_backup, &jsonRequest, sizeof(jsonRequest)); */
 }
 
-static const lemonError fakeExecuteForTest23Buffer1(const string *value, calledCallback *data) {
+static lemonError fakeExecuteForTest23Buffer1(const string *value, calledCallback *data) {
     printf("XOOOUUUTTT %.*s\r\n", value->length, value->data);
     switch (data->callCounter) {
         case 0:
@@ -1855,7 +1855,7 @@ static const lemonError fakeExecuteForTest23Buffer1(const string *value, calledC
     return LE_OK;
 }
 
-static const lemonError fakeExecuteForTest23Buffer2(const string *value, calledCallback *data) {
+static lemonError fakeExecuteForTest23Buffer2(const string *value, calledCallback *data) {
     printf("XOOOUUUTTT %.*s\r\n", value->length, value->data);
     switch (data->callCounter) {
         case 0:
@@ -1877,7 +1877,7 @@ static const lemonError fakeExecuteForTest23Buffer2(const string *value, calledC
     return LE_OK;
 }
 
-static const lemonError fakeExecuteForTest23Buffer5(const string *value, calledCallback *data) {
+static lemonError fakeExecuteForTest23Buffer5(const string *value, calledCallback *data) {
     printf("XOOOUUUTTT %.*s\r\n", value->length, value->data);
     switch (data->callCounter) {
         case 0:
@@ -1952,7 +1952,7 @@ static void test23(void) {
 }
 
 
-static const lemonError fakeExecuteForTest24(const string *value, calledCallback *data) {
+static lemonError fakeExecuteForTest24(const string *value, calledCallback *data) {
     printf("XOOOUUUTTT %.*s\r\n", value->length, value->data);
     switch (data->callCounter) {
         case 0:
@@ -2009,7 +2009,7 @@ static void test24(void) {
     /* TEST_ASSERT_EQUAL_MEMORY(&jsonRequest_backup, &jsonRequest, sizeof(jsonRequest)); */
 }
 
-static const lemonError fakeExecuteForTest25(const string *value, calledCallback *data) {
+static lemonError fakeExecuteForTest25(const string *value, calledCallback *data) {
     printf("XOOOUUUTTT %.*s\r\n", value->length, value->data);
     switch (data->callCounter) {
         case 0:
@@ -2066,7 +2066,7 @@ static void test25(void) {
 }
 
 
-static const lemonError fakeExecuteForTest26(const string *value, calledCallback *data) {
+static lemonError fakeExecuteForTest26(const string *value, calledCallback *data) {
     printf("XOOOUUUTTT %.*s\r\n", value->length, value->data);
     switch (data->callCounter) {
         case 0:
@@ -2117,7 +2117,7 @@ static void test26(void) {
     /* TEST_ASSERT_EQUAL_MEMORY(&jsonRequest_backup, &jsonRequest, sizeof(jsonRequest)); */
 }
 
-static const lemonError fakeExecuteForTest27Buffer1(const string *value, calledCallback *data) {
+static lemonError fakeExecuteForTest27Buffer1(const string *value, calledCallback *data) {
     printf("XOOOUUUTTT %.*s\r\n", value->length, value->data);
     switch (data->callCounter) {
         case 0:
@@ -2150,7 +2150,7 @@ static const lemonError fakeExecuteForTest27Buffer1(const string *value, calledC
     return LE_OK;
 }
 
-static const lemonError fakeExecuteForTest27Buffer2(const string *value, calledCallback *data) {
+static lemonError fakeExecuteForTest27Buffer2(const string *value, calledCallback *data) {
     printf("XOOOUUUTTT %.*s\r\n", value->length, value->data);
     switch (data->callCounter) {
         case 0:
@@ -2179,7 +2179,7 @@ static const lemonError fakeExecuteForTest27Buffer2(const string *value, calledC
     return LE_OK;
 }
 
-static const lemonError fakeExecuteForTest27Buffer3(const string *value, calledCallback *data) {
+static lemonError fakeExecuteForTest27Buffer3(const string *value, calledCallback *data) {
     printf("XOOOUUUTTT %.*s\r\n", value->length, value->data);
     switch (data->callCounter) {
         case 0:
@@ -2251,7 +2251,7 @@ static void test27(void) {
     /* TEST_ASSERT_EQUAL_MEMORY(&jsonRequest_backup, &jsonRequest, sizeof(jsonRequest)); */
 }
 
-static const lemonError fakeExecuteForTest28Buffer1(const string *value, calledCallback *data) {
+static lemonError fakeExecuteForTest28Buffer1(const string *value, calledCallback *data) {
     printf("XOOOUUUTTT %.*s\r\n", value->length, value->data);
     switch (data->callCounter) {
         case 0:
@@ -2292,7 +2292,7 @@ static const lemonError fakeExecuteForTest28Buffer1(const string *value, calledC
     return LE_OK;
 }
 
-static const lemonError fakeExecuteForTest28Buffer2(const string *value, calledCallback *data) {
+static lemonError fakeExecuteForTest28Buffer2(const string *value, calledCallback *data) {
     printf("XOOOUUUTTT %.*s\r\n", value->length, value->data);
     switch (data->callCounter) {
         case 0:
@@ -2332,7 +2332,7 @@ static const lemonError fakeExecuteForTest28Buffer2(const string *value, calledC
     return LE_OK;
 }
 
-static const lemonError fakeExecuteForTest28Buffer3(const string *value, calledCallback *data) {
+static lemonError fakeExecuteForTest28Buffer3(const string *value, calledCallback *data) {
     printf("XOOOUUUTTT %.*s\r\n", value->length, value->data);
     switch (data->callCounter) {
         case 0:
@@ -2365,7 +2365,7 @@ static const lemonError fakeExecuteForTest28Buffer3(const string *value, calledC
     return LE_OK;
 }
 
-static const lemonError fakeExecuteForTest28Buffer4(const string *value, calledCallback *data) {
+static lemonError fakeExecuteForTest28Buffer4(const string *value, calledCallback *data) {
     printf("XOOOUUUTTT %.*s\r\n", value->length, value->data);
     switch (data->callCounter) {
         case 0:
@@ -2446,7 +2446,7 @@ static void test28(void) {
 }
 
 
-static const lemonError fakeExecuteForTest29Buffer1And7(const string *value, calledCallback *data) {
+static lemonError fakeExecuteForTest29Buffer1And7(const string *value, calledCallback *data) {
     /*printf("PAOOOUUUTTT %.*s\r\n", value->length, value->data);
     ++(data->callCounter);*/
     switch (data->callCounter) {
@@ -2468,7 +2468,7 @@ static const lemonError fakeExecuteForTest29Buffer1And7(const string *value, cal
     return LE_OK;
 }
 
-static const lemonError fakeExecuteForTest29Buffer8(const string *value, calledCallback *data) {
+static lemonError fakeExecuteForTest29Buffer8(const string *value, calledCallback *data) {
     switch (data->callCounter) {
         case 0:
         case 1:
@@ -2490,7 +2490,7 @@ static const lemonError fakeExecuteForTest29Buffer8(const string *value, calledC
 }
 
 
-static const lemonError fakeExecuteForTest29Buffer5And6(const string *value, calledCallback *data) {
+static lemonError fakeExecuteForTest29Buffer5And6(const string *value, calledCallback *data) {
     /* printf("OOOUUUTTT %.*s\r\n", value->length, value->data);
     ++(data->callCounter); */
     switch (data->callCounter) {
@@ -2511,7 +2511,7 @@ static const lemonError fakeExecuteForTest29Buffer5And6(const string *value, cal
     return LE_OK;
 }
 
-static const lemonError fakeExecuteForTest29Buffer9(const string *value, calledCallback *data) {
+static lemonError fakeExecuteForTest29Buffer9(const string *value, calledCallback *data) {
     /*printf("OOOUUUTTT %.*s\r\n", value->length, value->data);
     ++(data->callCounter);*/
     switch (data->callCounter) {
@@ -2638,7 +2638,7 @@ static void test29(void) {
 }
 
 
-static const lemonError fakeExecuteForTest30Buffer1And7(const string *value, calledCallback *data) {
+static lemonError fakeExecuteForTest30Buffer1And7(const string *value, calledCallback *data) {
     /*printf("PAOOOUUUTTT %.*s\r\n", value->length, value->data);
     ++(data->callCounter);*/
     switch (data->callCounter) {
@@ -2660,7 +2660,7 @@ static const lemonError fakeExecuteForTest30Buffer1And7(const string *value, cal
     return LE_OK;
 }
 
-static const lemonError fakeExecuteForTest30Buffer8(const string *value, calledCallback *data) {
+static lemonError fakeExecuteForTest30Buffer8(const string *value, calledCallback *data) {
     switch (data->callCounter) {
         case 0:
         case 1:
@@ -2682,7 +2682,7 @@ static const lemonError fakeExecuteForTest30Buffer8(const string *value, calledC
 }
 
 
-static const lemonError fakeExecuteForTest30Buffer5And6(const string *value, calledCallback *data) {
+static lemonError fakeExecuteForTest30Buffer5And6(const string *value, calledCallback *data) {
     /* printf("OOOUUUTTT %.*s\r\n", value->length, value->data);
     ++(data->callCounter); */
     switch (data->callCounter) {
@@ -2703,7 +2703,7 @@ static const lemonError fakeExecuteForTest30Buffer5And6(const string *value, cal
     return LE_OK;
 }
 
-static const lemonError fakeExecuteForTest30Buffer9(const string *value, calledCallback *data) {
+static lemonError fakeExecuteForTest30Buffer9(const string *value, calledCallback *data) {
     /*printf("OOOUUUTTT %.*s\r\n", value->length, value->data);
     ++(data->callCounter);*/
     switch (data->callCounter) {
@@ -2830,7 +2830,7 @@ static void test30(void) {
 }
 
 
-static const lemonError fakeExecuteForTest31Buffer1And7(const string *value, calledCallback *data) {
+static lemonError fakeExecuteForTest31Buffer1And7(const string *value, calledCallback *data) {
     /*printf("PAOOOUUUTTT %.*s\r\n", value->length, value->data);
     ++(data->callCounter);*/
     switch (data->callCounter) {
@@ -2852,7 +2852,7 @@ static const lemonError fakeExecuteForTest31Buffer1And7(const string *value, cal
     return LE_OK;
 }
 
-static const lemonError fakeExecuteForTest31Buffer8(const string *value, calledCallback *data) {
+static lemonError fakeExecuteForTest31Buffer8(const string *value, calledCallback *data) {
     switch (data->callCounter) {
         case 0:
         case 1:
@@ -2874,7 +2874,7 @@ static const lemonError fakeExecuteForTest31Buffer8(const string *value, calledC
 }
 
 
-static const lemonError fakeExecuteForTest31Buffer6(const string *value, calledCallback *data) {
+static lemonError fakeExecuteForTest31Buffer6(const string *value, calledCallback *data) {
     /* printf("OOOUUUTTT %.*s\r\n", value->length, value->data);
     ++(data->callCounter); */
     switch (data->callCounter) {
@@ -2895,7 +2895,7 @@ static const lemonError fakeExecuteForTest31Buffer6(const string *value, calledC
     return LE_OK;
 }
 
-static const lemonError fakeExecuteForTest31Buffer9(const string *value, calledCallback *data) {
+static lemonError fakeExecuteForTest31Buffer9(const string *value, calledCallback *data) {
     /*printf("OOOUUUTTT %.*s\r\n", value->length, value->data);
     ++(data->callCounter);*/
     switch (data->callCounter) {
@@ -3021,7 +3021,7 @@ static void test31(void) {
     /* TEST_ASSERT_EQUAL_MEMORY(&jsonRequest_backup, &jsonRequest, sizeof(jsonRequest)); */
 }
 
-static const lemonError fakeExecuteForTest32Buffer2(const string *value, calledCallback *data) {
+static lemonError fakeExecuteForTest32Buffer2(const string *value, calledCallback *data) {
     /*printf("ZXOOOUUUTTT %.*s\r\n", value->length, value->data);
     ++(data->callCounter);*/
     switch (data->callCounter) {
@@ -3057,7 +3057,7 @@ static const lemonError fakeExecuteForTest32Buffer2(const string *value, calledC
     return LE_OK;
 }
 
-static const lemonError fakeExecuteForTest32Buffer3(const string *value, calledCallback *data) {
+static lemonError fakeExecuteForTest32Buffer3(const string *value, calledCallback *data) {
     /*printf("ZXOOOUUUTTT %.*s\r\n", value->length, value->data);
     ++(data->callCounter);*/
     switch (data->callCounter) {
@@ -3089,7 +3089,7 @@ static const lemonError fakeExecuteForTest32Buffer3(const string *value, calledC
 }
 
 
-static const lemonError fakeExecuteForTest32Buffer4(const string *value, calledCallback *data) {
+static lemonError fakeExecuteForTest32Buffer4(const string *value, calledCallback *data) {
     /*printf("ZXOOOUUUTTT %.*s\r\n", value->length, value->data);
     ++(data->callCounter);*/
     switch (data->callCounter) {
@@ -3145,7 +3145,7 @@ static const lemonError fakeExecuteForTest32Buffer4(const string *value, calledC
     return LE_OK;
 }
 
-static const lemonError fakeExecuteForTest32Buffer5(const string *value, calledCallback *data) {
+static lemonError fakeExecuteForTest32Buffer5(const string *value, calledCallback *data) {
     /*printf("ZXOOOUUUTTT %.*s\r\n", value->length, value->data);
     ++(data->callCounter);*/
     switch (data->callCounter) {
@@ -3181,7 +3181,7 @@ static const lemonError fakeExecuteForTest32Buffer5(const string *value, calledC
     return LE_OK;
 }
 
-static const lemonError fakeExecuteForTest32Buffer6(const string *value, calledCallback *data) {
+static lemonError fakeExecuteForTest32Buffer6(const string *value, calledCallback *data) {
     /*printf("ZXOOOUUUTTT %.*s\r\n", value->length, value->data);
     ++(data->callCounter);*/
     switch (data->callCounter) {
@@ -3208,7 +3208,7 @@ static const lemonError fakeExecuteForTest32Buffer6(const string *value, calledC
 }
 
 
-static const lemonError fakeExecuteForTest32Buffer10(const string *value, calledCallback *data) {
+static lemonError fakeExecuteForTest32Buffer10(const string *value, calledCallback *data) {
     /*printf("ZXOOOUUUTTT %.*s\r\n", value->length, value->data);
     ++(data->callCounter);*/
     switch (data->callCounter) {
@@ -3370,7 +3370,7 @@ static void test32(void) {
 
 
 
-static const lemonError fakeExecuteForTest33Buffer2(const string *value, calledCallback *data) {
+static lemonError fakeExecuteForTest33Buffer2(const string *value, calledCallback *data) {
     /*printf("ZXOOOUUUTTT %.*s\r\n", value->length, value->data);
     ++(data->callCounter);*/
     switch (data->callCounter) {
@@ -3446,7 +3446,7 @@ static void test33(void) {
     /* TEST_ASSERT_EQUAL_MEMORY(&jsonRequest_backup, &jsonRequest, sizeof(jsonRequest)); */
 }
 
-static const lemonError fakeExecuteForTest34Buffer1(const string *value, calledCallback *data) {
+static lemonError fakeExecuteForTest34Buffer1(const string *value, calledCallback *data) {
     /*printf("ZXOOOUUUTTT %.*s\r\n", value->length, value->data);
     ++(data->callCounter);*/
     switch (data->callCounter) {
@@ -3473,7 +3473,7 @@ static const lemonError fakeExecuteForTest34Buffer1(const string *value, calledC
     return LE_OK;
 }
 
-static const lemonError fakeExecuteForTest34Buffer6And10(const string *value, calledCallback *data) {
+static lemonError fakeExecuteForTest34Buffer6And10(const string *value, calledCallback *data) {
     switch (data->callCounter) {
         case 0:
             TEST_ASSERT_EQUAL(2, value->length);
@@ -3492,7 +3492,7 @@ static const lemonError fakeExecuteForTest34Buffer6And10(const string *value, ca
     return LE_OK;
 }
 
-static const lemonError fakeExecuteForTest34Buffer7(const string *value, calledCallback *data) {
+static lemonError fakeExecuteForTest34Buffer7(const string *value, calledCallback *data) {
     switch (data->callCounter) {
         case 0:
             TEST_ASSERT_EQUAL(2, value->length);
@@ -3517,7 +3517,7 @@ static const lemonError fakeExecuteForTest34Buffer7(const string *value, calledC
 }
 
 
-static const lemonError fakeExecuteForTest34Buffer8And14And16(const string *value, calledCallback *data) {
+static lemonError fakeExecuteForTest34Buffer8And14And16(const string *value, calledCallback *data) {
     switch (data->callCounter) {
         case 0:
         case 1:
@@ -3537,7 +3537,7 @@ static const lemonError fakeExecuteForTest34Buffer8And14And16(const string *valu
     return LE_OK;
 }
 
-static const lemonError fakeExecuteForTest34Buffer9And15(const string *value, calledCallback *data) {
+static lemonError fakeExecuteForTest34Buffer9And15(const string *value, calledCallback *data) {
     switch (data->callCounter) {
         case 0:
         case 1:
@@ -3558,7 +3558,7 @@ static const lemonError fakeExecuteForTest34Buffer9And15(const string *value, ca
     return LE_OK;
 }
 
-static const lemonError fakeExecuteForTest34Buffer12(const string *value, calledCallback *data) {
+static lemonError fakeExecuteForTest34Buffer12(const string *value, calledCallback *data) {
     switch (data->callCounter) {
         case 0:
         case 1:
@@ -3581,7 +3581,7 @@ static const lemonError fakeExecuteForTest34Buffer12(const string *value, called
 }
 
 
-static const lemonError fakeExecuteForTest34Buffer13(const string *value, calledCallback *data) {
+static lemonError fakeExecuteForTest34Buffer13(const string *value, calledCallback *data) {
     switch (data->callCounter) {
         case 0:
             TEST_ASSERT_EQUAL(2, value->length);
@@ -3755,7 +3755,7 @@ static void test34(void) {
 }
 
 
-static const lemonError fakeExecuteForTest35Buffer1(const string *value, calledCallback *data) {
+static lemonError fakeExecuteForTest35Buffer1(const string *value, calledCallback *data) {
     /*printf("ZXOOOUUUTTT %.*s\r\n", value->length, value->data);
     ++(data->callCounter);*/
     switch (data->callCounter) {
@@ -3817,7 +3817,7 @@ static void test35(void) {
 }
 
 
-static const lemonError fakeExecuteForTest36Buffer1(const string *value, calledCallback *data) {
+static lemonError fakeExecuteForTest36Buffer1(const string *value, calledCallback *data) {
     /*printf("ZXOOOUUUTTT %.*s\r\n", value->length, value->data);
     ++(data->callCounter);*/
     switch (data->callCounter) {
@@ -3882,7 +3882,7 @@ static void test36(void) {
 }
 
 
-static const lemonError fakeExecuteForTest37Buffer1(const string *value, calledCallback *data) {
+static lemonError fakeExecuteForTest37Buffer1(const string *value, calledCallback *data) {
     /*printf("ZXOOOUUUTTT %.*s\r\n", value->length, value->data);
     ++(data->callCounter);*/
     switch (data->callCounter) {
@@ -3947,7 +3947,7 @@ static void test37(void) {
     /* TEST_ASSERT_EQUAL_MEMORY(&jsonRequest_backup, &jsonRequest, sizeof(jsonRequest)); */
 }
 
-static const lemonError fakeExecuteForTest38Buffer1(const string *value, calledCallback *data) {
+static lemonError fakeExecuteForTest38Buffer1(const string *value, calledCallback *data) {
     /*printf("ZXOOOUUUTTT %.*s\r\n", value->length, value->data);
     ++(data->callCounter);*/
     switch (data->callCounter) {
@@ -4009,7 +4009,7 @@ static void test38(void) {
 }
 
 
-static const lemonError fakeExecuteForTest39Buffer1(const string *value, calledCallback *data) {
+static lemonError fakeExecuteForTest39Buffer1(const string *value, calledCallback *data) {
     /*printf("ZXOOOUUUTTT %.*s\r\n", value->length, value->data);
     ++(data->callCounter);*/
     switch (data->callCounter) {
@@ -4131,7 +4131,7 @@ static const lemonError fakeExecuteForTest39Buffer1(const string *value, calledC
     return LE_OK;
 }
 
-static const lemonError fakeExecuteForTest39Buffer2(const string *value, calledCallback *data) {
+static lemonError fakeExecuteForTest39Buffer2(const string *value, calledCallback *data) {
     /*printf("ZXOOOUUUTTT %.*s\r\n", value->length, value->data);
     ++(data->callCounter);*/
     switch (data->callCounter) {
@@ -4198,7 +4198,7 @@ static void test39(void) {
     /* TEST_ASSERT_EQUAL_MEMORY(&jsonRequest_backup, &jsonRequest, sizeof(jsonRequest)); */
 }
 
-static const lemonError fakeExecuteForTest40Buffer2(const string *value, calledCallback *data) {
+static lemonError fakeExecuteForTest40Buffer2(const string *value, calledCallback *data) {
     /*printf("ZXOOOUUUTTT %.*s\r\n", value->length, value->data);
     ++(data->callCounter);*/
     switch (data->callCounter) {

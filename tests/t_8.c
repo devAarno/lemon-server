@@ -35,7 +35,7 @@ void setUp(void) {
 void tearDown(void) {
 }
 
-static const lemonError fakeExecute(const string *value, changingData *data) {
+static lemonError fakeExecute(const string *value, changingData *data) {
 
 }
 

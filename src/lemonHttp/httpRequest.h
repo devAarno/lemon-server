@@ -62,21 +62,19 @@ typedef struct {
     unsigned char mode;
 } httpRequest;
 
-/* const lemonError appendJsonPathRequest(jsonPathRequest *p, jsonPathQueryBuffer *b, jsonPathExecutionHandler handler, changingData *data); */
+lemonError initHttpRequest(httpRequest *r, const int fd);
 
-const lemonError initHttpRequest(httpRequest *r, const int fd);
+lemonError appendHttpMethodRequest(httpRequest *r, httpMethodExecutionHandler handler, changingData *data);
 
-const lemonError appendHttpMethodRequest(httpRequest *r, httpMethodExecutionHandler handler, changingData *data);
+lemonError appendHttpUriRequest(httpRequest *r, httpUriExecutionHandler handler, changingData *data);
 
-const lemonError appendHttpUriRequest(httpRequest *r, httpUriExecutionHandler handler, changingData *data);
+lemonError appendHttpVersionRequest(httpRequest *r, httpVersionExecutionHandler handler, changingData *data);
 
-const lemonError appendHttpVersionRequest(httpRequest *r, httpVersionExecutionHandler handler, changingData *data);
+lemonError appendHttpGetParameterQueryRequest(httpRequest *r, char *b, httpGetParameterQueryExecutionHandler handler, changingData *data);
 
-const lemonError appendHttpGetParameterQueryRequest(httpRequest *r, char *b, httpGetParameterQueryExecutionHandler handler, changingData *data);
+lemonError appendHttpHeaderQueryRequest(httpRequest *r, char *b, httpHeaderQueryExecutionHandler handler, changingData *data);
 
-const lemonError appendHttpHeaderQueryRequest(httpRequest *r, char *b, httpHeaderQueryExecutionHandler handler, changingData *data);
-
-const boolean isStringEmpty(const string *s);
+boolean isStringEmpty(const string *s);
 
 #endif /* HTTP_REQUEST_H */
 

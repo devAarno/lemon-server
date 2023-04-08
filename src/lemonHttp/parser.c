@@ -29,7 +29,7 @@
 #include "http11Lemon.h"
 #include "http11Lemon.c"
 
-const static lemonError appendHttpToParser(parserState* ps, httpRequest *http) {
+static lemonError appendHttpToParser(parserState* ps, httpRequest *http) {
     if ((NULL == ps) || (NULL == http)) {
         return LE_NULL_IN_INPUT_VALUES;
     }
@@ -37,7 +37,7 @@ const static lemonError appendHttpToParser(parserState* ps, httpRequest *http) {
     return LE_OK;
 }
 
-const static lemonError appendJsonPathToParser(parserState* ps, jsonPathRequest *http) {
+static lemonError appendJsonPathToParser(parserState* ps, jsonPathRequest *http) {
     if ((NULL == ps) || (NULL == http)) {
         return LE_NULL_IN_INPUT_VALUES;
     }
@@ -46,28 +46,28 @@ const static lemonError appendJsonPathToParser(parserState* ps, jsonPathRequest 
     return LE_OK;
 }
 
-const boolean isParsed(const parserState* ps) {
+boolean isParsed(const parserState* ps) {
     if ((NULL == ps)) {
         return FALSE;
     }
     return ps->isParsed;
 }
 
-const static boolean isParseFailed(const parserState* ps) {
+static boolean isParseFailed(const parserState* ps) {
     if ((NULL == ps)) {
         return FALSE;
     }
     return ps->isParseFailed;
 }
 
-const static boolean isSyntaxIncorrect(const parserState* ps) {
+static boolean isSyntaxIncorrect(const parserState* ps) {
     if ((NULL == ps)) {
         return FALSE;
     }
     return ps->isSyntaxIncorrect;
 }
 
-const lemonError markAsParsed(parserState* ps) {
+lemonError markAsParsed(parserState* ps) {
     if ((NULL == ps)) {
         return LE_NULL_IN_INPUT_VALUES;
     }
@@ -75,7 +75,7 @@ const lemonError markAsParsed(parserState* ps) {
     return LE_OK;
 }
 
-const lemonError markAsParseFailed(parserState* ps) {
+lemonError markAsParseFailed(parserState* ps) {
     if ((NULL == ps)) {
         return LE_NULL_IN_INPUT_VALUES;
     }
@@ -86,7 +86,7 @@ const lemonError markAsParseFailed(parserState* ps) {
     return LE_OK;
 }
 
-const lemonError markAsSyntaxIncorrect(parserState* ps) {
+lemonError markAsSyntaxIncorrect(parserState* ps) {
     if ((NULL == ps)) {
         return LE_NULL_IN_INPUT_VALUES;
     }
@@ -97,7 +97,7 @@ const lemonError markAsSyntaxIncorrect(parserState* ps) {
     return LE_OK;
 }
 
-static const lemonError parse(dataContainer container, const parsingMode mode) {
+static lemonError parse(dataContainer container, const parsingMode mode) {
     /* if (NULL == request) {
         return LE_NULL_IN_INPUT_VALUES;
     }
@@ -257,20 +257,20 @@ static const lemonError parse(dataContainer container, const parsingMode mode) {
     }
 }
 
-const lemonError parseHTTP(httpRequest *request) {
+lemonError parseHTTP(httpRequest *request) {
     dataContainer container;
     container.httpRequest = request;
     return parse(container, GENERAL_HTTP);
 }
 
-const lemonError parseJSONPath(jsonPathRequest *jsonPathRequest, char *jsonPath) {
+lemonError parseJSONPath(jsonPathRequest *jsonPathRequest, char *jsonPath) {
     dataContainer container;
     container.jsonPathRequestData.jsonPathRequest = jsonPathRequest;
     container.jsonPathRequestData.jsonPath = jsonPath;
     return parse(container, JSON_PATH);
 }
 
-const lemonError parseJSON(httpRequest *request, jsonPathRequest *jsonRequest) {
+lemonError parseJSON(httpRequest *request, jsonPathRequest *jsonRequest) {
     dataContainer container;
     container.httpRequest = request;
     container.jsonPathRequestData.jsonPathRequest = jsonRequest;

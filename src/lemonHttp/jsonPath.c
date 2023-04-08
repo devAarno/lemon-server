@@ -23,7 +23,7 @@
 #include "lemonError.h"
 #include "./jsonPathQueryBuffer.h"
 
-const lemonError initJsonPathRequest(jsonPathRequest *r) {
+lemonError initJsonPathRequest(jsonPathRequest *r) {
     if (NULL == r) {
         return LE_NULL_IN_INPUT_VALUES;
     }
@@ -34,7 +34,7 @@ const lemonError initJsonPathRequest(jsonPathRequest *r) {
     }
 }
 
-const lemonError appendJsonPathRequest(jsonPathRequest *p, jsonPathQueryBuffer *b, jsonPathExecutionHandler handler, changingData *data) {
+lemonError appendJsonPathRequest(jsonPathRequest *p, jsonPathQueryBuffer *b, jsonPathExecutionHandler handler, changingData *data) {
     if ((NULL == b) || (NULL == p) || (NULL == handler) || (NULL == data)) {
         return LE_NULL_IN_INPUT_VALUES;
     }

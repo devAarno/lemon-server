@@ -29,7 +29,7 @@
 #include "strncasecmp.h"
 #include "changingData.h"
 
-const lemonError initHttpRequest(httpRequest *r, const int fd) {
+lemonError initHttpRequest(httpRequest *r, const int fd) {
     if (NULL == r) {
         return LE_NULL_IN_INPUT_VALUES;
     }
@@ -51,7 +51,7 @@ const lemonError initHttpRequest(httpRequest *r, const int fd) {
     }
 }
 
-const lemonError appendHttpMethodRequest(httpRequest *r, httpMethodExecutionHandler handler, changingData *data) {
+lemonError appendHttpMethodRequest(httpRequest *r, httpMethodExecutionHandler handler, changingData *data) {
     if ((NULL == r) || (NULL == handler) || (NULL == data)) {
         return LE_NULL_IN_INPUT_VALUES;
     }
@@ -65,7 +65,7 @@ const lemonError appendHttpMethodRequest(httpRequest *r, httpMethodExecutionHand
     return LE_OK;
 }
 
-const lemonError appendHttpUriRequest(httpRequest *r, httpUriExecutionHandler handler, changingData *data) {
+lemonError appendHttpUriRequest(httpRequest *r, httpUriExecutionHandler handler, changingData *data) {
     if ((NULL == r) || (NULL == handler) || (NULL == data)) {
         return LE_NULL_IN_INPUT_VALUES;
     }
@@ -79,7 +79,7 @@ const lemonError appendHttpUriRequest(httpRequest *r, httpUriExecutionHandler ha
     return LE_OK;
 }
 
-const lemonError appendHttpVersionRequest(httpRequest *r, httpVersionExecutionHandler handler, changingData *data) {
+lemonError appendHttpVersionRequest(httpRequest *r, httpVersionExecutionHandler handler, changingData *data) {
     if ((NULL == r) || (NULL == handler) || (NULL == data)) {
         return LE_NULL_IN_INPUT_VALUES;
     }
@@ -93,7 +93,7 @@ const lemonError appendHttpVersionRequest(httpRequest *r, httpVersionExecutionHa
     return LE_OK;
 }
 
-const lemonError appendHttpGetParameterQueryRequest(httpRequest *r, char *b, httpGetParameterQueryExecutionHandler handler, changingData *data) {
+lemonError appendHttpGetParameterQueryRequest(httpRequest *r, char *b, httpGetParameterQueryExecutionHandler handler, changingData *data) {
     if ((NULL == r) || (NULL == b) || (NULL == handler) || (NULL == data)) {
         return LE_NULL_IN_INPUT_VALUES;
     }
@@ -108,7 +108,7 @@ const lemonError appendHttpGetParameterQueryRequest(httpRequest *r, char *b, htt
     return LE_OK;
 }
 
-const lemonError appendHttpHeaderQueryRequest(httpRequest *r, char *b, httpHeaderQueryExecutionHandler handler, changingData *data) {
+lemonError appendHttpHeaderQueryRequest(httpRequest *r, char *b, httpHeaderQueryExecutionHandler handler, changingData *data) {
     if ((NULL == r) || (NULL == b) || (NULL == handler) || (NULL == data)) {
         return LE_NULL_IN_INPUT_VALUES;
     }
@@ -123,7 +123,7 @@ const lemonError appendHttpHeaderQueryRequest(httpRequest *r, char *b, httpHeade
     return LE_OK;
 }
 
-const boolean isStringEmpty(const string *s) {
+boolean isStringEmpty(const string *s) {
     if (NULL == s) {
         return TRUE;
     }

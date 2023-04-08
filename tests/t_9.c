@@ -40,7 +40,7 @@ void setUp(void) {
 void tearDown(void) {
 }
 
-static const lemonError fakeExecute(const string *value, calledCallback *data) {
+static lemonError fakeExecute(const string *value, calledCallback *data) {
     printf("OOOUUUTTT %.*s\r\n", value->length, value->data);
     TEST_ASSERT_EQUAL(data->expectedValue.length, value->length);
     TEST_ASSERT_EQUAL_STRING_LEN(data->expectedValue.data, value->data, value->length);
@@ -48,7 +48,7 @@ static const lemonError fakeExecute(const string *value, calledCallback *data) {
     return LE_OK;
 }
 
-static const lemonError fakeExecuteForTest1Buffer5(const string *value, calledCallback *data) {
+static lemonError fakeExecuteForTest1Buffer5(const string *value, calledCallback *data) {
     switch (data->callCounter) {
         case 0:
             TEST_ASSERT_EQUAL(12, value->length);
@@ -72,7 +72,7 @@ static const lemonError fakeExecuteForTest1Buffer5(const string *value, calledCa
     return LE_OK;
 }
 
-static const lemonError fakeExecuteForTest1Buffer8(const string *value, calledCallback *data) {
+static lemonError fakeExecuteForTest1Buffer8(const string *value, calledCallback *data) {
     switch (data->callCounter) {
         case 0:
             TEST_ASSERT_EQUAL(14, value->length);
@@ -91,7 +91,7 @@ static const lemonError fakeExecuteForTest1Buffer8(const string *value, calledCa
     return LE_OK;
 }
 
-static const lemonError fakeExecuteForTrueValue(const string *value, calledCallback *data) {
+static lemonError fakeExecuteForTrueValue(const string *value, calledCallback *data) {
     printf("OOOUUUTTT %.*s\r\n", value->length, value->data);
     TEST_ASSERT_EQUAL(data->expectedValue.length, value->length);
     TEST_ASSERT_EQUAL_STRING_LEN(data->expectedValue.data, value->data, value->length);
@@ -100,7 +100,7 @@ static const lemonError fakeExecuteForTrueValue(const string *value, calledCallb
     return LE_OK;
 }
 
-static const lemonError fakeExecuteForFalseValue(const string *value, calledCallback *data) {
+static lemonError fakeExecuteForFalseValue(const string *value, calledCallback *data) {
     printf("OOOUUUTTT %.*s\r\n", value->length, value->data);
     TEST_ASSERT_EQUAL(data->expectedValue.length, value->length);
     TEST_ASSERT_EQUAL_STRING_LEN(data->expectedValue.data, value->data, value->length);
@@ -109,7 +109,7 @@ static const lemonError fakeExecuteForFalseValue(const string *value, calledCall
     return LE_OK;
 }
 
-static const lemonError fakeExecuteForNullValue(const string *value, calledCallback *data) {
+static lemonError fakeExecuteForNullValue(const string *value, calledCallback *data) {
     printf("OOOUUUTTT %.*s\r\n", value->length, value->data);
     TEST_ASSERT_EQUAL(data->expectedValue.length, value->length);
     TEST_ASSERT_EQUAL_STRING_LEN(data->expectedValue.data, value->data, value->length);
@@ -388,7 +388,7 @@ static void test2(void) {
     /* TEST_ASSERT_EQUAL_MEMORY(&jsonRequest_backup, &jsonRequest, sizeof(jsonRequest)); */
 }
 
-static const lemonError fakeExecuteForTest3Buffer3(const string *value, calledCallback *data) {
+static lemonError fakeExecuteForTest3Buffer3(const string *value, calledCallback *data) {
     switch (data->callCounter) {
         case 0:
             TEST_ASSERT_EQUAL(3, value->length);
@@ -407,7 +407,7 @@ static const lemonError fakeExecuteForTest3Buffer3(const string *value, calledCa
     return LE_OK;
 }
 
-static const lemonError fakeExecuteForTest3Buffer11(const string *value, calledCallback *data) {
+static lemonError fakeExecuteForTest3Buffer11(const string *value, calledCallback *data) {
     switch (data->callCounter) {
         case 0:
             TEST_ASSERT_EQUAL(3, value->length);

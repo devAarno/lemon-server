@@ -25,14 +25,14 @@
 #include "changingData.h"
 
 /* HTTP */
-typedef const lemonError (*httpMethodExecutionHandler)(const string *value, changingData *data);
-typedef const lemonError (*httpUriExecutionHandler)(const string *value, changingData *data);
-typedef const lemonError (*httpVersionExecutionHandler)(const string *value, changingData *data);
+typedef lemonError (*httpMethodExecutionHandler)(const string *value, changingData *data);
+typedef lemonError (*httpUriExecutionHandler)(const string *value, changingData *data);
+typedef lemonError (*httpVersionExecutionHandler)(const string *value, changingData *data);
 /*typedef char jsonPathQueryBuffer; */
 typedef char httpGetParameterQueryBuffer;
-typedef const lemonError (*httpGetParameterQueryExecutionHandler)(const string *value, changingData *data);
+typedef lemonError (*httpGetParameterQueryExecutionHandler)(const string *value, changingData *data);
 typedef char httpHeaderQueryBuffer;
-typedef const lemonError (*httpHeaderQueryExecutionHandler)(const string *value, changingData *data);
+typedef lemonError (*httpHeaderQueryExecutionHandler)(const string *value, changingData *data);
 
 typedef struct {
     httpMethodExecutionHandler handler;

@@ -42,8 +42,8 @@ typedef struct {
     size_t parsedStackSize;
 } jsonPathRequest;
 
-const lemonError initJsonPathRequest(jsonPathRequest *r);
+lemonError initJsonPathRequest(jsonPathRequest *r);
 
-const lemonError appendJsonPathRequest(jsonPathRequest *p, jsonPathQueryBuffer *b, jsonPathExecutionHandler handler, changingData *data);
+lemonError appendJsonPathRequest(jsonPathRequest *p, jsonPathQueryBuffer *b, jsonPathExecutionHandler handler, changingData *data);
 
 #endif /* LEMONSERVER_JSONPATH_H */

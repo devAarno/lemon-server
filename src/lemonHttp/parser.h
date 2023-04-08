@@ -51,19 +51,19 @@ typedef struct {
     boolean isSyntaxIncorrect;
 } parserState;
 
-const lemonError parseHTTP(httpRequest *request);
+lemonError parseHTTP(httpRequest *request);
 
-const lemonError parseJSON(httpRequest *request, jsonPathRequest *jsonRequest);
+lemonError parseJSON(httpRequest *request, jsonPathRequest *jsonRequest);
 
-const lemonError parseJSONPath(jsonPathRequest *jsonPathRequest, char *jsonPath);
+lemonError parseJSONPath(jsonPathRequest *jsonPathRequest, char *jsonPath);
 
-const boolean isParsed(const parserState* ps);
+boolean isParsed(const parserState* ps);
 
-const lemonError markAsParsed(parserState* ps);
+lemonError markAsParsed(parserState* ps);
 
-const lemonError markAsParseFailed(parserState* ps);
+lemonError markAsParseFailed(parserState* ps);
 
-const lemonError markAsSyntaxIncorrect(parserState* ps);
+lemonError markAsSyntaxIncorrect(parserState* ps);
 
 #endif /* PARSER_H */
 

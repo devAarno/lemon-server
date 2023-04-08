@@ -50,7 +50,7 @@ static const char tbl[256] = {
     NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA
 };
 
-const lemonError decodeValue(string *s, boolean replacePlusWithSpace) {
+lemonError decodeValue(string *s, boolean replacePlusWithSpace) {
     const string emptyString = getEmptyString();
     if ((NULL == s) || (NULL == s->data)) {
         return LE_NULL_IN_INPUT_VALUES;
@@ -103,7 +103,7 @@ const lemonError decodeValue(string *s, boolean replacePlusWithSpace) {
     return LE_OK;
 }
 
-const lemonError trim(string *s) {
+lemonError trim(string *s) {
     const string emptyString = getEmptyString();
     if ((NULL == s) || (NULL == s->data)) {
         return LE_NULL_IN_INPUT_VALUES;
@@ -127,7 +127,7 @@ const lemonError trim(string *s) {
     return LE_OK;
 }
 
-const lemonError executeHttpMethodCallback(httpRequest *r, const string *s) {
+lemonError executeHttpMethodCallback(httpRequest *r, const string *s) {
     if (NULL == r) {
         return LE_NULL_IN_INPUT_VALUES;
     }
@@ -144,7 +144,7 @@ const lemonError executeHttpMethodCallback(httpRequest *r, const string *s) {
     return LE_OK;
 }
 
-const lemonError executeHttpUriCallback(httpRequest *r, const string *s) {
+lemonError executeHttpUriCallback(httpRequest *r, const string *s) {
     if (NULL == r) {
         return LE_NULL_IN_INPUT_VALUES;
     }
@@ -161,7 +161,7 @@ const lemonError executeHttpUriCallback(httpRequest *r, const string *s) {
     return LE_OK;
 }
 
-const lemonError executeHttpVersionCallback(httpRequest *r, const string *s) {
+lemonError executeHttpVersionCallback(httpRequest *r, const string *s) {
     if (NULL == r) {
         return LE_NULL_IN_INPUT_VALUES;
     }
@@ -178,7 +178,7 @@ const lemonError executeHttpVersionCallback(httpRequest *r, const string *s) {
     return LE_OK;
 }
 
-const lemonError executeHeaderCallback(httpRequest *r, const string *key, const string *s) {
+lemonError executeHeaderCallback(httpRequest *r, const string *key, const string *s) {
     if (NULL == r) {
         return LE_NULL_IN_INPUT_VALUES;
     }
@@ -195,7 +195,7 @@ const lemonError executeHeaderCallback(httpRequest *r, const string *key, const 
     return LE_OK;
 }
 
-const lemonError executeGetParameterCallback(httpRequest *r, const string *key, const string *s) {
+lemonError executeGetParameterCallback(httpRequest *r, const string *key, const string *s) {
     if (NULL == r) {
         return LE_NULL_IN_INPUT_VALUES;
     }
@@ -212,7 +212,7 @@ const lemonError executeGetParameterCallback(httpRequest *r, const string *key, 
     return LE_OK;
 }
 
-const string convertUtf16ToString(char *c1, char *c2, const char c3, const char c4) {
+string convertUtf16ToString(char *c1, char *c2, const char c3, const char c4) {
     string res;
     if ((NULL == c1) || (NULL == c2)) {
         res.data = NULL;

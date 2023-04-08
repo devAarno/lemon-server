@@ -24,7 +24,7 @@
 #include "string.h"
 #include "changingData.h"
 
-typedef const lemonError (*jsonPathExecutionHandler)(const string *value, changingData *data);
+typedef lemonError (*jsonPathExecutionHandler)(const string *value, changingData *data);
 
 typedef struct {
     jsonPathExecutionHandler handler;
