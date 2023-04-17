@@ -23,6 +23,7 @@
 #include "jsonCallbackType.h"
 
 typedef enum {
+    NONE,
     HTTP_REQUEST_METHOD,
     HTTP_REQUEST_URI,
     HTTP_REQUEST_GET_QUERY_ELEMENT,
@@ -43,9 +44,7 @@ typedef enum {
     PARSED_JSON_INDEX,
     PARSED_JSON_FIELD,
     PARSED_JSON_FIELD_WITH_OBJECT,
-    PARSED_JSON_RESOLVED_FIELD,
-    ZERO,
-    NONE
+    PARSED_JSON_RESOLVED_FIELD
 } ruleType;
 
 typedef struct {

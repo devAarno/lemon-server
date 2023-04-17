@@ -37,12 +37,12 @@ static lemonError appendHttpToParser(parserState* ps, httpRequest *http) {
     return LE_OK;
 }
 
-static lemonError appendJsonPathToParser(parserState* ps, jsonPathRequest *http) {
+static lemonError appendJsonPathToParser(parserState* ps, httpRequest *http) {
     if ((NULL == ps) || (NULL == http)) {
         return LE_NULL_IN_INPUT_VALUES;
     }
-    ps->container.jsonPathRequestData.jsonPathRequest = http;
-    ps->container.jsonPathRequestData.jsonPath = NULL; /* Not required for parser */
+    ps->container.httpRequest = http;
+    ps->container.jsonPath = NULL; /* Not required for parser */
     return LE_OK;
 }
 
@@ -223,13 +223,13 @@ static lemonError parse(dataContainer container, const parsingMode mode) {
                 break;
             case JSON_PATH:
                 {
-                    const lemonError ret = appendJsonPathToParser(&ps, container.jsonPathRequestData.jsonPathRequest);
+                    const lemonError ret = appendJsonPathToParser(&ps, container.httpRequest);
                     if (LE_OK != ret) {
                         return ret;
                     }
                 }
                 ParseHTTP11(&pParser, TOK_THREE, 0, &ps);
-                buffer = container.jsonPathRequestData.jsonPath;
+                buffer = container.jsonPath;
                 break;
             default:
                 assert(0);
@@ -263,16 +263,15 @@ lemonError parseHTTP(httpRequest *request) {
     return parse(container, GENERAL_HTTP);
 }
 
-lemonError parseJSONPath(jsonPathRequest *jsonPathRequest, char *jsonPath) {
+lemonError parseJSONPath(httpRequest *jsonPathRequest, char *jsonPath) {
     dataContainer container;
-    container.jsonPathRequestData.jsonPathRequest = jsonPathRequest;
-    container.jsonPathRequestData.jsonPath = jsonPath;
+    container.httpRequest = jsonPathRequest;
+    container.jsonPath = jsonPath;
     return parse(container, JSON_PATH);
 }
 
-lemonError parseJSON(httpRequest *request, jsonPathRequest *jsonRequest) {
+lemonError parseJSON(httpRequest *request) {
     dataContainer container;
     container.httpRequest = request;
-    container.jsonPathRequestData.jsonPathRequest = jsonRequest;
     return parse(container, JSON_BODY);
 }

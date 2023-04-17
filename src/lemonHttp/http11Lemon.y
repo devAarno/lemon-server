@@ -23,7 +23,9 @@
 #include "parser.h"
 #include "httpRequest.h"
 #include "httpRequestInternal.h"
+#include "jsonPathInternal.h"
 #include "string.h"
+#include "rules.h"
 }
 
 %name ParseHTTP11
@@ -288,9 +290,9 @@ jsonn ::= json NULL.
 
 json ::= json_ows start_root value end_root json_ows. {markAsParsed(ps); puts("DONE");}
 
-start_root ::= . { puts("ROOT_START"); updateJsonPathRequestStatusByRoot(ps->container.jsonPathRequestData.jsonPathRequest); }
+start_root ::= . { puts("ROOT_START"); updateJsonPathRequestStatusByRoot(ps->container.httpRequest); }
 
-end_root ::= . { puts("ROOT_END"); rollbackJsonPathRequestStatusByRoot(ps->container.jsonPathRequestData.jsonPathRequest); }
+end_root ::= . { puts("ROOT_END"); rollbackJsonPathRequestStatusByRoot(ps->container.httpRequest); }
 
 %type string {string}
 %type json_chars {string}
@@ -301,25 +303,25 @@ end_root ::= . { puts("ROOT_END"); rollbackJsonPathRequestStatusByRoot(ps->conta
 
 %type number {string}
 
-value ::= object(o).  { printf("\nOBJ XVALUE -- %.*s\n", o.length, o.data); executeJsonPathCallbackWithValue(ps->container.jsonPathRequestData.jsonPathRequest, &o, TRUE); }
-value ::= array(a). { printf("\nARRAY XVALUE -- %.*s\n", a.length, a.data); executeJsonPathCallbackWithValue(ps->container.jsonPathRequestData.jsonPathRequest, &a, TRUE);}
+value ::= object(o).  { printf("\nOBJ XVALUE -- %.*s\n", o.length, o.data); executeJsonPathCallbackWithValue(ps->container.httpRequest, &o, TRUE); }
+value ::= array(a). { printf("\nARRAY XVALUE -- %.*s\n", a.length, a.data); executeJsonPathCallbackWithValue(ps->container.httpRequest, &a, TRUE);}
 
-value ::= number(s1). { printf("\nNUM XVALUE -- %.*s\n", s1.length, s1.data); executeJsonPathCallbackWithValue(ps->container.jsonPathRequestData.jsonPathRequest, &s1, FALSE); }
-value ::= string(s1). { printf("\nSTR XVALUE -- %.*s\n", s1.length, s1.data); executeJsonPathCallbackWithValue(ps->container.jsonPathRequestData.jsonPathRequest, &s1, FALSE); }
+value ::= number(s1). { printf("\nNUM XVALUE -- %.*s\n", s1.length, s1.data); executeJsonPathCallbackWithValue(ps->container.httpRequest, &s1, FALSE); }
+value ::= string(s1). { printf("\nSTR XVALUE -- %.*s\n", s1.length, s1.data); executeJsonPathCallbackWithValue(ps->container.httpRequest, &s1, FALSE); }
 value ::= true. {
   const string s = getTrueString();
   printf("\nTRUE XVALUE\n");
-  executeJsonPathCallbackWithValue(ps->container.jsonPathRequestData.jsonPathRequest, &s, FALSE);
+  executeJsonPathCallbackWithValue(ps->container.httpRequest, &s, FALSE);
 }
 value ::= false. {
   const string s = getFalseString();
   printf("\nFALSE XVALUE\n");
-  executeJsonPathCallbackWithValue(ps->container.jsonPathRequestData.jsonPathRequest, &s, FALSE);
+  executeJsonPathCallbackWithValue(ps->container.httpRequest, &s, FALSE);
 }
 value ::= null. {
   const string s = getNullString();
   printf("\nFALSE XVALUE\n");
-  executeJsonPathCallbackWithValue(ps->container.jsonPathRequestData.jsonPathRequest, &s, FALSE);
+  executeJsonPathCallbackWithValue(ps->container.httpRequest, &s, FALSE);
 }
 
 object(o) ::= l_crl_brckt(o_start) json_ows r_crl_brckt(o_end). {
@@ -333,11 +335,11 @@ object(o) ::= l_crl_brckt(o_start) json_ows object_content json_ows r_crl_brckt(
 
 json_key(s1) ::= string(s1). {
   printf("\nKEY IN -- %.*s\n", s1.length, s1.data);
-  updateJsonPathRequestStatusByFieldName(ps->container.jsonPathRequestData.jsonPathRequest, &s1);
+  updateJsonPathRequestStatusByFieldName(ps->container.httpRequest, &s1);
 }
 
-object_content ::= json_key(s1) json_ows COLON json_ows value. { rollbackJsonPathRequestStatusByFieldName(ps->container.jsonPathRequestData.jsonPathRequest, &s1); }
-object_content ::= object_content json_ows COMMA json_ows json_key(s1) json_ows COLON json_ows value. { rollbackJsonPathRequestStatusByFieldName(ps->container.jsonPathRequestData.jsonPathRequest, &s1); }
+object_content ::= json_key(s1) json_ows COLON json_ows value. { rollbackJsonPathRequestStatusByFieldName(ps->container.httpRequest, &s1); }
+object_content ::= object_content json_ows COMMA json_ows json_key(s1) json_ows COLON json_ows value. { rollbackJsonPathRequestStatusByFieldName(ps->container.httpRequest, &s1); }
 
 array(a) ::= l_sqr_brckt(a_start) json_ows r_sqr_brckt(a_end). {
   a.data = a_start;
@@ -351,7 +353,7 @@ array(a) ::= l_sqr_brckt(a_start) json_ows array_content json_ows r_sqr_brckt(a_
 array_content ::= value array_inc.
 array_content ::= array_content json_ows COMMA json_ows value array_inc.
 
-array_inc ::= . { puts("ARRAY ELEMENT"); updateJsonPathRequestStatusByArrayElement(ps->container.jsonPathRequestData.jsonPathRequest); }
+array_inc ::= . { puts("ARRAY ELEMENT"); updateJsonPathRequestStatusByArrayElement(ps->container.httpRequest); }
 
 %type mantissa {string}
 %type exponent {string}
@@ -433,13 +435,13 @@ true ::= LT LR LU LE.
 false ::= LF LA LL LS LE.
 null ::= LN LU LL LL.
 
-l_crl_brckt ::= LBRACE(c). { puts("VAL_START"); puts(c); updateJsonPathRequestStatusByObject(ps->container.jsonPathRequestData.jsonPathRequest, c); }
+l_crl_brckt ::= LBRACE(c). { puts("VAL_START"); puts(c); updateJsonPathRequestStatusByObject(ps->container.httpRequest, c); }
 
-r_crl_brckt ::= RBRACE(c). { puts("VAL_END"); puts(c); rollbackJsonPathRequestStatusByObject(ps->container.jsonPathRequestData.jsonPathRequest, c); }
+r_crl_brckt ::= RBRACE(c). { puts("VAL_END"); puts(c); rollbackJsonPathRequestStatusByObject(ps->container.httpRequest, c); }
 
-l_sqr_brckt ::= LBRACKET(c). { puts("ARRAY_START"); puts(c); updateJsonPathRequestStatusByArray(ps->container.jsonPathRequestData.jsonPathRequest, c); }
+l_sqr_brckt ::= LBRACKET(c). { puts("ARRAY_START"); puts(c); updateJsonPathRequestStatusByArray(ps->container.httpRequest, c); }
 
-r_sqr_brckt ::= RBRACKET(c). { puts("ARRAY_END"); puts(c); rollbackJsonPathRequestStatusByArray(ps->container.jsonPathRequestData.jsonPathRequest, c); }
+r_sqr_brckt ::= RBRACKET(c). { puts("ARRAY_END"); puts(c); rollbackJsonPathRequestStatusByArray(ps->container.httpRequest, c); }
 
 json_ows ::= .
 json_ows ::= json_ows SP.
@@ -455,7 +457,7 @@ mmain ::= jsonpath. { markAsParsed(ps); puts("DONE1"); }
 mmain ::= jsonpath DOT. { markAsParsed(ps); puts("DONE2"); }
 mmain ::= jsonpath DOT DOT. {
     const string emptyString = getEmptyString();
-    if (NULL == appendJsonPathElementOfHttpRequest(ps->container.jsonPathRequestData.jsonPathRequest, &(emptyString), JSONPATH_REQUEST_RECURSIVE)) {
+    if (LE_OK != appendJsonPathElementOfHttpRequest(ps->container.httpRequest, &(emptyString), JSONPATH_REQUEST_RECURSIVE)) {
         /* TODO: Fix markJSONPathAsParseFailed !!!! */
         markAsParseFailed(ps);
     };
@@ -464,7 +466,7 @@ mmain ::= jsonpath DOT DOT. {
 
 jsonpath ::= DOLLAR. {
     const string emptyString = getEmptyString();
-    if (NULL == appendJsonPathElementOfHttpRequest(ps->container.jsonPathRequestData.jsonPathRequest, &(emptyString), JSONPATH_REQUEST_ROOT)) {
+    if (LE_OK != appendJsonPathElementOfHttpRequest(ps->container.httpRequest, &(emptyString), JSONPATH_REQUEST_ROOT)) {
         markAsParseFailed(ps);
     }
 }
@@ -474,74 +476,74 @@ jsonpath ::= DOLLAR. {
 %type jsonpath_char {string}
 %type arrayindex {string}
 jsonpath ::= jsonpath DOT dotobjectname(var_s). {
-    if (NULL == appendJsonPathElementOfHttpRequest(ps->container.jsonPathRequestData.jsonPathRequest, &var_s, JSONPATH_REQUEST_NAME)) {
+    if (LE_OK != appendJsonPathElementOfHttpRequest(ps->container.httpRequest, &var_s, JSONPATH_REQUEST_NAME)) {
         markAsParseFailed(ps);
     }
 }
 jsonpath ::= jsonpath DOT ASTERISK. {
     const string emptyString = getEmptyString();
-    if (NULL == appendJsonPathElementOfHttpRequest(ps->container.jsonPathRequestData.jsonPathRequest, &(emptyString), JSONPATH_REQUEST_ANY)) {
+    if (LE_OK != appendJsonPathElementOfHttpRequest(ps->container.httpRequest, &(emptyString), JSONPATH_REQUEST_ANY)) {
         markAsParseFailed(ps);
     }
 }
 jsonpath ::= jsonpath LBRACKET APOSTROPHE objectname(var_s) APOSTROPHE RBRACKET. {
-    if (NULL == appendJsonPathElementOfHttpRequest(ps->container.jsonPathRequestData.jsonPathRequest, &var_s, JSONPATH_REQUEST_NAME)) {
+    if (LE_OK != appendJsonPathElementOfHttpRequest(ps->container.httpRequest, &var_s, JSONPATH_REQUEST_NAME)) {
         markAsParseFailed(ps);
     }
 }
 jsonpath ::= jsonpath LBRACKET arrayindex(var_s) RBRACKET. {
-    if (NULL == appendJsonPathElementOfHttpRequest(ps->container.jsonPathRequestData.jsonPathRequest, &var_s, JSONPATH_REQUEST_INDEX)) {
+    if (LE_OK != appendJsonPathElementOfHttpRequest(ps->container.httpRequest, &var_s, JSONPATH_REQUEST_INDEX)) {
         markAsParseFailed(ps);
     }
 }
 jsonpath ::= jsonpath LBRACKET ASTERISK RBRACKET. {
     const string emptyString = getEmptyString();
-    if (NULL == appendJsonPathElementOfHttpRequest(ps->container.jsonPathRequestData.jsonPathRequest, &(emptyString), JSONPATH_REQUEST_ANYINDEX)) {
+    if (LE_OK != appendJsonPathElementOfHttpRequest(ps->container.httpRequest, &(emptyString), JSONPATH_REQUEST_ANYINDEX)) {
         markAsParseFailed(ps);
     }
 }
 jsonpath ::= jsonpath DOT DOT dotobjectname(var_s). {
     const string emptyString = getEmptyString();
-    if (NULL == appendJsonPathElementOfHttpRequest(ps->container.jsonPathRequestData.jsonPathRequest, &(emptyString), JSONPATH_REQUEST_RECURSIVE)) {
+    if (LE_OK != appendJsonPathElementOfHttpRequest(ps->container.httpRequest, &(emptyString), JSONPATH_REQUEST_RECURSIVE)) {
         markAsParseFailed(ps);
     }
-    if (NULL == appendJsonPathElementOfHttpRequest(ps->container.jsonPathRequestData.jsonPathRequest, &var_s, JSONPATH_REQUEST_NAME)) {
+    if (LE_OK != appendJsonPathElementOfHttpRequest(ps->container.httpRequest, &var_s, JSONPATH_REQUEST_NAME)) {
         markAsParseFailed(ps);
     }
 }
 jsonpath ::= jsonpath DOT DOT ASTERISK. {
     const string emptyString = getEmptyString();
-    if (NULL == appendJsonPathElementOfHttpRequest(ps->container.jsonPathRequestData.jsonPathRequest, &(emptyString), JSONPATH_REQUEST_RECURSIVE)) {
+    if (LE_OK != appendJsonPathElementOfHttpRequest(ps->container.httpRequest, &(emptyString), JSONPATH_REQUEST_RECURSIVE)) {
         markAsParseFailed(ps);
     }
-    if (NULL == appendJsonPathElementOfHttpRequest(ps->container.jsonPathRequestData.jsonPathRequest, &(emptyString), JSONPATH_REQUEST_ANY)) {
+    if (LE_OK != appendJsonPathElementOfHttpRequest(ps->container.httpRequest, &(emptyString), JSONPATH_REQUEST_ANY)) {
         markAsParseFailed(ps);
     }
 }
 jsonpath ::= jsonpath DOT DOT LBRACKET APOSTROPHE objectname(var_s) APOSTROPHE RBRACKET. {
     const string emptyString = getEmptyString();
-    if (NULL == appendJsonPathElementOfHttpRequest(ps->container.jsonPathRequestData.jsonPathRequest, &(emptyString), JSONPATH_REQUEST_RECURSIVE)) {
+    if (LE_OK != appendJsonPathElementOfHttpRequest(ps->container.httpRequest, &(emptyString), JSONPATH_REQUEST_RECURSIVE)) {
         markAsParseFailed(ps);
     }
-    if (NULL == appendJsonPathElementOfHttpRequest(ps->container.jsonPathRequestData.jsonPathRequest, &var_s, JSONPATH_REQUEST_NAME)) {
+    if (LE_OK != appendJsonPathElementOfHttpRequest(ps->container.httpRequest, &var_s, JSONPATH_REQUEST_NAME)) {
         markAsParseFailed(ps);
     }
 }
 jsonpath ::= jsonpath DOT DOT LBRACKET arrayindex(var_s) RBRACKET. {
     const string emptyString = getEmptyString();
-    if (NULL == appendJsonPathElementOfHttpRequest(ps->container.jsonPathRequestData.jsonPathRequest, &(emptyString), JSONPATH_REQUEST_RECURSIVE)) {
+    if (LE_OK != appendJsonPathElementOfHttpRequest(ps->container.httpRequest, &(emptyString), JSONPATH_REQUEST_RECURSIVE)) {
         markAsParseFailed(ps);
     }
-    if (NULL == appendJsonPathElementOfHttpRequest(ps->container.jsonPathRequestData.jsonPathRequest, &var_s, JSONPATH_REQUEST_INDEX)) {
+    if (LE_OK != appendJsonPathElementOfHttpRequest(ps->container.httpRequest, &var_s, JSONPATH_REQUEST_INDEX)) {
         markAsParseFailed(ps);
     }
 }
 jsonpath ::= jsonpath DOT DOT LBRACKET ASTERISK RBRACKET. {
     const string emptyString = getEmptyString();
-    if (NULL == appendJsonPathElementOfHttpRequest(ps->container.jsonPathRequestData.jsonPathRequest, &(emptyString), JSONPATH_REQUEST_RECURSIVE)) {
+    if (LE_OK != appendJsonPathElementOfHttpRequest(ps->container.httpRequest, &(emptyString), JSONPATH_REQUEST_RECURSIVE)) {
         markAsParseFailed(ps);
     }
-    if (NULL == appendJsonPathElementOfHttpRequest(ps->container.jsonPathRequestData.jsonPathRequest, &(emptyString), JSONPATH_REQUEST_ANYINDEX)) {
+    if (LE_OK != appendJsonPathElementOfHttpRequest(ps->container.httpRequest, &(emptyString), JSONPATH_REQUEST_ANYINDEX)) {
         markAsParseFailed(ps);
     }
 }

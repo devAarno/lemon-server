@@ -26,6 +26,7 @@
 #include "../src/lemonHttp/jsonPath.h"
 #include "../src/lemonHttp/parser.h"
 #include "../src/lemonHttp/string.h"
+#include "fakeDescriptor.h"
 
 
 #define TESTNAME TestJSONPath
@@ -38,11 +39,11 @@ void tearDown(void) {
 }
 
 static void test1(void) {
-    jsonPathRequest fakeRequest;
+    httpRequest fakeRequest;
 
     static char jsonPath1[] = "$.sto\\*re.au\\u0074hor";
 
-    initJsonPathRequest(&fakeRequest);
+    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&fakeRequest, FAKE_DESCRIPTOR));
 
     TEST_ASSERT_EQUAL(LE_OK, parseJSONPath(&fakeRequest, jsonPath1));
 
@@ -60,11 +61,11 @@ static void test1(void) {
 }
 
 static void test2(void) {
-    jsonPathRequest fakeRequest;
+    httpRequest fakeRequest;
 
     static char jsonPath2[] = "$.store.*";
 
-    initJsonPathRequest(&fakeRequest);
+    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&fakeRequest, FAKE_DESCRIPTOR));
 
     TEST_ASSERT_EQUAL(LE_OK, parseJSONPath(&fakeRequest, jsonPath2));
 
@@ -80,11 +81,11 @@ static void test2(void) {
 }
 
 static void test3(void) {
-    jsonPathRequest fakeRequest;
+    httpRequest fakeRequest;
 
     static char jsonPath3[] = "$.book[2]";
 
-    initJsonPathRequest(&fakeRequest);
+    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&fakeRequest, FAKE_DESCRIPTOR));
 
     TEST_ASSERT_EQUAL(LE_OK, parseJSONPath(&fakeRequest, jsonPath3));
 
@@ -101,11 +102,11 @@ static void test3(void) {
 }
 
 static void test4(void) {
-    jsonPathRequest fakeRequest;
+    httpRequest fakeRequest;
 
     static char jsonPath4[] = "$.book[2].zzz.xxx.yyy";
 
-    initJsonPathRequest(&fakeRequest);
+    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&fakeRequest, FAKE_DESCRIPTOR));
 
     TEST_ASSERT_EQUAL(LE_OK, parseJSONPath(&fakeRequest, jsonPath4));
 
@@ -134,11 +135,11 @@ static void test4(void) {
 }
 
 static void test5(void) {
-    jsonPathRequest fakeRequest;
+    httpRequest fakeRequest;
 
     static char jsonPath5[] = "$['store']['book'][0]['title']";
 
-    initJsonPathRequest(&fakeRequest);
+    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&fakeRequest, FAKE_DESCRIPTOR));
 
     TEST_ASSERT_EQUAL(LE_OK, parseJSONPath(&fakeRequest, jsonPath5));
 
@@ -163,11 +164,11 @@ static void test5(void) {
 }
 
 static void test6(void) {
-    jsonPathRequest fakeRequest;
+    httpRequest fakeRequest;
 
     static char jsonPath6[] = "$[*].*[*].*[*].tool";
 
-    initJsonPathRequest(&fakeRequest);
+    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&fakeRequest, FAKE_DESCRIPTOR));
 
     TEST_ASSERT_EQUAL(LE_OK, parseJSONPath(&fakeRequest, jsonPath6));
 
@@ -191,11 +192,11 @@ static void test6(void) {
 }
 
 static void test7(void) {
-    jsonPathRequest fakeRequest;
+    httpRequest fakeRequest;
 
     static char jsonPath7[] = "$..horse..[*]..*[2]";
 
-    initJsonPathRequest(&fakeRequest);
+    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&fakeRequest, FAKE_DESCRIPTOR));
 
     TEST_ASSERT_EQUAL(LE_OK, parseJSONPath(&fakeRequest, jsonPath7));
 
@@ -222,11 +223,11 @@ static void test7(void) {
 }
 
 static void test8(void) {
-    jsonPathRequest fakeRequest;
+    httpRequest fakeRequest;
 
     static char jsonPath8[] = "$..";
 
-    initJsonPathRequest(&fakeRequest);
+    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&fakeRequest, FAKE_DESCRIPTOR));
 
     TEST_ASSERT_EQUAL(LE_OK, parseJSONPath(&fakeRequest, jsonPath8));
 
@@ -238,11 +239,11 @@ static void test8(void) {
 }
 
 static void test9(void) {
-    jsonPathRequest fakeRequest;
+    httpRequest fakeRequest;
 
     static char jsonPath9[] = "$..horse..[*]..";
 
-    initJsonPathRequest(&fakeRequest);
+    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&fakeRequest, FAKE_DESCRIPTOR));
 
     TEST_ASSERT_EQUAL(LE_OK, parseJSONPath(&fakeRequest, jsonPath9));
 
@@ -262,11 +263,11 @@ static void test9(void) {
 }
 
 static void test10(void) {
-    jsonPathRequest fakeRequest;
+    httpRequest fakeRequest;
 
     static char jsonPath10[] = "$..horse..[*]";
 
-    initJsonPathRequest(&fakeRequest);
+    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&fakeRequest, FAKE_DESCRIPTOR));
 
     TEST_ASSERT_EQUAL(LE_OK, parseJSONPath(&fakeRequest, jsonPath10));
 
@@ -286,11 +287,11 @@ static void test10(void) {
 }
 
 static void test11(void) {
-    jsonPathRequest fakeRequest;
+    httpRequest fakeRequest;
 
     static char jsonPath11[] = "$..horse..";
 
-    initJsonPathRequest(&fakeRequest);
+    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&fakeRequest, FAKE_DESCRIPTOR));
 
     TEST_ASSERT_EQUAL(LE_OK, parseJSONPath(&fakeRequest, jsonPath11));
 
@@ -308,11 +309,11 @@ static void test11(void) {
 }
 
 static void test12(void) {
-    jsonPathRequest fakeRequest;
+    httpRequest fakeRequest;
 
     static char jsonPath12[] = "$..horse..*";
 
-    initJsonPathRequest(&fakeRequest);
+    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&fakeRequest, FAKE_DESCRIPTOR));
 
     TEST_ASSERT_EQUAL(LE_OK, parseJSONPath(&fakeRequest, jsonPath12));
 
@@ -332,11 +333,11 @@ static void test12(void) {
 }
 
 static void test13(void) {
-    jsonPathRequest fakeRequest;
+    httpRequest fakeRequest;
 
     static char jsonPath13[] = "$..*";
 
-    initJsonPathRequest(&fakeRequest);
+    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&fakeRequest, FAKE_DESCRIPTOR));
 
     TEST_ASSERT_EQUAL(LE_OK, parseJSONPath(&fakeRequest, jsonPath13));
 

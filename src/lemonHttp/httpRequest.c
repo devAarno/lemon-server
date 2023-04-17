@@ -37,15 +37,9 @@ lemonError initHttpRequest(httpRequest *r, const int fd) {
         r->descriptor = fd;
         r->elementsCount = r->body.length = 0;
         r->body.data = NULL;
-
-        /* Adds fake EMPTY element into zero position */
-        ((r->elements)[0]).type = ZERO;
-        /* ((r->elements)[0]).value.str = getEmptyString();
-        ((r->elements)[0]).value.nextVal = NULL; */
-        r->elementsCount = 1;
-        /*appendElementOfHttpRequest(r, getEmptyString(), 0, VALUE);*/
-
         r->mode = 0;
+        r->elementsCount = 0;
+        r->parsedStackSize = 0;
 
         return LE_OK;
     }

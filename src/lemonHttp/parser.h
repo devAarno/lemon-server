@@ -37,10 +37,7 @@ typedef enum {
 
 typedef struct {
     httpRequest *httpRequest;
-    struct {
-        jsonPathRequest *jsonPathRequest;
-        char *jsonPath;
-    } jsonPathRequestData;
+    char *jsonPath; /* For JSONPath only */
 } dataContainer;
 
 typedef struct {
@@ -53,9 +50,9 @@ typedef struct {
 
 lemonError parseHTTP(httpRequest *request);
 
-lemonError parseJSON(httpRequest *request, jsonPathRequest *jsonRequest);
+lemonError parseJSON(httpRequest *request);
 
-lemonError parseJSONPath(jsonPathRequest *jsonPathRequest, char *jsonPath);
+lemonError parseJSONPath(httpRequest *jsonPathRequest, char *jsonPath);
 
 boolean isParsed(const parserState* ps);
 

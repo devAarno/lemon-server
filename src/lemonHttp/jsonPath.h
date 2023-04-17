@@ -26,24 +26,6 @@
 #include "lemonError.h"
 #include "./jsonPathQueryBuffer.h"
 
-typedef struct {
-    union {
-        rootRule root;
-        string name;
-        indexRule index;
-        char *containerStartPosition;
-    } data;
-    ruleType type;
-} jsonPathElement;
-
-typedef struct {
-    jsonPathElement elements[MAX_ELEMENTS];
-    size_t elementsCount;
-    size_t parsedStackSize;
-} jsonPathRequest;
-
-lemonError initJsonPathRequest(jsonPathRequest *r);
-
-lemonError appendJsonPathRequest(jsonPathRequest *p, jsonPathQueryBuffer *b, jsonPathExecutionHandler handler, changingData *data);
+lemonError appendJsonPathRequest(httpRequest *p, jsonPathQueryBuffer *b, jsonPathExecutionHandler handler, changingData *data);
 
 #endif /* LEMONSERVER_JSONPATH_H */

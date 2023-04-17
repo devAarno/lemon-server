@@ -24,15 +24,16 @@
 #include "string.h"
 #include "strncasecmp.h"
 #include "../boolean.h"
+#include "rules.h"
 
-jsonPathElement *appendJsonPathElementOfHttpRequest(jsonPathRequest *r, const string *s, const ruleType type) {
+lemonError appendJsonPathElementOfHttpRequest(httpRequest *r, const string *s, const ruleType type) {
     const string emptyString = getEmptyString();
     if ((NULL == r) || (NULL == s) || (NULL == s->data) ||
         (0 > r->elementsCount) ||
         (((emptyString.length == s->length) && (emptyString.data != s->data)) || ((emptyString.length != s->length) && (emptyString.data == s->data))) ||
         ((emptyString.length == s->length) && (emptyString.data == s->data) && (JSONPATH_REQUEST_ROOT != type) && (JSONPATH_REQUEST_ANY != type) && (JSONPATH_REQUEST_ANYINDEX != type) && (JSONPATH_REQUEST_RECURSIVE != type)) ||
         (emptyString.length > s->length)) {
-        return NULL;
+        return LE_NULL_IN_INPUT_VALUES;
     }
     {
         const size_t elementNo = (r->elementsCount)++;
@@ -48,14 +49,19 @@ jsonPathElement *appendJsonPathElementOfHttpRequest(jsonPathRequest *r, const st
                 ((r->elements)[elementNo]).data.index.containerStartPosition = NULL;
                 sscanf(s->data, "%zu", &(((r->elements)[elementNo]).data.index.index));
                 break;
-            default:
+            case JSONPATH_REQUEST_ROOT:
+            case JSONPATH_REQUEST_ANY:
+            case JSONPATH_REQUEST_ANYINDEX:
+            case JSONPATH_REQUEST_RECURSIVE:
                 break;
+            default:
+                return LE_INCORRECT_INPUT_VALUES;
         }
-        return &((r->elements)[elementNo]);
+        return LE_OK;
     }
 }
 
-static lemonError printStack(jsonPathElement *lastStack, const char *name) {
+/* static lemonError printStack(jsonPathElement *lastStack, const char *name) {
     printf("OOOUUUTTT STACK %s <<< ", name);
 
     if ((lastStack -> type == PARSED_JSON_FIELD_WITH_OBJECT) || (lastStack -> type == PARSED_JSON_FIELD) || (lastStack -> type == PARSED_JSON_RESOLVED_FIELD)) {
@@ -77,9 +83,9 @@ static lemonError printStack(jsonPathElement *lastStack, const char *name) {
     }
     puts("");
     return LE_OK;
-}
+} */
 
-static lemonError isJsonPathResolved(const jsonPathElement *currRoot, const jsonPathElement *lastRule, const jsonPathElement *lastStack, const string *s, jsonPathElement *currRule, jsonPathElement *currStack, const boolean isComplex) {
+static lemonError isJsonPathResolved(const requestElement *currRoot, const requestElement *lastRule, const requestElement *lastStack, const string *s, requestElement *currRule, requestElement *currStack, const boolean isComplex) {
 
     /* Ugly hack, but test34 works */
     /*if ((JSONPATH_REQUEST_RECURSIVE == currRule->type) && (currStack > lastStack) && (TRUE == isComplex)) {
@@ -126,7 +132,7 @@ static lemonError isJsonPathResolved(const jsonPathElement *currRoot, const json
                 }
                 break;
             case JSONPATH_REQUEST_ANY:
-                printStack(lastStack, "INIT STATE JSONPATH_REQUEST_ANY");
+                /* printStack(lastStack, "INIT STATE JSONPATH_REQUEST_ANY"); */
                 switch (currStack->type) {
                     case PARSED_JSON_OBJECT:
                     case PARSED_JSON_JOINED_OBJECT:
@@ -209,7 +215,7 @@ static lemonError isJsonPathResolved(const jsonPathElement *currRoot, const json
                 }
                 break;
             case JSONPATH_REQUEST_NAME:
-                printStack(lastStack, "INIT STATE JSONPATH_REQUEST_NAME X2");
+                /* printStack(lastStack, "INIT STATE JSONPATH_REQUEST_NAME X2"); */
                 switch (currStack->type) {
                     case PARSED_JSON_FIELD:
                         if (
@@ -303,7 +309,7 @@ static lemonError isJsonPathResolved(const jsonPathElement *currRoot, const json
                 }
                 break;
             case JSONPATH_REQUEST_INDEX:
-                printStack(lastStack, "INIT STATE JSONPATH_REQUEST_INDEX");
+                /* printStack(lastStack, "INIT STATE JSONPATH_REQUEST_INDEX"); */
                 switch (currStack->type) {
                     case PARSED_JSON_OBJECT:
                     case PARSED_JSON_JOINED_OBJECT:
@@ -341,7 +347,7 @@ static lemonError isJsonPathResolved(const jsonPathElement *currRoot, const json
                 }
                 break;
             case JSONPATH_REQUEST_ANYINDEX:
-                printStack(lastStack, "INIT STATE JSONPATH_REQUEST_ANYINDEX");
+                /* printStack(lastStack, "INIT STATE JSONPATH_REQUEST_ANYINDEX"); */
                 switch (currStack->type) {
                     case PARSED_JSON_OBJECT:
                     case PARSED_JSON_JOINED_OBJECT:
@@ -445,7 +451,7 @@ static lemonError isJsonPathResolved(const jsonPathElement *currRoot, const json
                     case PARSED_JSON_JOINED_OBJECT:
                         if (lastStack == currStack) {
                             printf("ERROR STATE 1 %.*s\r\n", s->length, s->data);
-                            printStack(lastStack, "ERROR STATE 1");
+                            /* printStack(lastStack, "ERROR STATE 1"); */
                             return LE_OK;
                         } else {
                             ++(currStack);
@@ -458,7 +464,7 @@ static lemonError isJsonPathResolved(const jsonPathElement *currRoot, const json
                                 return (currRoot->data.root.callback.handler)(s, currRoot->data.root.callback.data);
                             } else {
                                 printf("ERROR STATE 2 %.*s\r\n", s->length, s->data);
-                                printStack(lastStack, "ERROR STATE 2");
+                                /* printStack(lastStack, "ERROR STATE 2"); */
                                 return LE_OK;
                             }
                         } else {
@@ -516,8 +522,8 @@ static lemonError isJsonPathResolved(const jsonPathElement *currRoot, const json
 }
 
 
-lemonError updateJsonPathRequestStatusByFieldName(jsonPathRequest *jsonRequest, const string *key) {
-    jsonPathElement *currentElement = &(jsonRequest->elements[jsonRequest->elementsCount + jsonRequest->parsedStackSize]);
+lemonError updateJsonPathRequestStatusByFieldName(httpRequest *jsonRequest, const string *key) {
+    requestElement *currentElement = &(jsonRequest->elements[jsonRequest->elementsCount + jsonRequest->parsedStackSize]);
     currentElement->type = PARSED_JSON_FIELD;
     currentElement->data.name.data = key->data;
     currentElement->data.name.length = key->length;
@@ -525,28 +531,28 @@ lemonError updateJsonPathRequestStatusByFieldName(jsonPathRequest *jsonRequest, 
     return LE_OK;
 }
 
-lemonError rollbackJsonPathRequestStatusByFieldName(jsonPathRequest *jsonRequest, const string *key) {
-    jsonPathElement *currentElement = &(jsonRequest->elements[jsonRequest->elementsCount + (--(jsonRequest->parsedStackSize))]);
+lemonError rollbackJsonPathRequestStatusByFieldName(httpRequest *jsonRequest, const string *key) {
+    requestElement *currentElement = &(jsonRequest->elements[jsonRequest->elementsCount + (--(jsonRequest->parsedStackSize))]);
     currentElement->type = NONE;
     return LE_OK;
 }
 
-lemonError updateJsonPathRequestStatusByObject(jsonPathRequest *jsonRequest, const char *startObjectPosition) {
-    jsonPathElement *currentElement = &(jsonRequest->elements[jsonRequest->elementsCount + jsonRequest->parsedStackSize]);
+lemonError updateJsonPathRequestStatusByObject(httpRequest *jsonRequest, const char *startObjectPosition) {
+    requestElement *currentElement = &(jsonRequest->elements[jsonRequest->elementsCount + jsonRequest->parsedStackSize]);
     currentElement->type = PARSED_JSON_OBJECT;
     currentElement->data.containerStartPosition = startObjectPosition;
     ++(jsonRequest->parsedStackSize);
     return LE_OK;
 }
 
-lemonError rollbackJsonPathRequestStatusByObject(jsonPathRequest *jsonRequest, const char *endObjectPosition) {
+lemonError rollbackJsonPathRequestStatusByObject(httpRequest *jsonRequest, const char *endObjectPosition) {
     (&(jsonRequest->elements[jsonRequest->elementsCount + (--(jsonRequest->parsedStackSize))]))->type = NONE;
     return LE_OK;
 }
 
-lemonError updateJsonPathRequestStatusByArray(jsonPathRequest *jsonRequest, const char *startArrayPosition) {
+lemonError updateJsonPathRequestStatusByArray(httpRequest *jsonRequest, const char *startArrayPosition) {
     /* May be collapse ? */
-    jsonPathElement *currentElement = &(jsonRequest->elements[jsonRequest->elementsCount + jsonRequest->parsedStackSize]);
+    requestElement *currentElement = &(jsonRequest->elements[jsonRequest->elementsCount + jsonRequest->parsedStackSize]);
     currentElement->type = PARSED_JSON_INDEX;
     currentElement->data.index.containerStartPosition = startArrayPosition;
     currentElement->data.index.index = 0;
@@ -554,16 +560,16 @@ lemonError updateJsonPathRequestStatusByArray(jsonPathRequest *jsonRequest, cons
     return LE_OK;
 }
 
-lemonError rollbackJsonPathRequestStatusByArray(jsonPathRequest *jsonRequest, const char *endArrayPosition) {
+lemonError rollbackJsonPathRequestStatusByArray(httpRequest *jsonRequest, const char *endArrayPosition) {
     /* May be collapse ? */
     return rollbackJsonPathRequestStatusByObject(jsonRequest, endArrayPosition);
 }
 
-lemonError executeJsonPathCallbackWithValue(jsonPathRequest *jsonRequest, const string *s, const boolean isComplex) {
-    jsonPathElement *currElement = jsonRequest->elements;
+lemonError executeJsonPathCallbackWithValue(httpRequest *jsonRequest, const string *s, const boolean isComplex) {
+    requestElement *currElement = jsonRequest->elements;
 
-    const jsonPathElement *currStack = &((jsonRequest->elements)[jsonRequest->elementsCount]);
-    jsonPathElement *lastStack = &((jsonRequest->elements)[jsonRequest->elementsCount + jsonRequest->parsedStackSize - 1]);
+    const requestElement *currStack = &((jsonRequest->elements)[jsonRequest->elementsCount]);
+    requestElement *lastStack = &((jsonRequest->elements)[jsonRequest->elementsCount + jsonRequest->parsedStackSize - 1]);
 
     if ((TRUE == isComplex) && (PARSED_JSON_FIELD == lastStack->type)) {
         lastStack->type = PARSED_JSON_FIELD_WITH_OBJECT;
@@ -591,23 +597,23 @@ lemonError executeJsonPathCallbackWithValue(jsonPathRequest *jsonRequest, const 
     return LE_OK;
 }
 
-lemonError updateJsonPathRequestStatusByArrayElement(jsonPathRequest *jsonRequest) {
-    jsonPathElement *currStack = &((jsonRequest->elements)[jsonRequest->elementsCount + jsonRequest->parsedStackSize - 1]);
+lemonError updateJsonPathRequestStatusByArrayElement(httpRequest *jsonRequest) {
+    requestElement *currStack = &((jsonRequest->elements)[jsonRequest->elementsCount + jsonRequest->parsedStackSize - 1]);
     if (PARSED_JSON_INDEX == currStack->type) {
         ++(currStack->data.index.index);
     }
     return LE_OK;
 }
 
-lemonError updateJsonPathRequestStatusByRoot(jsonPathRequest *jsonRequest) {
-    jsonPathElement *currentElement = &(jsonRequest->elements[jsonRequest->elementsCount + jsonRequest->parsedStackSize]);
+lemonError updateJsonPathRequestStatusByRoot(httpRequest *jsonRequest) {
+    requestElement *currentElement = &(jsonRequest->elements[jsonRequest->elementsCount + jsonRequest->parsedStackSize]);
     currentElement->type = PARSED_JSON_ROOT;
     ++(jsonRequest->parsedStackSize);
     return LE_OK;
 }
 
-lemonError rollbackJsonPathRequestStatusByRoot(jsonPathRequest *jsonRequest) {
-    jsonPathElement *currentElement = &(jsonRequest->elements[jsonRequest->elementsCount + (--(jsonRequest->parsedStackSize))]);
+lemonError rollbackJsonPathRequestStatusByRoot(httpRequest *jsonRequest) {
+    requestElement *currentElement = &(jsonRequest->elements[jsonRequest->elementsCount + (--(jsonRequest->parsedStackSize))]);
     currentElement->type = NONE;
     return LE_OK;
 }

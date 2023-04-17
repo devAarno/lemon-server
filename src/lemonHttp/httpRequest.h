@@ -39,12 +39,15 @@
 
 typedef struct {
     union {
-        rootRule root;
+        /* HTTP */
         httpMethodCallback httpMethodCallback;
         httpUriCallback httpUriCallback;
         httpVersionCallback httpVersionCallback;
         httpGetParameterCallback httpGetParameterCallback;
         httpHeaderQueryCallback httpHeaderQueryCallback;
+
+        /* JSON Path */
+        rootRule root;
         string name;
         indexRule index;
         char *containerStartPosition;

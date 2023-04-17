@@ -50,21 +50,19 @@ static lemonError fakeExecute(const string *value, calledCallback *data) {
 
 static void commonTest(const char* rawRequest, const char* expected) {
     httpRequest request;
-    jsonPathRequest jsonRequest;
     jsonPathQueryBuffer jsonPathQueryBuffer1[] = "$";
     calledCallback callData;
     /* Fake json path request */
-    TEST_ASSERT_EQUAL(LE_OK, initJsonPathRequest(&jsonRequest));
+
+    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request, FAKE_DESCRIPTOR));
 
     callData.callCounter = 0;
     callData.expectedValue.data = expected;
     callData.expectedValue.length = strlen(expected);
-    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer1, fakeExecute, &callData));
-
-    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request, FAKE_DESCRIPTOR));
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&request, jsonPathQueryBuffer1, fakeExecute, &callData));
 
     strncpy(request.privateBuffer, rawRequest, sizeof (request.privateBuffer));
-    TEST_ASSERT_EQUAL(LE_OK, parseJSON(&request, &jsonRequest));
+    TEST_ASSERT_EQUAL(LE_OK, parseJSON(&request));
     TEST_ASSERT_EQUAL(1, callData.callCounter);
 }
 

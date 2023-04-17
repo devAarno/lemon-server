@@ -22,19 +22,9 @@
 #include <stddef.h>
 #include "lemonError.h"
 #include "./jsonPathQueryBuffer.h"
+#include "parser.h"
 
-lemonError initJsonPathRequest(jsonPathRequest *r) {
-    if (NULL == r) {
-        return LE_NULL_IN_INPUT_VALUES;
-    }
-    {
-        r->elementsCount = 0;
-        r->parsedStackSize = 0;
-        return LE_OK;
-    }
-}
-
-lemonError appendJsonPathRequest(jsonPathRequest *p, jsonPathQueryBuffer *b, jsonPathExecutionHandler handler, changingData *data) {
+lemonError appendJsonPathRequest(httpRequest *p, jsonPathQueryBuffer *b, jsonPathExecutionHandler handler, changingData *data) {
     if ((NULL == b) || (NULL == p) || (NULL == handler) || (NULL == data)) {
         return LE_NULL_IN_INPUT_VALUES;
     }
