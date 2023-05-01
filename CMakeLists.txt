@@ -20,12 +20,9 @@ cmake_minimum_required (VERSION 2.4...3.18)
 project (lemonServer C)
 
 set(CMAKE_VERBOSE_MAKEFILE on)
-add_definitions(-gdwarf-4 -ggdb -g3 -fvar-tracking-assignments -ginline-points -O0 -ansi -pedantic -Wall -Wpedantic -Wextra)
-# add_definitions(-O3 -flto -march=broadwell -s)
-set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -Wall -Wpedantic -Wextra")
 
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -gdwarf-4 -ggdb -g3 -fvar-tracking-assignments -ginline-points")
-set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -gdwarf-4 -ggdb -g3 -fvar-tracking-assignments -ginline-points")
+set(EXTRA_SANITIZE "-fsanitize=address -fsanitize=pointer-compare -fsanitize=pointer-subtract -fsanitize=leak -fsanitize=undefined -fsanitize-address-use-after-scope -fsanitize=shift-base -fsanitize=shift-exponent -fsanitize=integer-divide-by-zero -fsanitize=unreachable -fsanitize=vla-bound -fsanitize=null -fsanitize=return -fsanitize=signed-integer-overflow -fsanitize=bounds -fsanitize=bounds-strict -fsanitize=alignment -fsanitize=object-size -fsanitize=float-divide-by-zero -fsanitize=float-cast-overflow -fsanitize=nonnull-attribute -fsanitize=returns-nonnull-attribute -fsanitize=bool -fsanitize=enum -fsanitize=vptr -fsanitize=pointer-overflow -fsanitize=builtin")
+set(EXTRA_DEBUG_MODE "-O0 -ansi -pedantic -Wall -Wpedantic -Wextra -gdwarf-4 -ggdb -g3 -fvar-tracking-assignments -ginline-points -fcf-protection=full -fstack-protector-all ${EXTRA_SANITIZE}")
 
 add_subdirectory (3rdParty/lemon)
 add_subdirectory (src)
@@ -37,6 +34,11 @@ if(WITHTESTS)
   add_subdirectory (3rdParty/unity)
   add_subdirectory (tests)
 endif(WITHTESTS)
+
+# set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} ${EXTRA_DEBUG_MODE}")
+# set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} ${EXTRA_DEBUG_MODE}")
+set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} ${EXTRA_DEBUG_MODE}")
+set(CMAKE_C_FLAGS  "${CMAKE_C_FLAGS} ${EXTRA_DEBUG_MODE}")
 
 add_executable(demo ./demoPage/hello.c)
 add_dependencies(demo lemonServer)

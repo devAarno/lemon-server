@@ -79,9 +79,9 @@
 
 %wildcard ANY.
 
-main ::= ONE http_message.
-main ::= TWO jsonn.
-main ::= THREE mmainn.
+main ::= ONE http_message. {markAsParsed(ps); puts("DONE");}
+main ::= TWO jsonn. {markAsParsed(ps); puts("DONE");}
+main ::= THREE mmainn.  {markAsParsed(ps); puts("DONE");}
 
 /* HTTP-message   = start-line
                     *( header-field CRLF )
