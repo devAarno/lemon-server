@@ -17,12 +17,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef SOCKETERROR_H
-#define SOCKETERROR_H
+#ifndef LEMONSERVER_TYPES_H
+#define LEMONSERVER_TYPES_H
 
-typedef enum {
-    SE_OK, SE_SOCKET_ERROR, SE_LISTEN_ERROR, SE_BIND_ERROR, SE_ACCEPT_ERROR
-} socketError;
 
-#endif /* SOCKETERROR_H */
 
+#endif //LEMONSERVER_TYPES_H

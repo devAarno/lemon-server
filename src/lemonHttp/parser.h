@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017, 2018, 2019, 2020, 2021, 2022 Parkhomenko Stanislav
+ * Copyright (C) 2017, 2018, 2019, 2020, 2021, 2022, 2023 Parkhomenko Stanislav
  *
  * This file is part of Lemon Server.
  *
@@ -25,23 +25,40 @@
 #include "httpRequest.h"
 #include "../boolean.h"
 #include "lemonError.h"
+#include "jsonPath.h"
+
+typedef enum {
+    GENERAL_HTTP,
+    JSON_PATH,
+    JSON_BODY
+} parsingMode;
 
 typedef struct {
-    httpRequest *request;
+    httpRequest *httpRequest;
+    char *jsonPath; /* For JSONPath only */
+} dataContainer;
+
+typedef struct {
+    dataContainer container;
+    char fallbackLayer;
     boolean isParsed;
     boolean isParseFailed;
     boolean isSyntaxIncorrect;
 } parserState;
 
-const lemonError parseHTTP(httpRequest *request);
+lemonError parseHTTP(httpRequest *request);
 
-const boolean isParsed(const parserState* ps);
+lemonError parseJSON(httpRequest *request);
 
-const lemonError markAsParsed(parserState* ps);
+lemonError parseJSONPath(httpRequest *jsonPathRequest, char *jsonPath);
 
-const lemonError markAsParseFailed(parserState* ps);
+boolean isParsed(const parserState* ps);
 
-const lemonError markAsSyntaxIncorrect(parserState* ps);
+lemonError markAsParsed(parserState* ps);
+
+lemonError markAsParseFailed(parserState* ps);
+
+lemonError markAsSyntaxIncorrect(parserState* ps);
 
 #endif /* PARSER_H */
 

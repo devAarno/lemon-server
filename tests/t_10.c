@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017, 2018, 2019, 2020, 2021, 2022 Parkhomenko Stanislav
+ * Copyright (C) 2017, 2018, 2019, 2020, 2021, 2022, 2023 Parkhomenko Stanislav
  *
  * This file is part of Lemon Server.
  *
@@ -22,7 +22,6 @@
 #include <stdlib.h>
 
 #include "../3rdParty/unity/git/src/unity.h"
-#include "../src/lemonHttp/bodyEngines/json/jsonParser.h"
 #include "../src/lemonHttp/string.h"
 #include "../src/lemonHttp/parser.h"
 
@@ -41,7 +40,7 @@ void setUp(void) {
 void tearDown(void) {
 }
 
-static const lemonError fakeExecute(const string *value, calledCallback *data) {
+static lemonError fakeExecute(const string *value, calledCallback *data) {
     printf("OOOUUUTTT %.*s\r\n", value->length, value->data);
     TEST_ASSERT_EQUAL(data->expectedValue.length, value->length);
     TEST_ASSERT_EQUAL_STRING_LEN(data->expectedValue.data, value->data, value->length);
@@ -51,21 +50,19 @@ static const lemonError fakeExecute(const string *value, calledCallback *data) {
 
 static void commonTest(const char* rawRequest, const char* expected) {
     httpRequest request;
-    jsonPathRequest jsonRequest;
     jsonPathQueryBuffer jsonPathQueryBuffer1[] = "$";
     calledCallback callData;
     /* Fake json path request */
-    TEST_ASSERT_EQUAL(LE_OK, initJsonPathRequest(&jsonRequest));
+
+    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request, FAKE_DESCRIPTOR));
 
     callData.callCounter = 0;
     callData.expectedValue.data = expected;
     callData.expectedValue.length = strlen(expected);
-    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&jsonRequest, jsonPathQueryBuffer1, fakeExecute, &callData));
-
-    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request, FAKE_DESCRIPTOR));
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&request, jsonPathQueryBuffer1, fakeExecute, &callData));
 
     strncpy(request.privateBuffer, rawRequest, sizeof (request.privateBuffer));
-    TEST_ASSERT_EQUAL(LE_OK, parseJSON(&request, &jsonRequest));
+    TEST_ASSERT_EQUAL(LE_OK, parseJSON(&request));
     TEST_ASSERT_EQUAL(1, callData.callCounter);
 }
 

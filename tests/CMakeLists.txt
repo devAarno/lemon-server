@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2017, 2018, 2019, 2020, 2021, 2022 Parkhomenko Stanislav
+# Copyright (C) 2017, 2018, 2019, 2020, 2021, 2022, 2023 Parkhomenko Stanislav
 #
 # This file is part of Lemon Server.
 #
@@ -18,6 +18,11 @@
 
 cmake_minimum_required (VERSION 2.4...3.18)
 project (unittest C)
+
+# set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} ${EXTRA_DEBUG_MODE}")
+# set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} ${EXTRA_DEBUG_MODE}")
+set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} ${EXTRA_DEBUG_MODE}")
+set(CMAKE_C_FLAGS  "${CMAKE_C_FLAGS} ${EXTRA_DEBUG_MODE}")
 
 include(CheckIncludeFiles)
 include(CheckSymbolExists)

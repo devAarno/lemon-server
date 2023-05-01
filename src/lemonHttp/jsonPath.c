@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017, 2018, 2019, 2020, 2021, 2022 Parkhomenko Stanislav
+ * Copyright (C) 2017, 2018, 2019, 2020, 2021, 2022, 2023 Parkhomenko Stanislav
  *
  * This file is part of Lemon Server.
  *
@@ -20,24 +20,11 @@
 #include "./jsonPath.h"
 
 #include <stddef.h>
-#include "../../lemonError.h"
+#include "lemonError.h"
 #include "./jsonPathQueryBuffer.h"
-#include "./jsonPathParser.h"
-#include "../../../../3rdParty/unity/git/src/unity.h"
-#include "../../../net/socket.h"
+#include "parser.h"
 
-const lemonError initJsonPathRequest(jsonPathRequest *r) {
-    if (NULL == r) {
-        return LE_NULL_IN_INPUT_VALUES;
-    }
-    {
-        r->elementsCount = 0;
-        r->parsedStackSize = 0;
-        return LE_OK;
-    }
-}
-
-const lemonError appendJsonPathRequest(jsonPathRequest *p, jsonPathQueryBuffer *b, jsonPathExecutionHandler handler, changingData *data) {
+lemonError appendJsonPathRequest(httpRequest *p, jsonPathQueryBuffer *b, jsonPathExecutionHandler handler, changingData *data) {
     if ((NULL == b) || (NULL == p) || (NULL == handler) || (NULL == data)) {
         return LE_NULL_IN_INPUT_VALUES;
     }

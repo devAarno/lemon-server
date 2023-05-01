@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017, 2018, 2019, 2020, 2021, 2022 Parkhomenko Stanislav
+ * Copyright (C) 2017, 2018, 2019, 2020, 2021, 2022, 2023 Parkhomenko Stanislav
  *
  * This file is part of Lemon Server.
  *
@@ -41,46 +41,46 @@ string createString(char *chars) {
     return res;
 }
 
-const string getEmptyString() {
+string getEmptyString() {
     string s;
     s.data = (char *)emptyString;
     s.length = 0;
     return s;
 }
 
-const boolean isEmptyString(const string s) {
+boolean isEmptyString(const string s) {
     return ((emptyString == s.data) && (0 == s.length)) ? TRUE : FALSE;
 }
 
-const string getTrueString() {
+string getTrueString() {
     string s;
     s.data = (char *)trueString;
     s.length = 4;
     return s;
 }
 
-const boolean isTrueString(const string s) {
+boolean isTrueString(const string s) {
     return ((trueString == s.data) && (4 == s.length)) ? TRUE : FALSE;
 }
 
-const string getFalseString() {
+string getFalseString() {
     string s;
     s.data = (char *)falseString;
     s.length = 5;
     return s;
 }
 
-const boolean isFalseString(const string s) {
+boolean isFalseString(const string s) {
     return ((falseString == s.data) && (5 == s.length)) ? TRUE : FALSE;
 }
 
-const string getNullString() {
+string getNullString() {
     string s;
     s.data = (char *)nullString;
     s.length = 4;
     return s;
 }
 
-const boolean isNullString(const string s) {
+boolean isNullString(const string s) {
     return ((nullString == s.data) && (4 == s.length)) ? TRUE : FALSE;
 }

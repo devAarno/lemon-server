@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017, 2018, 2019, 2020, 2021, 2022 Parkhomenko Stanislav
+ * Copyright (C) 2017, 2018, 2019, 2020, 2021, 2022, 2023 Parkhomenko Stanislav
  *
  * This file is part of Lemon Server.
  *
@@ -16,16 +16,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 #include <string.h>
 #include <unistd.h>
-
 #include "../src/lemonHttp/httpRequest.h"
 #include "../src/net/socket.h"
 
 static const char *response = "HTTP/1.1 200 OK\r\n\
 Server: Lemon Server v0.0\r\n\
-Content-Length: 88\r\n\
+Content-Length: 48\r\n\
 Content-Type: text/html\r\n\
 Connection: Closed\r\n\
 \r\n\
@@ -35,13 +33,42 @@ Connection: Closed\r\n\
 </body>\
 </html>";
 
+typedef struct {
+    string url;
+    int fd;
+    boolean isGet;
+} parsedElements;
+
+parsedElements elements;
+
+static lemonError checkIsGet(const string *value, parsedElements *data) {
+    if ((3 == value->length) && 0 == strncmp("GET", value->data, value->length)) {
+        data->isGet = TRUE;
+    }
+    return LE_OK;
+}
+
+static lemonError returnPage(const string *value, parsedElements *data) {
+    if ((TRUE == data->isGet) && (11 == value->length) && 0 == strncmp("/hello.html", value->data, value->length)) {
+        write(data->fd, response, strlen(response));
+    }
+    return LE_OK;
+}
+
 static void page(int fd, const httpRequest *r) {
-    if (strncmp("hello.html", getUriOfHttpRequest(r)->data, 10)) {
-        write(fd, response, strlen(response));
-        close(fd);
+    elements.fd = fd;
+    elements.isGet = FALSE;
+
+    if (LE_OK != appendHttpMethodRequest(r, (httpMethodExecutionHandler) checkIsGet, &elements)) {
+
+    }
+
+    if (LE_OK != appendHttpUriRequest(r, (httpMethodExecutionHandler) returnPage, &elements)) {
+
     }
 }
 
 int main() {
     runServer(40000, page);
+    /* Under construction */
 }

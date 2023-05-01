@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017, 2018, 2019, 2020, 2021, 2022 Parkhomenko Stanislav
+ * Copyright (C) 2017, 2018, 2019, 2020, 2021, 2022, 2023 Parkhomenko Stanislav
  *
  * This file is part of Lemon Server.
  *
@@ -23,7 +23,9 @@
 #include <string.h>
 
 
+#include "parser.h"
 #include "string.h"
+#include "strncasecmp.h"
 #include "lemonError.h"
 
 /* inspired by https://stackoverflow.com/questions/2673207/c-c-url-decode-library */
@@ -48,7 +50,7 @@ static const char tbl[256] = {
     NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA
 };
 
-const lemonError decodeValue(string *s, boolean replacePlusWithSpace) {
+lemonError decodeValue(string *s, boolean replacePlusWithSpace) {
     const string emptyString = getEmptyString();
     if ((NULL == s) || (NULL == s->data)) {
         return LE_NULL_IN_INPUT_VALUES;
@@ -101,48 +103,7 @@ const lemonError decodeValue(string *s, boolean replacePlusWithSpace) {
     return LE_OK;
 }
 
-requestElement *appendElementOfHttpRequest(httpRequest *r, const string *s, const elementType type) {
-    const string emptyString = getEmptyString();
-    if ((NULL == r) || (NULL == s) || (NULL == s->data) ||
-            (0 >= r->elementsCount) ||
-            (((emptyString.length == s->length) && (emptyString.data != s->data)) || ((emptyString.length != s->length) && (emptyString.data == s->data))) ||
-            ((emptyString.length == s->length) && (emptyString.data == s->data) && (VALUE != type)) ||
-            (emptyString.length > s->length)) {
-        return NULL;
-    }
-    {
-        const size_t elementNo = (r->elementsCount)++;
-        ((r->elements)[elementNo]).type = type;
-        ((r->elements)[elementNo]).value.str.data = s->data;
-        ((r->elements)[elementNo]).value.str.length = s->length;
-        ((r->elements)[elementNo]).value.nextVal = NULL;
-        return &((r->elements)[elementNo]);
-    }
-}
-
-const lemonError linkRequestElement(requestElement *key, const requestElement *value) {
-    if ((NULL == key) || (NULL == key->value.str.data) ||
-            (NULL == value) || (NULL == value->value.str.data)) {
-        return LE_NULL_IN_INPUT_VALUES;
-    }
-    {
-        linkedDataString *pos = &(key->value);
-        while (NULL != pos->nextVal) {
-            pos = pos->nextVal;
-        };
-        pos->nextVal = (linkedDataString *)(&(value->value));
-        return LE_OK;
-    }
-}
-
-const requestElement *getEmptyValueElement(const httpRequest *r) {
-    if ((NULL == r) || (0 >= r->elementsCount)) {
-        return NULL;
-    }
-    return &(r->elements[0]);
-}
-
-const lemonError trim(string *s) {
+lemonError trim(string *s) {
     const string emptyString = getEmptyString();
     if ((NULL == s) || (NULL == s->data)) {
         return LE_NULL_IN_INPUT_VALUES;
@@ -151,12 +112,124 @@ const lemonError trim(string *s) {
             ((emptyString.length != s->length) && (emptyString.data == s->data))) {
         return LE_INCORRECT_INPUT_VALUES;
     }
-    while (((s->data)[0] == ' ') || ((s->data)[0] == '\t')) {
+    while ((((s->data)[0] == ' ') || ((s->data)[0] == '\t')) && (0 < s->length)) {
         ++(s->data);
         --(s->length);
     };
-    while (((s->data)[s->length - 1] == ' ') || ((s->data)[s->length - 1] == '\t')) {
+    while ((((s->data)[s->length - 1] == ' ') || ((s->data)[s->length - 1] == '\t')) && (0 < s->length)) {
         --(s->length);
     };
+
+    if (0 == s->length) {
+        s->data = emptyString.data;
+    }
+
     return LE_OK;
+}
+
+lemonError executeHttpMethodCallback(httpRequest *r, const string *s) {
+    if (NULL == r) {
+        return LE_NULL_IN_INPUT_VALUES;
+    }
+    {
+        const size_t lastElement = r->elementsCount;
+        size_t i;
+        for (i = 0; i < lastElement; ++i) {
+            if (HTTP_REQUEST_METHOD == (r->elements)[i].type) {
+                const httpMethodCallback callback = (r->elements)[i].data.httpMethodCallback;
+                callback.handler(s, callback.data);
+            }
+        }
+    }
+    return LE_OK;
+}
+
+lemonError executeHttpUriCallback(httpRequest *r, const string *s) {
+    if (NULL == r) {
+        return LE_NULL_IN_INPUT_VALUES;
+    }
+    {
+        const size_t lastElement = r->elementsCount;
+        size_t i;
+        for (i = 0; i < lastElement; ++i) {
+            if (HTTP_REQUEST_URI == (r->elements)[i].type) {
+                const httpUriCallback callback = (r->elements)[i].data.httpUriCallback;
+                callback.handler(s, callback.data);
+            }
+        }
+    }
+    return LE_OK;
+}
+
+lemonError executeHttpVersionCallback(httpRequest *r, const string *s) {
+    if (NULL == r) {
+        return LE_NULL_IN_INPUT_VALUES;
+    }
+    {
+        const size_t lastElement = r->elementsCount;
+        size_t i;
+        for (i = 0; i < lastElement; ++i) {
+            if (HTTP_REQUEST_HTTP_VERSION == (r->elements)[i].type) {
+                const httpVersionCallback callback = (r->elements)[i].data.httpVersionCallback;
+                callback.handler(s, callback.data);
+            }
+        }
+    }
+    return LE_OK;
+}
+
+lemonError executeHeaderCallback(httpRequest *r, const string *key, const string *s) {
+    if (NULL == r) {
+        return LE_NULL_IN_INPUT_VALUES;
+    }
+    {
+        const size_t lastElement = r->elementsCount;
+        size_t i;
+        for (i = 0; i < lastElement; ++i) {
+            if ((HTTP_REQUEST_HEADER == (r->elements)[i].type) && ( key->length == (r->elements)[i].data.httpHeaderQueryCallback.headerName.length) && (0 == STRNCASECMP(key->data, (r->elements)[i].data.httpHeaderQueryCallback.headerName.data, key->length))) {
+                const httpHeaderQueryCallback callback = (r->elements)[i].data.httpHeaderQueryCallback;
+                callback.handler(s, callback.data);
+            }
+        }
+    }
+    return LE_OK;
+}
+
+lemonError executeGetParameterCallback(httpRequest *r, const string *key, const string *s) {
+    if (NULL == r) {
+        return LE_NULL_IN_INPUT_VALUES;
+    }
+    {
+        const size_t lastElement = r->elementsCount;
+        size_t i;
+        for (i = 0; i < lastElement; ++i) {
+            if ((HTTP_REQUEST_GET_QUERY_ELEMENT == (r->elements)[i].type) && ( key->length == (r->elements)[i].data.httpGetParameterCallback.getParameter.length) && (0 == STRNCASECMP(key->data, (r->elements)[i].data.httpGetParameterCallback.getParameter.data, key->length))) {
+                const httpGetParameterCallback callback = (r->elements)[i].data.httpGetParameterCallback;
+                callback.handler(s, callback.data);
+            }
+        }
+    }
+    return LE_OK;
+}
+
+string convertUtf16ToString(char *c1, char *c2, const char c3, const char c4) {
+    string res;
+    if ((NULL == c1) || (NULL == c2)) {
+        res.data = NULL;
+        res.length = 0;
+        return res;
+    }
+    {
+        res.data = c1;
+        if (('0' == *c1) && ('0' == *c2)) {
+
+            res.data[0] = (((c3 <= '9') ? (c3 - '0') : ((c3 - 'A') % 32)) << 4) | ((c4 <= '9') ? (c4 - '0') : ((c4 - 'A') % 32));
+            res.length = 1;
+        } else {
+            res.data[0] = (((*c1 <= '9') ? (*c1 - '0') : ((*c1 - 'A') % 32)) << 4) | ((*c2 <= '9') ? (*c2 - '0') : ((*c2 - 'A') % 32));
+            res.data[1] = (((c3 <= '9') ? (c3 - '0') : ((c3 - 'A') % 32)) << 4) | ((c4 <= '9') ? (c4 - '0') : ((c4 - 'A') % 32));
+            res.length = 2;
+        }
+        return res;
+    }
 }

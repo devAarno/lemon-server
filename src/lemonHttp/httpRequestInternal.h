@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017, 2018, 2019, 2020, 2021, 2022 Parkhomenko Stanislav
+ * Copyright (C) 2017, 2018, 2019, 2020, 2021, 2022, 2023 Parkhomenko Stanislav
  *
  * This file is part of Lemon Server.
  *
@@ -24,16 +24,23 @@
 
 #include "httpRequest.h"
 #include "lemonError.h"
+#include "string.h"
 
-const lemonError decodeValue(string *s, boolean replacePlusWithSpace);
+lemonError decodeValue(string *s, boolean replacePlusWithSpace);
 
-requestElement *appendElementOfHttpRequest(httpRequest *r, const string *s, const elementType type);
+lemonError trim(string *s);
 
-const lemonError linkRequestElement(requestElement *key, const requestElement *value);
+lemonError executeHttpMethodCallback(httpRequest *r, const string *s);
 
-const requestElement *getEmptyValueElement(const httpRequest *r);
+lemonError executeHttpUriCallback(httpRequest *r, const string *s);
 
-const lemonError trim(string *s);
+lemonError executeHttpVersionCallback(httpRequest *r, const string *s);
+
+lemonError executeHeaderCallback(httpRequest *r, const string *key, const string *s);
+
+lemonError executeGetParameterCallback(httpRequest *r, const string *key, const string *s);
+
+string convertUtf16ToString(char *c1, char *c2, const char c3, const char c4);
 
 #endif /* HTTP_REQUEST_INT_H */
 

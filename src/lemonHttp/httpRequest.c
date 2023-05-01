@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017, 2018, 2019, 2020, 2021, 2022 Parkhomenko Stanislav
+ * Copyright (C) 2017, 2018, 2019, 2020, 2021, 2022, 2023 Parkhomenko Stanislav
  *
  * This file is part of Lemon Server.
  *
@@ -27,8 +27,9 @@
 #include "lemonError.h"
 #include "httpRequestInternal.h"
 #include "strncasecmp.h"
+#include "changingData.h"
 
-const lemonError initHttpRequest(httpRequest *r, const int fd) {
+lemonError initHttpRequest(httpRequest *r, const int fd) {
     if (NULL == r) {
         return LE_NULL_IN_INPUT_VALUES;
     }
@@ -36,108 +37,87 @@ const lemonError initHttpRequest(httpRequest *r, const int fd) {
         r->descriptor = fd;
         r->elementsCount = r->body.length = 0;
         r->body.data = NULL;
-
-        /* Adds fake EMPTY element into zero position */
-        ((r->elements)[0]).type = VALUE;
-        ((r->elements)[0]).value.str = getEmptyString();
-        ((r->elements)[0]).value.nextVal = NULL;
-        r->elementsCount = 1;
-        /*appendElementOfHttpRequest(r, getEmptyString(), 0, VALUE);*/
+        r->mode = 0;
+        r->elementsCount = 0;
+        r->parsedStackSize = 0;
 
         return LE_OK;
     }
 }
 
-const string *getMethodOfHttpRequest(const httpRequest *r) {
-    if ((NULL == r) || (0 >= r->elementsCount)) {
-        return NULL;
+lemonError appendHttpMethodRequest(httpRequest *r, httpMethodExecutionHandler handler, changingData *data) {
+    if ((NULL == r) || (NULL == handler) || (NULL == data)) {
+        return LE_NULL_IN_INPUT_VALUES;
     }
     {
-        const size_t elementsCount = r->elementsCount;
-        size_t i;
-        for (i = 0; i < elementsCount; ++i) {
-            if (METHOD == ((r->elements)[i]).type) {
-                return &(((r->elements)[i]).value.str);
-            };
-        };
-        return NULL;
+        const size_t newRootPlace = r->elementsCount;
+        (r->elements)[newRootPlace].type = HTTP_REQUEST_METHOD;
+        (r->elements)[newRootPlace].data.httpMethodCallback.handler = handler;
+        (r->elements)[newRootPlace].data.httpMethodCallback.data = data;
+        ++(r->elementsCount);
     }
+    return LE_OK;
 }
 
-const string *getUriOfHttpRequest(const httpRequest *r) {
-    if ((NULL == r) || (0 >= r->elementsCount)) {
-        return NULL;
+lemonError appendHttpUriRequest(httpRequest *r, httpUriExecutionHandler handler, changingData *data) {
+    if ((NULL == r) || (NULL == handler) || (NULL == data)) {
+        return LE_NULL_IN_INPUT_VALUES;
     }
     {
-        const size_t elementsCount = r->elementsCount;
-        size_t i;
-        for (i = 0; i < elementsCount; ++i) {
-            if (URI == ((r->elements)[i]).type) {
-                return &(((r->elements)[i]).value.str);
-            };
-        };
-        return NULL;
+        const size_t newRootPlace = r->elementsCount;
+        (r->elements)[newRootPlace].type = HTTP_REQUEST_URI;
+        (r->elements)[newRootPlace].data.httpUriCallback.handler = handler;
+        (r->elements)[newRootPlace].data.httpUriCallback.data = data;
+        ++(r->elementsCount);
     }
+    return LE_OK;
 }
 
-const string *getVersionOfHttpRequest(const httpRequest *r) {
-    if ((NULL == r) || (0 >= r->elementsCount)) {
-        return NULL;
+lemonError appendHttpVersionRequest(httpRequest *r, httpVersionExecutionHandler handler, changingData *data) {
+    if ((NULL == r) || (NULL == handler) || (NULL == data)) {
+        return LE_NULL_IN_INPUT_VALUES;
     }
     {
-        const size_t elementsCount = r->elementsCount;
-        size_t i;
-        for (i = 0; i < elementsCount; ++i) {
-            if (HTTP_VERSION == ((r->elements)[i]).type) {
-                return &(((r->elements)[i]).value.str);
-            };
-        };
-        return NULL;
+        const size_t newRootPlace = r->elementsCount;
+        (r->elements)[newRootPlace].type = HTTP_REQUEST_HTTP_VERSION;
+        (r->elements)[newRootPlace].data.httpVersionCallback.handler = handler;
+        (r->elements)[newRootPlace].data.httpVersionCallback.data = data;
+        ++(r->elementsCount);
     }
+    return LE_OK;
 }
 
-const string *getQueryParameterOfHttpRequest(const httpRequest *r, const char *name) {
-    if ((NULL == r) || (NULL == name) || (0 >= r->elementsCount)) {
-        return NULL;
+lemonError appendHttpGetParameterQueryRequest(httpRequest *r, char *b, httpGetParameterQueryExecutionHandler handler, changingData *data) {
+    if ((NULL == r) || (NULL == b) || (NULL == handler) || (NULL == data)) {
+        return LE_NULL_IN_INPUT_VALUES;
     }
     {
-        const size_t nameLength = strlen(name);
-        const size_t elementsCount = r->elementsCount;
-        size_t i;
-        for (i = 0; i < elementsCount; ++i) {
-            if ((GET_QUERY_ELEMENT == ((r->elements)[i]).type) && (nameLength == ((r->elements)[i]).value.str.length) && (0 == STRNCASECMP(name, ((r->elements)[i]).value.str.data, nameLength))) {
-                return &(((r->elements)[i]).value.nextVal->str);
-            };
-        };
-        return NULL;
+        const size_t newRootPlace = r->elementsCount;
+        (r->elements)[newRootPlace].type = HTTP_REQUEST_GET_QUERY_ELEMENT;
+        (r->elements)[newRootPlace].data.httpGetParameterCallback.handler = handler;
+        (r->elements)[newRootPlace].data.httpGetParameterCallback.data = data;
+        (r->elements)[newRootPlace].data.httpGetParameterCallback.getParameter = createString(b);
+        ++(r->elementsCount);
     }
+    return LE_OK;
 }
 
-const string *getHeaderOfHttpRequest(const httpRequest *r, const char *name) {
-    if ((NULL == r) || (NULL == name) || (0 >= r->elementsCount)) {
-        return NULL;
+lemonError appendHttpHeaderQueryRequest(httpRequest *r, char *b, httpHeaderQueryExecutionHandler handler, changingData *data) {
+    if ((NULL == r) || (NULL == b) || (NULL == handler) || (NULL == data)) {
+        return LE_NULL_IN_INPUT_VALUES;
     }
     {
-        const size_t nameLength = strlen(name);
-        const size_t elementsCount = r->elementsCount;
-        size_t i;
-        for (i = 0; i < elementsCount; ++i) {
-            if ((HEADER == ((r->elements)[i]).type) && (nameLength == ((r->elements)[i]).value.str.length) && (0 == STRNCASECMP(name, ((r->elements)[i]).value.str.data, nameLength))) {
-                return &(((r->elements)[i]).value.nextVal->str);
-            };
-        };
-        return NULL;
+        const size_t newRootPlace = r->elementsCount;
+        (r->elements)[newRootPlace].type = HTTP_REQUEST_HEADER;
+        (r->elements)[newRootPlace].data.httpHeaderQueryCallback.handler = handler;
+        (r->elements)[newRootPlace].data.httpHeaderQueryCallback.data = data;
+        (r->elements)[newRootPlace].data.httpHeaderQueryCallback.headerName = createString(b);
+        ++(r->elementsCount);
     }
+    return LE_OK;
 }
 
-const string *getBodyBufferOfHttpRequest(const httpRequest *r) {
-    if ((NULL == r) || (0 >= r->elementsCount)) {
-        return NULL;
-    }
-    return &(r->body);
-}
-
-const boolean isStringEmpty(const string *s) {
+boolean isStringEmpty(const string *s) {
     if (NULL == s) {
         return TRUE;
     }

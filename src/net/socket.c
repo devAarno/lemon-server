@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017, 2018, 2019, 2020, 2021, 2022 Parkhomenko Stanislav
+ * Copyright (C) 2017, 2018, 2019, 2020, 2021, 2022, 2023 Parkhomenko Stanislav
  *
  * This file is part of Lemon Server.
  *
@@ -55,13 +55,13 @@ static void manageConnection(int fd, const handle h) {
         close(fd);
         return ;
     }
-    
+
+    h(fd, &request);
+
     if (LE_OK != parseHTTP(&request)) {
         close(fd);
         return ;
     }
-    
-    h(fd, &request);
 }
 
 const socketError runServer(uint16_t port, const handle h) {
@@ -94,5 +94,6 @@ const socketError runServer(uint16_t port, const handle h) {
             return SE_ACCEPT_ERROR;
         }
         manageConnection(readerfd, h);
+        close(readerfd);
     }
 }

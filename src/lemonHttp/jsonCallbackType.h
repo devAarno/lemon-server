@@ -17,12 +17,18 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef SOCKETERROR_H
-#define SOCKETERROR_H
+#ifndef LEMONSERVER_JSONCALLBACKTYPE_H
+#define LEMONSERVER_JSONCALLBACKTYPE_H
 
-typedef enum {
-    SE_OK, SE_SOCKET_ERROR, SE_LISTEN_ERROR, SE_BIND_ERROR, SE_ACCEPT_ERROR
-} socketError;
+#include "lemonError.h"
+#include "string.h"
+#include "changingData.h"
 
-#endif /* SOCKETERROR_H */
+typedef lemonError (*jsonPathExecutionHandler)(const string *value, changingData *data);
 
+typedef struct {
+    jsonPathExecutionHandler handler;
+    changingData *data;
+} jsonPathCallback;
+
+#endif /* LEMONSERVER_JSONCALLBACKTYPE_H */

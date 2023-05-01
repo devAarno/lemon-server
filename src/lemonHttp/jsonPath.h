@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017, 2018, 2019, 2020, 2021, 2022 Parkhomenko Stanislav
+ * Copyright (C) 2017, 2018, 2019, 2020, 2021, 2022, 2023 Parkhomenko Stanislav
  *
  * This file is part of Lemon Server.
  *
@@ -17,9 +17,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef LEMONSERVER_JSONPATHQUERYBUFFER_H
-#define LEMONSERVER_JSONPATHQUERYBUFFER_H
+#ifndef LEMONSERVER_JSONPATH_H
+#define LEMONSERVER_JSONPATH_H
 
-typedef char jsonPathQueryBuffer;
+#include "jsonCallbackType.h"
+#include "string.h"
+#include "httpRequest.h"
+#include "lemonError.h"
+#include "./jsonPathQueryBuffer.h"
 
-#endif /* LEMONSERVER_JSONPATHQUERYBUFFER_H */
+lemonError appendJsonPathRequest(httpRequest *p, jsonPathQueryBuffer *b, jsonPathExecutionHandler handler, changingData *data);
+
+#endif /* LEMONSERVER_JSONPATH_H */
