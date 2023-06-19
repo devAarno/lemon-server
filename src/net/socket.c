@@ -64,13 +64,10 @@ static void manageConnection(int fd, const handle h) {
     }
 }
 
-const socketError runServer(uint16_t port, const handle h) {
+const socketError runServer(const uint16_t port, const handle h) {
     struct sockaddr_in servaddr;
-    int listenfd;
-    int readerfd;
-    
+    int const listenfd = socket(AF_INET, SOCK_STREAM, 0);
 
-    listenfd = socket(AF_INET, SOCK_STREAM, 0);
     if (-1 == listenfd) {
         return SE_SOCKET_ERROR;
     }
@@ -89,7 +86,7 @@ const socketError runServer(uint16_t port, const handle h) {
     }
 
     for (;;) {
-        readerfd = accept(listenfd, NULL, NULL);
+        const int readerfd = accept(listenfd, NULL, NULL);
         if (-1 == readerfd) {
             return SE_ACCEPT_ERROR;
         }
