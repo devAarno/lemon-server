@@ -21,16 +21,17 @@
 #include "../src/lemonHttp/httpRequest.h"
 #include "../src/net/socket.h"
 
-static const char *response = "HTTP/1.1 200 OK\r\n\
+static const char response[] = "HTTP/1.1 200 OK\r\n\
 Server: Lemon Server v0.0\r\n\
-Content-Length: 48\r\n\
-Content-Type: text/html\r\n\
+Content-Length: 312\r\n\
+Content-Type: application/xhtml+xml\r\n\
 Connection: Closed\r\n\
 \r\n\
-<html>\
-<body>\
-<h1>Hello, World!</h1>\
-</body>\
+<?xml version=\"1.0\" encoding=\"UTF-8\"?>\
+<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\
+<html xmlns=\"http://www.w3.org/1999/xhtml\" lang=\"en\" xml:lang=\"en\">\
+<head><title>Lemon Server Demo Page title</title></head>\
+<body><h1>Hello, world!</h1></body>\
 </html>";
 
 typedef struct {
@@ -49,7 +50,7 @@ static lemonError checkIsGet(const string *value, parsedElements *data) {
 }
 
 static lemonError returnPage(const string *value, parsedElements *data) {
-    if ((TRUE == data->isGet) && (11 == value->length) && 0 == strncmp("/hello.html", value->data, value->length)) {
+    if ((TRUE == data->isGet) && (12 == value->length) && 0 == strncmp("/hello.xhtml", value->data, value->length)) {
         write(data->fd, response, strlen(response));
     }
     return LE_OK;
