@@ -29,12 +29,11 @@
 #include "strncasecmp.h"
 #include "changingData.h"
 
-lemonError initHttpRequest(httpRequest *r, const int fd) {
+lemonError initHttpRequest(httpRequest *r) {
     if (NULL == r) {
         return LE_NULL_IN_INPUT_VALUES;
     }
     {
-        r->descriptor = fd;
         r->elementsCount = r->body.length = 0;
         r->body.data = NULL;
         r->mode = 0;
@@ -112,6 +111,34 @@ lemonError appendHttpHeaderQueryRequest(httpRequest *r, char *b, httpHeaderQuery
         (r->elements)[newRootPlace].data.httpHeaderQueryCallback.handler = handler;
         (r->elements)[newRootPlace].data.httpHeaderQueryCallback.data = data;
         (r->elements)[newRootPlace].data.httpHeaderQueryCallback.headerName = createString(b);
+        ++(r->elementsCount);
+    }
+    return LE_OK;
+}
+
+lemonError appendOnSuccess(httpRequest *r, finalOnSuccessExecutionHandler handler, changingData *data) {
+    if ((NULL == r) || (NULL == handler) || (NULL == data)) {
+        return LE_NULL_IN_INPUT_VALUES;
+    }
+    {
+        const size_t newRootPlace = r->elementsCount;
+        (r->elements)[newRootPlace].type = FINAL_ON_SUCCESS_CALLBACK;
+        (r->elements)[newRootPlace].data.finalOnSuccessCallback.handler = handler;
+        (r->elements)[newRootPlace].data.finalOnSuccessCallback.data = data;
+        ++(r->elementsCount);
+    }
+    return LE_OK;
+}
+
+lemonError appendOnStart(httpRequest *r, onStartExecutionHandler handler, changingData *data) {
+    if ((NULL == r) || (NULL == handler) || (NULL == data)) {
+        return LE_NULL_IN_INPUT_VALUES;
+    }
+    {
+        const size_t newRootPlace = r->elementsCount;
+        (r->elements)[newRootPlace].type = ON_START_CALLBACK;
+        (r->elements)[newRootPlace].data.onStartCallback.handler = handler;
+        (r->elements)[newRootPlace].data.onStartCallback.data = data;
         ++(r->elementsCount);
     }
     return LE_OK;

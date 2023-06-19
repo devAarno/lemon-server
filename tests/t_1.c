@@ -57,7 +57,7 @@ static void test_byRawRequest1(void) {
     calledCallback uriCallback;
     calledCallback httpVersionCallback;
 
-    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request, FAKE_DESCRIPTOR));
+    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request));
 
     strncpy(request.privateBuffer, rawRequest1, sizeof (request.privateBuffer));
 
@@ -96,7 +96,7 @@ static void test_byRawRequest2(void) {
     calledCallback connectionHeaderCallback;
     calledCallback upgradeInsecureRequestsHeaderCallback;
 
-    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request, FAKE_DESCRIPTOR));
+    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request));
 
     strncpy(request.privateBuffer, rawRequest2, sizeof (request.privateBuffer));
 
@@ -184,7 +184,7 @@ static void test_byRawRequest3(void) {
     */
 
 
-    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request, FAKE_DESCRIPTOR));
+    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request));
 
     strncpy(request.privateBuffer, rawRequest3, sizeof (request.privateBuffer));
 

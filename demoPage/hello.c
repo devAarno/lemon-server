@@ -34,13 +34,23 @@ Connection: Closed\r\n\
 <body><h1>Hello, world!</h1></body>\
 </html>";
 
+static const char response404[] = "HTTP/1.1 404 OK\r\n\
+Server: Lemon Server v0.0\r\n\
+Connection: Closed\r\n\
+\r\n";
+
 typedef struct {
-    string url;
-    int fd;
+    boolean isHello;
     boolean isGet;
 } parsedElements;
 
 parsedElements elements;
+
+static lemonError cleanParsedElements(const int fd, parsedElements *data) {
+    data->isHello = FALSE;
+    data->isGet = FALSE;
+    return LE_OK;
+}
 
 static lemonError checkIsGet(const string *value, parsedElements *data) {
     if ((3 == value->length) && 0 == strncmp("GET", value->data, value->length)) {
@@ -49,22 +59,38 @@ static lemonError checkIsGet(const string *value, parsedElements *data) {
     return LE_OK;
 }
 
-static lemonError returnPage(const string *value, parsedElements *data) {
+static lemonError checkIfIndex(const string *value, parsedElements *data) {
     if ((TRUE == data->isGet) && (12 == value->length) && 0 == strncmp("/hello.xhtml", value->data, value->length)) {
-        write(data->fd, response, strlen(response));
+        data->isHello = TRUE;
+        /* write(data->fd, response, strlen(response));*/
     }
     return LE_OK;
 }
 
-static void page(int fd, const httpRequest *r) {
-    elements.fd = fd;
-    elements.isGet = FALSE;
+static lemonError returnPage(const int fd, parsedElements *data) {
+    if ((TRUE == data->isGet) && (TRUE == data->isHello)) {
+        write(fd, response, strlen(response));
+    } else {
+        write(fd, response404, strlen(response404));
+    }
+    return LE_OK;
+}
+
+static lemonError page(const httpRequest *r) {
+
+    if (LE_OK != appendOnStart(r, (onStartExecutionHandler) cleanParsedElements, &elements)) {
+
+    }
 
     if (LE_OK != appendHttpMethodRequest(r, (httpMethodExecutionHandler) checkIsGet, &elements)) {
 
     }
 
-    if (LE_OK != appendHttpUriRequest(r, (httpMethodExecutionHandler) returnPage, &elements)) {
+    if (LE_OK != appendHttpUriRequest(r, (httpMethodExecutionHandler) checkIfIndex, &elements)) {
+
+    }
+
+    if (LE_OK != appendOnSuccess(r, (finalOnSuccessExecutionHandler) returnPage, &elements)) {
 
     }
 }

@@ -63,7 +63,7 @@ static void test_empty(void) {
     calledCallback serverCallback;
     calledCallback thisCallback;
 
-    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request, FAKE_DESCRIPTOR));
+    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request));
 
     strncpy(request.privateBuffer, rawRequest1, sizeof (request.privateBuffer));
 
@@ -155,7 +155,7 @@ static void test_absent(void) {
     calledCallback absentGetParamCallback;
     calledCallback absentHeaderParamCallback;
 
-    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request, FAKE_DESCRIPTOR));
+    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request));
 
     strncpy(request.privateBuffer, rawRequest1, sizeof (request.privateBuffer));
 

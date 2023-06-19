@@ -34,24 +34,18 @@
 #include "socketError.h"
 
 ssize_t readData(httpRequest *request) {
-    ssize_t res;
+    /*ssize_t res;
     if (NULL == request->body.data) {
         res = read(request->descriptor, &(request->privateBuffer), sizeof (request->privateBuffer));
     } else {
         res = read(request->descriptor, request->body.data, request->body.length);
     }
-    return ((res >= 0) ? (request->body.length = res) : res);
+    return ((res >= 0) ? (request->body.length = res) : res);*/
 }
 
 static void manageConnection(int fd, const handle h) {
-    httpRequest request;
     
-    if (LE_OK != initHttpRequest(&request, fd)) {
-        close(fd);
-        return ;
-    }
-    
-    if (0 == readData(&request)) {
+    /*if (0 == readData(&request)) {
         close(fd);
         return ;
     }
@@ -61,12 +55,15 @@ static void manageConnection(int fd, const handle h) {
     if (LE_OK != parseHTTP(&request)) {
         close(fd);
         return ;
-    }
+    }*/
 }
 
 const socketError runServer(const uint16_t port, const handle h) {
+    httpRequest request;
     struct sockaddr_in servaddr;
+    size_t iterator;
     int const listenfd = socket(AF_INET, SOCK_STREAM, 0);
+
 
     if (-1 == listenfd) {
         return SE_SOCKET_ERROR;
@@ -85,12 +82,47 @@ const socketError runServer(const uint16_t port, const handle h) {
         return SE_LISTEN_ERROR;
     }
 
+    if (LE_OK != initHttpRequest(&request)) {
+        close(listenfd);
+        return SE_LISTEN_ERROR /* !!!!!!!!!!!!!!!!!!!!!!!!!!!!!! */;
+    }
+
+    if (LE_OK != h(&request)) {
+        close(listenfd);
+        return SE_LISTEN_ERROR /* !!!!!!!!!!!!!!!!!!!!!!!!!!!!!! */;
+    }
+
     for (;;) {
         const int readerfd = accept(listenfd, NULL, NULL);
         if (-1 == readerfd) {
             return SE_ACCEPT_ERROR;
         }
-        manageConnection(readerfd, h);
+        /* manageConnection(readerfd, h); */
+        for (iterator = 0; iterator < request.elementsCount; ++iterator) {
+            if (ON_START_CALLBACK == request.elements[iterator].type) {
+                if (LE_OK != request.elements[iterator].data.onStartCallback.handler(readerfd, request.elements[iterator].data.onStartCallback.data)) {
+                    return SE_LISTEN_ERROR /* !!!!!!!!!!!!!!!!!!!!!!!!!!!!!! */;
+                }
+            }
+        }
+
+        read(readerfd, &(request.privateBuffer), sizeof (request.privateBuffer));
+
+        if (LE_OK != parseHTTP(&request)) {
+            close(readerfd);
+            break;
+        }
+
+        request.parsedStackSize = 0;
+
+        for (iterator = 0; iterator < request.elementsCount; ++iterator) {
+            if (FINAL_ON_SUCCESS_CALLBACK == request.elements[iterator].type) {
+                if (LE_OK != request.elements[iterator].data.finalOnSuccessCallback.handler(readerfd, request.elements[iterator].data.finalOnSuccessCallback.data)) {
+                    return SE_LISTEN_ERROR /* !!!!!!!!!!!!!!!!!!!!!!!!!!!!!! */;
+                }
+            }
+        }
+
         close(readerfd);
     }
 }

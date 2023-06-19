@@ -54,7 +54,7 @@ static void commonTest(const char* rawRequest, const char* expected) {
     calledCallback callData;
     /* Fake json path request */
 
-    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request, FAKE_DESCRIPTOR));
+    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request));
 
     callData.callCounter = 0;
     callData.expectedValue.data = expected;

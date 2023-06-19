@@ -72,7 +72,7 @@ static void test_correctValues1(void) {
     calledCallback serverCallback1;
     calledCallback thisCallback1;
 
-    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request, FAKE_DESCRIPTOR));
+    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request));
 
     strncpy(request.privateBuffer, rawRequest1, sizeof (request.privateBuffer));
 
@@ -165,7 +165,7 @@ static void test_correctValues2(void) {
     calledCallback aCallback1;
     calledCallback sixtyCallback1;
 
-    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request, FAKE_DESCRIPTOR));
+    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request));
 
     strncpy(request.privateBuffer, rawRequest2, sizeof (request.privateBuffer));
 
@@ -206,7 +206,7 @@ static void test_correctValues2(void) {
 static void test_incorrectValues1(void) {
     httpRequest request;
 
-    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request, FAKE_DESCRIPTOR));
+    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request));
 
     strncpy(request.privateBuffer, rawRequest3a, sizeof (request.privateBuffer));
 
@@ -216,7 +216,7 @@ static void test_incorrectValues1(void) {
 static void test_incorrectValues2(void) {
     httpRequest request;
 
-    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request, FAKE_DESCRIPTOR));
+    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request));
 
     strncpy(request.privateBuffer, rawRequest3b, sizeof (request.privateBuffer));
 
@@ -226,7 +226,7 @@ static void test_incorrectValues2(void) {
 static void test_incorrectValues3(void) {
     httpRequest request;
 
-    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request, FAKE_DESCRIPTOR));
+    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request));
 
     strncpy(request.privateBuffer, rawRequest3c, sizeof (request.privateBuffer));
 
@@ -236,7 +236,7 @@ static void test_incorrectValues3(void) {
 static void test_incorrectValues4(void) {
     httpRequest request;
 
-    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request, FAKE_DESCRIPTOR));
+    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request));
 
     strncpy(request.privateBuffer, rawRequest3d, sizeof (request.privateBuffer));
 
@@ -246,7 +246,7 @@ static void test_incorrectValues4(void) {
 static void test_incorrectValues5(void) {
     httpRequest request;
 
-    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request, FAKE_DESCRIPTOR));
+    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request));
 
     strncpy(request.privateBuffer, rawRequest3e, sizeof (request.privateBuffer));
 
@@ -256,7 +256,7 @@ static void test_incorrectValues5(void) {
 static void test_incorrectValues6(void) {
     httpRequest request;
 
-    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request, FAKE_DESCRIPTOR));
+    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request));
 
     strncpy(request.privateBuffer, rawRequest3f, sizeof (request.privateBuffer));
 
@@ -271,7 +271,7 @@ static void test_correctValues3(void) {
     calledCallback aCallback1;
     calledCallback sixtyCallback1;
 
-    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request, FAKE_DESCRIPTOR));
+    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request));
 
     strncpy(request.privateBuffer, rawRequest3g, sizeof (request.privateBuffer));
 
@@ -317,7 +317,7 @@ static void test_correctValues4(void) {
     calledCallback aCallback1;
     calledCallback sixtyCallback1;
 
-    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request, FAKE_DESCRIPTOR));
+    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request));
 
     strncpy(request.privateBuffer, rawRequest3h, sizeof (request.privateBuffer));
 

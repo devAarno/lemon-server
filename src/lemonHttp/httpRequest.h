@@ -39,6 +39,9 @@
 
 typedef struct {
     union {
+        onStartCallback onStartCallback;
+        finalOnSuccessCallback finalOnSuccessCallback;
+
         /* HTTP */
         httpMethodCallback httpMethodCallback;
         httpUriCallback httpUriCallback;
@@ -61,11 +64,10 @@ typedef struct {
     string body; /* possible to delete */
     size_t elementsCount;
     size_t parsedStackSize;
-    int descriptor;
     unsigned char mode;
 } httpRequest;
 
-lemonError initHttpRequest(httpRequest *r, const int fd);
+lemonError initHttpRequest(httpRequest *r);
 
 lemonError appendHttpMethodRequest(httpRequest *r, httpMethodExecutionHandler handler, changingData *data);
 
@@ -76,6 +78,10 @@ lemonError appendHttpVersionRequest(httpRequest *r, httpVersionExecutionHandler 
 lemonError appendHttpGetParameterQueryRequest(httpRequest *r, char *b, httpGetParameterQueryExecutionHandler handler, changingData *data);
 
 lemonError appendHttpHeaderQueryRequest(httpRequest *r, char *b, httpHeaderQueryExecutionHandler handler, changingData *data);
+
+lemonError appendOnSuccess(httpRequest *r, finalOnSuccessExecutionHandler handler, changingData *data);
+
+lemonError appendOnStart(httpRequest *r, onStartExecutionHandler handler, changingData *data);
 
 boolean isStringEmpty(const string *s);
 

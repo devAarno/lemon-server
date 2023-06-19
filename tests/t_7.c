@@ -43,7 +43,7 @@ static void test1(void) {
 
     static char jsonPath1[] = "$.sto\\*re.au\\u0074hor";
 
-    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&fakeRequest, FAKE_DESCRIPTOR));
+    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&fakeRequest));
 
     TEST_ASSERT_EQUAL(LE_OK, parseJSONPath(&fakeRequest, jsonPath1));
 
@@ -65,7 +65,7 @@ static void test2(void) {
 
     static char jsonPath2[] = "$.store.*";
 
-    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&fakeRequest, FAKE_DESCRIPTOR));
+    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&fakeRequest));
 
     TEST_ASSERT_EQUAL(LE_OK, parseJSONPath(&fakeRequest, jsonPath2));
 
@@ -85,7 +85,7 @@ static void test3(void) {
 
     static char jsonPath3[] = "$.book[2]";
 
-    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&fakeRequest, FAKE_DESCRIPTOR));
+    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&fakeRequest));
 
     TEST_ASSERT_EQUAL(LE_OK, parseJSONPath(&fakeRequest, jsonPath3));
 
@@ -106,7 +106,7 @@ static void test4(void) {
 
     static char jsonPath4[] = "$.book[2].zzz.xxx.yyy";
 
-    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&fakeRequest, FAKE_DESCRIPTOR));
+    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&fakeRequest));
 
     TEST_ASSERT_EQUAL(LE_OK, parseJSONPath(&fakeRequest, jsonPath4));
 
@@ -139,7 +139,7 @@ static void test5(void) {
 
     static char jsonPath5[] = "$['store']['book'][0]['title']";
 
-    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&fakeRequest, FAKE_DESCRIPTOR));
+    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&fakeRequest));
 
     TEST_ASSERT_EQUAL(LE_OK, parseJSONPath(&fakeRequest, jsonPath5));
 
@@ -168,7 +168,7 @@ static void test6(void) {
 
     static char jsonPath6[] = "$[*].*[*].*[*].tool";
 
-    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&fakeRequest, FAKE_DESCRIPTOR));
+    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&fakeRequest));
 
     TEST_ASSERT_EQUAL(LE_OK, parseJSONPath(&fakeRequest, jsonPath6));
 
@@ -196,7 +196,7 @@ static void test7(void) {
 
     static char jsonPath7[] = "$..horse..[*]..*[2]";
 
-    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&fakeRequest, FAKE_DESCRIPTOR));
+    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&fakeRequest));
 
     TEST_ASSERT_EQUAL(LE_OK, parseJSONPath(&fakeRequest, jsonPath7));
 
@@ -227,7 +227,7 @@ static void test8(void) {
 
     static char jsonPath8[] = "$..";
 
-    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&fakeRequest, FAKE_DESCRIPTOR));
+    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&fakeRequest));
 
     TEST_ASSERT_EQUAL(LE_OK, parseJSONPath(&fakeRequest, jsonPath8));
 
@@ -243,7 +243,7 @@ static void test9(void) {
 
     static char jsonPath9[] = "$..horse..[*]..";
 
-    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&fakeRequest, FAKE_DESCRIPTOR));
+    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&fakeRequest));
 
     TEST_ASSERT_EQUAL(LE_OK, parseJSONPath(&fakeRequest, jsonPath9));
 
@@ -267,7 +267,7 @@ static void test10(void) {
 
     static char jsonPath10[] = "$..horse..[*]";
 
-    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&fakeRequest, FAKE_DESCRIPTOR));
+    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&fakeRequest));
 
     TEST_ASSERT_EQUAL(LE_OK, parseJSONPath(&fakeRequest, jsonPath10));
 
@@ -291,7 +291,7 @@ static void test11(void) {
 
     static char jsonPath11[] = "$..horse..";
 
-    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&fakeRequest, FAKE_DESCRIPTOR));
+    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&fakeRequest));
 
     TEST_ASSERT_EQUAL(LE_OK, parseJSONPath(&fakeRequest, jsonPath11));
 
@@ -313,7 +313,7 @@ static void test12(void) {
 
     static char jsonPath12[] = "$..horse..*";
 
-    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&fakeRequest, FAKE_DESCRIPTOR));
+    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&fakeRequest));
 
     TEST_ASSERT_EQUAL(LE_OK, parseJSONPath(&fakeRequest, jsonPath12));
 
@@ -337,7 +337,7 @@ static void test13(void) {
 
     static char jsonPath13[] = "$..*";
 
-    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&fakeRequest, FAKE_DESCRIPTOR));
+    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&fakeRequest));
 
     TEST_ASSERT_EQUAL(LE_OK, parseJSONPath(&fakeRequest, jsonPath13));
 

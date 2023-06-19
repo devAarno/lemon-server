@@ -56,7 +56,7 @@ static void test1(void) {
     const char* rawRequest12 = "{ \"hello\" : \"world\"}";
 
     /* Fake json path request */
-    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request, FAKE_DESCRIPTOR));
+    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request));
     TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&request, fakeRequest, fakeExecute, ""));
 
     strncpy(request.privateBuffer, rawRequest1, sizeof (request.privateBuffer));

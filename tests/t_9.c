@@ -183,7 +183,7 @@ static void test1(void) {
     calledCallback callData11;
     calledCallback callData12;
     /* Fake json path request */
-    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request, FAKE_DESCRIPTOR));
+    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request));
 
     callData1.callCounter = 0;
     callData1.expectedValue.data = "doe";
@@ -296,7 +296,7 @@ static void test2(void) {
     calledCallback callData13;
     calledCallback callData14;
     /* Fake json path request */
-    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request, FAKE_DESCRIPTOR));
+    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request));
 
     callData1.callCounter = 0;
     callData1.expectedValue.data = "{}";
@@ -450,7 +450,7 @@ static void test3(void) {
     calledCallback callData11;
     calledCallback callData12;
     /* Fake json path request */
-    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request, FAKE_DESCRIPTOR));
+    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request));
 
     callData1.callCounter = 0;
     callData1.expectedValue = getFalseString();
@@ -558,7 +558,7 @@ static void test4(void) {
     calledCallback callData23;
     calledCallback callData24;
     /* Fake json path request */
-    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request, FAKE_DESCRIPTOR));
+    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request));
 
     callData13.callCounter = 0;
     callData13.expectedValue.data = "a2";
@@ -671,7 +671,7 @@ static void test5(void) {
     calledCallback callData23;
     calledCallback callData24;
     /* Fake json path request */
-    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request, FAKE_DESCRIPTOR));
+    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request));
 
     callData13.callCounter = 0;
     callData13.expectedValue.data = "a2";

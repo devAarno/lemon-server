@@ -77,7 +77,7 @@ static void test_strncasecmp(void) {
     calledCallback thisCallback1;
     calledCallback thisCallback2;
 
-    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request, FAKE_DESCRIPTOR));
+    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request));
 
     strncpy(request.privateBuffer, rawRequest1, sizeof (request.privateBuffer));
 

@@ -60,7 +60,7 @@ static void test1(void) {
     calledCallback uriCallback;
     calledCallback httpVersionCallback;
 
-    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request, FAKE_DESCRIPTOR));
+    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request));
 
     strncpy(request.privateBuffer, rawRequest, sizeof (request.privateBuffer));
 
@@ -95,7 +95,7 @@ static void test2(void) {
     calledCallback uriCallback;
     calledCallback httpVersionCallback;
 
-    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request, FAKE_DESCRIPTOR));
+    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request));
 
     strncpy(request.privateBuffer, rawRequest, sizeof (request.privateBuffer));
 
@@ -130,7 +130,7 @@ static void test3(void) {
     calledCallback uriCallback;
     calledCallback httpVersionCallback;
 
-    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request, FAKE_DESCRIPTOR));
+    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request));
 
     strncpy(request.privateBuffer, rawRequest, sizeof (request.privateBuffer));
 
@@ -165,7 +165,7 @@ static void test4(void) {
     calledCallback uriCallback;
     calledCallback httpVersionCallback;
 
-    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request, FAKE_DESCRIPTOR));
+    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request));
 
     strncpy(request.privateBuffer, rawRequest, sizeof (request.privateBuffer));
 
@@ -200,7 +200,7 @@ static void test5(void) {
     calledCallback uriCallback;
     calledCallback httpVersionCallback;
 
-    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request, FAKE_DESCRIPTOR));
+    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request));
 
     strncpy(request.privateBuffer, rawRequest, sizeof (request.privateBuffer));
 
@@ -235,7 +235,7 @@ static void test6(void) {
     calledCallback uriCallback;
     calledCallback httpVersionCallback;
 
-    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request, FAKE_DESCRIPTOR));
+    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request));
 
     strncpy(request.privateBuffer, rawRequest, sizeof (request.privateBuffer));
 
@@ -270,7 +270,7 @@ static void test7(void) {
     calledCallback uriCallback;
     calledCallback httpVersionCallback;
 
-    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request, FAKE_DESCRIPTOR));
+    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request));
 
     strncpy(request.privateBuffer, rawRequest, sizeof (request.privateBuffer));
 
@@ -305,7 +305,7 @@ static void test8(void) {
     calledCallback uriCallback;
     calledCallback httpVersionCallback;
 
-    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request, FAKE_DESCRIPTOR));
+    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request));
 
     strncpy(request.privateBuffer, rawRequest, sizeof (request.privateBuffer));
 
@@ -340,7 +340,7 @@ static void test9(void) {
     calledCallback uriCallback;
     calledCallback httpVersionCallback;
 
-    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request, FAKE_DESCRIPTOR));
+    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request));
 
     strncpy(request.privateBuffer, rawRequest, sizeof (request.privateBuffer));
 
@@ -375,7 +375,7 @@ static void test10(void) {
     calledCallback uriCallback;
     calledCallback httpVersionCallback;
 
-    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request, FAKE_DESCRIPTOR));
+    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request));
 
     strncpy(request.privateBuffer, rawRequest, sizeof (request.privateBuffer));
 
@@ -410,7 +410,7 @@ static void test11(void) {
     calledCallback uriCallback;
     calledCallback httpVersionCallback;
 
-    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request, FAKE_DESCRIPTOR));
+    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request));
 
     strncpy(request.privateBuffer, rawRequest, sizeof (request.privateBuffer));
 
@@ -445,7 +445,7 @@ static void test12(void) {
     calledCallback uriCallback;
     calledCallback httpVersionCallback;
 
-    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request, FAKE_DESCRIPTOR));
+    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request));
 
     strncpy(request.privateBuffer, rawRequest, sizeof (request.privateBuffer));
 
@@ -480,7 +480,7 @@ static void test13(void) {
     calledCallback uriCallback;
     calledCallback httpVersionCallback;
 
-    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request, FAKE_DESCRIPTOR));
+    TEST_ASSERT_EQUAL(LE_OK, initHttpRequest(&request));
 
     strncpy(request.privateBuffer, rawRequest, sizeof (request.privateBuffer));
 

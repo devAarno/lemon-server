@@ -33,6 +33,8 @@ typedef char httpGetParameterQueryBuffer;
 typedef lemonError (*httpGetParameterQueryExecutionHandler)(const string *value, changingData *data);
 typedef char httpHeaderQueryBuffer;
 typedef lemonError (*httpHeaderQueryExecutionHandler)(const string *value, changingData *data);
+typedef lemonError (*finalOnSuccessExecutionHandler)(const int fd, changingData *data);
+typedef lemonError (*onStartExecutionHandler)(const int fd, changingData *data);
 
 typedef struct {
     httpMethodExecutionHandler handler;
@@ -48,6 +50,16 @@ typedef struct {
     httpVersionExecutionHandler handler;
     changingData *data;
 } httpVersionCallback;
+
+typedef struct {
+    finalOnSuccessExecutionHandler handler;
+    changingData *data;
+} finalOnSuccessCallback;
+
+typedef struct {
+    onStartExecutionHandler handler;
+    changingData *data;
+} onStartCallback;
 
 typedef struct {
     httpGetParameterQueryExecutionHandler handler;
