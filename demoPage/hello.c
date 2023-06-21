@@ -23,14 +23,14 @@
 
 static const char response[] = "HTTP/1.1 200 OK\r\n\
 Server: Lemon Server v0.0\r\n\
-Content-Length: 312\r\n\
+Content-Length: 306\r\n\
 Content-Type: application/xhtml+xml\r\n\
 Connection: Closed\r\n\
 \r\n\
 <?xml version=\"1.0\" encoding=\"UTF-8\"?>\
 <!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\
 <html xmlns=\"http://www.w3.org/1999/xhtml\" lang=\"en\" xml:lang=\"en\">\
-<head><title>Lemon Server Demo Page title</title></head>\
+<head><title>Lemon Server Demo Page</title></head>\
 <body><h1>Hello, world!</h1></body>\
 </html>";
 
@@ -44,11 +44,8 @@ typedef struct {
     boolean isGet;
 } parsedElements;
 
-parsedElements elements;
-
 static lemonError cleanParsedElements(const int fd, parsedElements *data) {
-    data->isHello = FALSE;
-    data->isGet = FALSE;
+    data->isHello = data->isGet = FALSE;
     return LE_OK;
 }
 
@@ -76,26 +73,23 @@ static lemonError returnPage(const int fd, parsedElements *data) {
     return LE_OK;
 }
 
-static lemonError page(const httpRequest *r) {
+int main(void) {
+    httpRequest r;
+    parsedElements elements;
 
-    if (LE_OK != appendOnStart(r, (onStartExecutionHandler) cleanParsedElements, &elements)) {
-
+    if (LE_OK != initHttpRequest(&r)) {
+        return 1;
     }
 
-    if (LE_OK != appendHttpMethodRequest(r, (httpMethodExecutionHandler) checkIsGet, &elements)) {
-
+    if (
+            LE_OK != appendOnStart(&r, (onStartExecutionHandler) cleanParsedElements, &elements) ||
+            LE_OK != appendHttpMethodRequest(&r, (httpMethodExecutionHandler) checkIsGet, &elements) ||
+            LE_OK != appendHttpUriRequest(&r, (httpMethodExecutionHandler) checkIfIndex, &elements) ||
+            LE_OK != appendOnSuccess(&r, (finalOnSuccessExecutionHandler) returnPage, &elements)
+    ) {
+        return 1;
     }
 
-    if (LE_OK != appendHttpUriRequest(r, (httpMethodExecutionHandler) checkIfIndex, &elements)) {
-
-    }
-
-    if (LE_OK != appendOnSuccess(r, (finalOnSuccessExecutionHandler) returnPage, &elements)) {
-
-    }
-}
-
-int main() {
-    runServer(40000, page);
+    runServer(40000, &r);
     /* Under construction */
 }

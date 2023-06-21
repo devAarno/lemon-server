@@ -30,7 +30,7 @@ typedef lemonError (*handle)(const httpRequest *);
 
 ssize_t readData(httpRequest *request);
 
-const socketError runServer(const uint16_t port, const handle h);
+const socketError runServer(const uint16_t port, const httpRequest *request);
 
 #endif /* SOCKET_H */
 

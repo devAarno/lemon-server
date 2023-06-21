@@ -58,8 +58,7 @@ static void manageConnection(int fd, const handle h) {
     }*/
 }
 
-const socketError runServer(const uint16_t port, const handle h) {
-    httpRequest request;
+const socketError runServer(const uint16_t port, const httpRequest *request) {
     struct sockaddr_in servaddr;
     size_t iterator;
     int const listenfd = socket(AF_INET, SOCK_STREAM, 0);
@@ -82,42 +81,32 @@ const socketError runServer(const uint16_t port, const handle h) {
         return SE_LISTEN_ERROR;
     }
 
-    if (LE_OK != initHttpRequest(&request)) {
-        close(listenfd);
-        return SE_LISTEN_ERROR /* !!!!!!!!!!!!!!!!!!!!!!!!!!!!!! */;
-    }
-
-    if (LE_OK != h(&request)) {
-        close(listenfd);
-        return SE_LISTEN_ERROR /* !!!!!!!!!!!!!!!!!!!!!!!!!!!!!! */;
-    }
-
     for (;;) {
         const int readerfd = accept(listenfd, NULL, NULL);
         if (-1 == readerfd) {
             return SE_ACCEPT_ERROR;
         }
-        /* manageConnection(readerfd, h); */
-        for (iterator = 0; iterator < request.elementsCount; ++iterator) {
-            if (ON_START_CALLBACK == request.elements[iterator].type) {
-                if (LE_OK != request.elements[iterator].data.onStartCallback.handler(readerfd, request.elements[iterator].data.onStartCallback.data)) {
+        /* manageConnection(readerfd, request); */
+        for (iterator = 0; iterator < request->elementsCount; ++iterator) {
+            if (ON_START_CALLBACK == request->elements[iterator].type) {
+                if (LE_OK != request->elements[iterator].data.onStartCallback.handler(readerfd, request->elements[iterator].data.onStartCallback.data)) {
                     return SE_LISTEN_ERROR /* !!!!!!!!!!!!!!!!!!!!!!!!!!!!!! */;
                 }
             }
         }
 
-        read(readerfd, &(request.privateBuffer), sizeof (request.privateBuffer));
+        read(readerfd, &(request->privateBuffer), sizeof (request->privateBuffer));
 
-        if (LE_OK != parseHTTP(&request)) {
+        if (LE_OK != parseHTTP(request)) {
             close(readerfd);
             break;
         }
 
-        request.parsedStackSize = 0;
+        /* request->parsedStackSize = 0; */
 
-        for (iterator = 0; iterator < request.elementsCount; ++iterator) {
-            if (FINAL_ON_SUCCESS_CALLBACK == request.elements[iterator].type) {
-                if (LE_OK != request.elements[iterator].data.finalOnSuccessCallback.handler(readerfd, request.elements[iterator].data.finalOnSuccessCallback.data)) {
+        for (iterator = 0; iterator < request->elementsCount; ++iterator) {
+            if (FINAL_ON_SUCCESS_CALLBACK == request->elements[iterator].type) {
+                if (LE_OK != request->elements[iterator].data.finalOnSuccessCallback.handler(readerfd, request->elements[iterator].data.finalOnSuccessCallback.data)) {
                     return SE_LISTEN_ERROR /* !!!!!!!!!!!!!!!!!!!!!!!!!!!!!! */;
                 }
             }
