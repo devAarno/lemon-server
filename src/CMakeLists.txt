@@ -19,11 +19,6 @@
 cmake_minimum_required (VERSION 2.4...3.18)
 project (lemonServer C)
 
-# set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} ${EXTRA_DEBUG_MODE}")
-# set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} ${EXTRA_DEBUG_MODE}")
-set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} ${EXTRA_DEBUG_MODE}")
-set(CMAKE_C_FLAGS  "${CMAKE_C_FLAGS} ${EXTRA_DEBUG_MODE}")
-
 include(CheckIncludeFiles)
 include(CheckIncludeFile)
 include(CheckSymbolExists)
