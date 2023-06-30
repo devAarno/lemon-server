@@ -50,7 +50,7 @@ static const char tbl[256] = {
     NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA
 };
 
-lemonError decodeValue(string *s, boolean replacePlusWithSpace) {
+lemonError decodeValue(string *s, const boolean replacePlusWithSpace) {
     const string emptyString = getEmptyString();
     if ((NULL == s) || (NULL == s->data)) {
         return LE_NULL_IN_INPUT_VALUES;
@@ -127,7 +127,7 @@ lemonError trim(string *s) {
     return LE_OK;
 }
 
-lemonError executeHttpMethodCallback(httpRequest *r, const string *s) {
+lemonError executeHttpMethodCallback(const httpRequest *r, const string *s) {
     if (NULL == r) {
         return LE_NULL_IN_INPUT_VALUES;
     }
@@ -144,7 +144,7 @@ lemonError executeHttpMethodCallback(httpRequest *r, const string *s) {
     return LE_OK;
 }
 
-lemonError executeHttpUriCallback(httpRequest *r, const string *s) {
+lemonError executeHttpUriCallback(const httpRequest *r, const string *s) {
     if (NULL == r) {
         return LE_NULL_IN_INPUT_VALUES;
     }
@@ -161,7 +161,7 @@ lemonError executeHttpUriCallback(httpRequest *r, const string *s) {
     return LE_OK;
 }
 
-lemonError executeHttpVersionCallback(httpRequest *r, const string *s) {
+lemonError executeHttpVersionCallback(const httpRequest *r, const string *s) {
     if (NULL == r) {
         return LE_NULL_IN_INPUT_VALUES;
     }
@@ -178,7 +178,7 @@ lemonError executeHttpVersionCallback(httpRequest *r, const string *s) {
     return LE_OK;
 }
 
-lemonError executeHeaderCallback(httpRequest *r, const string *key, const string *s) {
+lemonError executeHeaderCallback(const httpRequest *r, const string *key, const string *s) {
     if (NULL == r) {
         return LE_NULL_IN_INPUT_VALUES;
     }
@@ -195,7 +195,7 @@ lemonError executeHeaderCallback(httpRequest *r, const string *key, const string
     return LE_OK;
 }
 
-lemonError executeGetParameterCallback(httpRequest *r, const string *key, const string *s) {
+lemonError executeGetParameterCallback(const httpRequest *r, const string *key, const string *s) {
     if (NULL == r) {
         return LE_NULL_IN_INPUT_VALUES;
     }

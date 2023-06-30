@@ -30,15 +30,15 @@ lemonError decodeValue(string *s, boolean replacePlusWithSpace);
 
 lemonError trim(string *s);
 
-lemonError executeHttpMethodCallback(httpRequest *r, const string *s);
+lemonError executeHttpMethodCallback(const httpRequest *r, const string *s);
 
-lemonError executeHttpUriCallback(httpRequest *r, const string *s);
+lemonError executeHttpUriCallback(const httpRequest *r, const string *s);
 
-lemonError executeHttpVersionCallback(httpRequest *r, const string *s);
+lemonError executeHttpVersionCallback(const httpRequest *r, const string *s);
 
-lemonError executeHeaderCallback(httpRequest *r, const string *key, const string *s);
+lemonError executeHeaderCallback(const httpRequest *r, const string *key, const string *s);
 
-lemonError executeGetParameterCallback(httpRequest *r, const string *key, const string *s);
+lemonError executeGetParameterCallback(const httpRequest *r, const string *key, const string *s);
 
 string convertUtf16ToString(char *c1, char *c2, const char c3, const char c4);
 

@@ -523,11 +523,10 @@ static lemonError isJsonPathResolved(const requestElement *currRoot, const reque
 
 
 lemonError updateJsonPathRequestStatusByFieldName(httpRequest *jsonRequest, const string *key) {
-    requestElement *currentElement = &(jsonRequest->elements[jsonRequest->elementsCount + jsonRequest->parsedStackSize]);
+    requestElement *currentElement = &(jsonRequest->elements[jsonRequest->elementsCount + (jsonRequest->parsedStackSize++)]);
     currentElement->type = PARSED_JSON_FIELD;
     currentElement->data.name.data = key->data;
     currentElement->data.name.length = key->length;
-    ++(jsonRequest->parsedStackSize);
     return LE_OK;
 }
 
@@ -552,11 +551,10 @@ lemonError rollbackJsonPathRequestStatusByObject(httpRequest *jsonRequest, const
 
 lemonError updateJsonPathRequestStatusByArray(httpRequest *jsonRequest, const char *startArrayPosition) {
     /* May be collapse ? */
-    requestElement *currentElement = &(jsonRequest->elements[jsonRequest->elementsCount + jsonRequest->parsedStackSize]);
+    requestElement *currentElement = &(jsonRequest->elements[jsonRequest->elementsCount + (jsonRequest->parsedStackSize++)]);
     currentElement->type = PARSED_JSON_INDEX;
     currentElement->data.index.containerStartPosition = startArrayPosition;
     currentElement->data.index.index = 0;
-    ++(jsonRequest->parsedStackSize);
     return LE_OK;
 }
 
@@ -606,14 +604,11 @@ lemonError updateJsonPathRequestStatusByArrayElement(httpRequest *jsonRequest) {
 }
 
 lemonError updateJsonPathRequestStatusByRoot(httpRequest *jsonRequest) {
-    requestElement *currentElement = &(jsonRequest->elements[jsonRequest->elementsCount + jsonRequest->parsedStackSize]);
-    currentElement->type = PARSED_JSON_ROOT;
-    ++(jsonRequest->parsedStackSize);
+    jsonRequest->elements[jsonRequest->elementsCount + (jsonRequest->parsedStackSize++)].type = PARSED_JSON_ROOT;
     return LE_OK;
 }
 
 lemonError rollbackJsonPathRequestStatusByRoot(httpRequest *jsonRequest) {
-    requestElement *currentElement = &(jsonRequest->elements[jsonRequest->elementsCount + (--(jsonRequest->parsedStackSize))]);
-    currentElement->type = NONE;
+    jsonRequest->elements[jsonRequest->elementsCount + (--(jsonRequest->parsedStackSize))].type = NONE;
     return LE_OK;
 }
