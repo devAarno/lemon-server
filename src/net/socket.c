@@ -33,34 +33,8 @@
 
 #include "socketError.h"
 
-ssize_t readData(httpRequest *request) {
-    /*ssize_t res;
-    if (NULL == request->body.data) {
-        res = read(request->descriptor, &(request->privateBuffer), sizeof (request->privateBuffer));
-    } else {
-        res = read(request->descriptor, request->body.data, request->body.length);
-    }
-    return ((res >= 0) ? (request->body.length = res) : res);*/
-}
-
-static void manageConnection(int fd, const handle h) {
-    
-    /*if (0 == readData(&request)) {
-        close(fd);
-        return ;
-    }
-
-    h(fd, &request);
-
-    if (LE_OK != parseHTTP(&request)) {
-        close(fd);
-        return ;
-    }*/
-}
-
-const socketError runServer(const uint16_t port, const httpRequest *request) {
+socketError runServer(const uint16_t port, httpRequest *request) {
     struct sockaddr_in servaddr;
-    size_t iterator;
     int const listenfd = socket(AF_INET, SOCK_STREAM, 0);
 
 
@@ -82,14 +56,17 @@ const socketError runServer(const uint16_t port, const httpRequest *request) {
     }
 
     for (;;) {
+        size_t iterator = 0;
         const int readerfd = accept(listenfd, NULL, NULL);
+
         if (-1 == readerfd) {
             return SE_ACCEPT_ERROR;
         }
         /* manageConnection(readerfd, request); */
         for (iterator = 0; iterator < request->elementsCount; ++iterator) {
-            if (ON_START_CALLBACK == request->elements[iterator].type) {
-                if (LE_OK != request->elements[iterator].data.onStartCallback.handler(readerfd, request->elements[iterator].data.onStartCallback.data)) {
+            const requestElement element = request->elements[iterator];
+            if (ON_START_CALLBACK == element.type) {
+                if (LE_OK != element.data.onStartCallback.handler(readerfd, element.data.onStartCallback.data)) {
                     return SE_LISTEN_ERROR /* !!!!!!!!!!!!!!!!!!!!!!!!!!!!!! */;
                 }
             }
@@ -105,8 +82,9 @@ const socketError runServer(const uint16_t port, const httpRequest *request) {
         /* request->parsedStackSize = 0; */
 
         for (iterator = 0; iterator < request->elementsCount; ++iterator) {
-            if (FINAL_ON_SUCCESS_CALLBACK == request->elements[iterator].type) {
-                if (LE_OK != request->elements[iterator].data.finalOnSuccessCallback.handler(readerfd, request->elements[iterator].data.finalOnSuccessCallback.data)) {
+            const requestElement element = request->elements[iterator];
+            if (FINAL_ON_SUCCESS_CALLBACK == element.type) {
+                if (LE_OK != element.data.finalOnSuccessCallback.handler(readerfd, element.data.finalOnSuccessCallback.data)) {
                     return SE_LISTEN_ERROR /* !!!!!!!!!!!!!!!!!!!!!!!!!!!!!! */;
                 }
             }

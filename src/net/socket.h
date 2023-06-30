@@ -26,11 +26,7 @@
 #include "../lemonHttp/httpRequest.h"
 #include "socketError.h"
 
-typedef lemonError (*handle)(const httpRequest *);
-
-ssize_t readData(httpRequest *request);
-
-const socketError runServer(const uint16_t port, const httpRequest *request);
+socketError runServer(uint16_t port, httpRequest *request);
 
 #endif /* SOCKET_H */
 
