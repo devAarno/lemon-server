@@ -31,7 +31,7 @@ typedef struct {
 
 typedef string buffer;
 
-string createString(char* chars);
+string createString(const char* chars);
 
 string getEmptyString();
 

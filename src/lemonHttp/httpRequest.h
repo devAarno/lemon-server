@@ -75,9 +75,9 @@ lemonError appendHttpUriRequest(httpRequest *r, httpUriExecutionHandler handler,
 
 lemonError appendHttpVersionRequest(httpRequest *r, httpVersionExecutionHandler handler, changingData *data);
 
-lemonError appendHttpGetParameterQueryRequest(httpRequest *r, char *b, httpGetParameterQueryExecutionHandler handler, changingData *data);
+lemonError appendHttpGetParameterQueryRequest(httpRequest *r, const char *b, httpGetParameterQueryExecutionHandler handler, changingData *data);
 
-lemonError appendHttpHeaderQueryRequest(httpRequest *r, char *b, httpHeaderQueryExecutionHandler handler, changingData *data);
+lemonError appendHttpHeaderQueryRequest(httpRequest *r, const char *b, httpHeaderQueryExecutionHandler handler, changingData *data);
 
 lemonError appendOnSuccess(httpRequest *r, finalOnSuccessExecutionHandler handler, changingData *data);
 

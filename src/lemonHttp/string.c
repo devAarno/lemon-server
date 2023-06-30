@@ -24,12 +24,12 @@
 
 #include "../boolean.h"
 
-static const char *emptyString = "";
-static const char *trueString = "true";
-static const char *falseString = "false";
-static const char *nullString = "null";
+static const char emptyString[] = "";
+static const char trueString[] = "true";
+static const char falseString[] = "false";
+static const char nullString[] = "null";
 
-string createString(char *chars) {
+string createString(const char *chars) {
     string res;
     if (NULL == chars) {
         res.data = NULL;

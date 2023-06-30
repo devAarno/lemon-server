@@ -44,102 +44,130 @@ lemonError initHttpRequest(httpRequest *r) {
     }
 }
 
-lemonError appendHttpMethodRequest(httpRequest *r, httpMethodExecutionHandler handler, changingData *data) {
+lemonError appendHttpMethodRequest(httpRequest *r, const httpMethodExecutionHandler handler, changingData *data) {
     if ((NULL == r) || (NULL == handler) || (NULL == data)) {
         return LE_NULL_IN_INPUT_VALUES;
     }
     {
-        const size_t newRootPlace = r->elementsCount;
-        (r->elements)[newRootPlace].type = HTTP_REQUEST_METHOD;
-        (r->elements)[newRootPlace].data.httpMethodCallback.handler = handler;
-        (r->elements)[newRootPlace].data.httpMethodCallback.data = data;
-        ++(r->elementsCount);
+        requestElement element;
+
+        httpMethodCallback callback;
+        callback.handler = handler;
+        callback.data = data;
+
+        element.data.httpMethodCallback = callback;
+        element.type = HTTP_REQUEST_METHOD;
+        (r->elements)[(r->elementsCount)++] = element;
     }
     return LE_OK;
 }
 
-lemonError appendHttpUriRequest(httpRequest *r, httpUriExecutionHandler handler, changingData *data) {
+lemonError appendHttpUriRequest(httpRequest *r, const httpUriExecutionHandler handler, changingData *data) {
     if ((NULL == r) || (NULL == handler) || (NULL == data)) {
         return LE_NULL_IN_INPUT_VALUES;
     }
     {
-        const size_t newRootPlace = r->elementsCount;
-        (r->elements)[newRootPlace].type = HTTP_REQUEST_URI;
-        (r->elements)[newRootPlace].data.httpUriCallback.handler = handler;
-        (r->elements)[newRootPlace].data.httpUriCallback.data = data;
-        ++(r->elementsCount);
+        requestElement element;
+
+        httpUriCallback callback;
+        callback.handler = handler;
+        callback.data = data;
+
+        element.data.httpUriCallback = callback;
+        element.type = HTTP_REQUEST_URI;
+        (r->elements)[(r->elementsCount)++] = element;
     }
     return LE_OK;
 }
 
-lemonError appendHttpVersionRequest(httpRequest *r, httpVersionExecutionHandler handler, changingData *data) {
+lemonError appendHttpVersionRequest(httpRequest *r, const httpVersionExecutionHandler handler, changingData *data) {
     if ((NULL == r) || (NULL == handler) || (NULL == data)) {
         return LE_NULL_IN_INPUT_VALUES;
     }
     {
-        const size_t newRootPlace = r->elementsCount;
-        (r->elements)[newRootPlace].type = HTTP_REQUEST_HTTP_VERSION;
-        (r->elements)[newRootPlace].data.httpVersionCallback.handler = handler;
-        (r->elements)[newRootPlace].data.httpVersionCallback.data = data;
-        ++(r->elementsCount);
+        requestElement element;
+
+        httpVersionCallback callback;
+        callback.handler = handler;
+        callback.data = data;
+
+        element.data.httpVersionCallback = callback;
+        element.type = HTTP_REQUEST_HTTP_VERSION;
+        (r->elements)[(r->elementsCount)++] = element;
     }
     return LE_OK;
 }
 
-lemonError appendHttpGetParameterQueryRequest(httpRequest *r, char *b, httpGetParameterQueryExecutionHandler handler, changingData *data) {
+lemonError appendHttpGetParameterQueryRequest(httpRequest *r, const char *b, const httpGetParameterQueryExecutionHandler handler, changingData *data) {
     if ((NULL == r) || (NULL == b) || (NULL == handler) || (NULL == data)) {
         return LE_NULL_IN_INPUT_VALUES;
     }
     {
-        const size_t newRootPlace = r->elementsCount;
-        (r->elements)[newRootPlace].type = HTTP_REQUEST_GET_QUERY_ELEMENT;
-        (r->elements)[newRootPlace].data.httpGetParameterCallback.handler = handler;
-        (r->elements)[newRootPlace].data.httpGetParameterCallback.data = data;
-        (r->elements)[newRootPlace].data.httpGetParameterCallback.getParameter = createString(b);
-        ++(r->elementsCount);
+        requestElement element;
+
+        httpGetParameterCallback callback;
+        callback.handler = handler;
+        callback.data = data;
+        callback.getParameter = createString(b);
+
+        element.data.httpGetParameterCallback = callback;
+        element.type = HTTP_REQUEST_GET_QUERY_ELEMENT;
+        (r->elements)[(r->elementsCount)++] = element;
     }
     return LE_OK;
 }
 
-lemonError appendHttpHeaderQueryRequest(httpRequest *r, char *b, httpHeaderQueryExecutionHandler handler, changingData *data) {
+lemonError appendHttpHeaderQueryRequest(httpRequest *r, const char *b, const httpHeaderQueryExecutionHandler handler, changingData *data) {
     if ((NULL == r) || (NULL == b) || (NULL == handler) || (NULL == data)) {
         return LE_NULL_IN_INPUT_VALUES;
     }
     {
-        const size_t newRootPlace = r->elementsCount;
-        (r->elements)[newRootPlace].type = HTTP_REQUEST_HEADER;
-        (r->elements)[newRootPlace].data.httpHeaderQueryCallback.handler = handler;
-        (r->elements)[newRootPlace].data.httpHeaderQueryCallback.data = data;
-        (r->elements)[newRootPlace].data.httpHeaderQueryCallback.headerName = createString(b);
-        ++(r->elementsCount);
+        requestElement element;
+
+        httpHeaderQueryCallback callback;
+        callback.handler = handler;
+        callback.data = data;
+        callback.headerName = createString(b);
+
+        element.data.httpHeaderQueryCallback = callback;
+        element.type = HTTP_REQUEST_HEADER;
+        (r->elements)[(r->elementsCount)++] = element;
     }
     return LE_OK;
 }
 
-lemonError appendOnSuccess(httpRequest *r, finalOnSuccessExecutionHandler handler, changingData *data) {
+lemonError appendOnSuccess(httpRequest *r, const finalOnSuccessExecutionHandler handler, changingData *data) {
     if ((NULL == r) || (NULL == handler) || (NULL == data)) {
         return LE_NULL_IN_INPUT_VALUES;
     }
     {
-        const size_t newRootPlace = r->elementsCount;
-        (r->elements)[newRootPlace].type = FINAL_ON_SUCCESS_CALLBACK;
-        (r->elements)[newRootPlace].data.finalOnSuccessCallback.handler = handler;
-        (r->elements)[newRootPlace].data.finalOnSuccessCallback.data = data;
-        ++(r->elementsCount);
+        requestElement element;
+
+        finalOnSuccessCallback callback;
+        callback.handler = handler;
+        callback.data = data;
+
+        element.data.finalOnSuccessCallback = callback;
+        element.type = FINAL_ON_SUCCESS_CALLBACK;
+        (r->elements)[(r->elementsCount)++] = element;
     }
     return LE_OK;
 }
 
-lemonError appendOnStart(httpRequest *r, onStartExecutionHandler handler, changingData *data) {
+lemonError appendOnStart(httpRequest *r, const onStartExecutionHandler handler, changingData *data) {
     if ((NULL == r) || (NULL == handler) || (NULL == data)) {
         return LE_NULL_IN_INPUT_VALUES;
     }
     {
-        const size_t newRootPlace = r->elementsCount;
-        (r->elements)[newRootPlace].type = ON_START_CALLBACK;
-        (r->elements)[newRootPlace].data.onStartCallback.handler = handler;
-        (r->elements)[newRootPlace].data.onStartCallback.data = data;
-        ++(r->elementsCount);
+        requestElement element;
+
+        onStartCallback callback;
+        callback.handler = handler;
+        callback.data = data;
+
+        element.data.onStartCallback = callback;
+        element.type = ON_START_CALLBACK;
+        (r->elements)[(r->elementsCount)++] = element;
     }
     return LE_OK;
 }
