@@ -247,7 +247,8 @@ static lemonError parse(dataContainer container, const parsingMode mode) {
             ++pos;
         }
 
-        ParseHTTP11(&pParser, 0, NULL, &ps);
+        /* ParseHTTP11(&pParser, 0, NULL, &ps); */
+        ParseHTTP11Finalize(&pParser);
 
         /* --pos;  Because of last JSONPATH_REQUEST_ANY
         container.httpRequest->body.data = &((container.httpRequest->privateBuffer)[pos]);

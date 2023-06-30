@@ -210,7 +210,7 @@ static void test_incorrectValues1(void) {
 
     strncpy(request.privateBuffer, rawRequest3a, sizeof (request.privateBuffer));
 
-    TEST_ASSERT_EQUAL(LE_PARSING_IS_FAILED, parseHTTP(&request));
+    TEST_ASSERT_EQUAL(LE_INCORRECT_SYNTAX, parseHTTP(&request));
 }
 
 static void test_incorrectValues2(void) {
@@ -220,7 +220,7 @@ static void test_incorrectValues2(void) {
 
     strncpy(request.privateBuffer, rawRequest3b, sizeof (request.privateBuffer));
 
-    TEST_ASSERT_EQUAL(LE_PARSING_IS_FAILED, parseHTTP(&request));
+    TEST_ASSERT_EQUAL(LE_INCORRECT_SYNTAX, parseHTTP(&request));
 }
 
 static void test_incorrectValues3(void) {
@@ -230,7 +230,7 @@ static void test_incorrectValues3(void) {
 
     strncpy(request.privateBuffer, rawRequest3c, sizeof (request.privateBuffer));
 
-    TEST_ASSERT_EQUAL(LE_PARSING_IS_FAILED, parseHTTP(&request));
+    TEST_ASSERT_EQUAL(LE_INCORRECT_SYNTAX, parseHTTP(&request));
 }
 
 static void test_incorrectValues4(void) {
@@ -240,7 +240,7 @@ static void test_incorrectValues4(void) {
 
     strncpy(request.privateBuffer, rawRequest3d, sizeof (request.privateBuffer));
 
-    TEST_ASSERT_EQUAL(LE_PARSING_IS_FAILED, parseHTTP(&request));
+    TEST_ASSERT_EQUAL(LE_INCORRECT_SYNTAX, parseHTTP(&request));
 }
 
 static void test_incorrectValues5(void) {
@@ -250,7 +250,7 @@ static void test_incorrectValues5(void) {
 
     strncpy(request.privateBuffer, rawRequest3e, sizeof (request.privateBuffer));
 
-    TEST_ASSERT_EQUAL(LE_PARSING_IS_FAILED, parseHTTP(&request));
+    TEST_ASSERT_EQUAL(LE_INCORRECT_SYNTAX, parseHTTP(&request));
 }
 
 static void test_incorrectValues6(void) {
@@ -260,7 +260,7 @@ static void test_incorrectValues6(void) {
 
     strncpy(request.privateBuffer, rawRequest3f, sizeof (request.privateBuffer));
 
-    TEST_ASSERT_EQUAL(LE_PARSING_IS_FAILED, parseHTTP(&request));
+    TEST_ASSERT_EQUAL(LE_INCORRECT_SYNTAX, parseHTTP(&request));
 }
 
 static void test_correctValues3(void) {
