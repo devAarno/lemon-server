@@ -41,7 +41,7 @@ string createString(const char *chars) {
     return res;
 }
 
-string getEmptyString() {
+string getEmptyString(void) {
     string s;
     s.data = (char *)emptyString;
     s.length = 0;
@@ -52,7 +52,7 @@ boolean isEmptyString(const string s) {
     return ((emptyString == s.data) && (0 == s.length)) ? TRUE : FALSE;
 }
 
-string getTrueString() {
+string getTrueString(void) {
     string s;
     s.data = (char *)trueString;
     s.length = 4;
@@ -63,7 +63,7 @@ boolean isTrueString(const string s) {
     return ((trueString == s.data) && (4 == s.length)) ? TRUE : FALSE;
 }
 
-string getFalseString() {
+string getFalseString(void) {
     string s;
     s.data = (char *)falseString;
     s.length = 5;
@@ -74,7 +74,7 @@ boolean isFalseString(const string s) {
     return ((falseString == s.data) && (5 == s.length)) ? TRUE : FALSE;
 }
 
-string getNullString() {
+string getNullString(void) {
     string s;
     s.data = (char *)nullString;
     s.length = 4;

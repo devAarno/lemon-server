@@ -108,7 +108,7 @@ static void test1(void) {
     /* TEST_ASSERT_EQUAL_MEMORY(&jsonRequest_backup, &jsonRequest, sizeof(jsonRequest)); */
 }
 
-int main() {
+int main(void) {
     UnityBegin(__FILE__);
     RUN_TEST(test1);
     return (UnityEnd());

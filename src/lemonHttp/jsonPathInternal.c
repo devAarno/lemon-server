@@ -105,7 +105,7 @@ static lemonError isJsonPathResolved(const requestElement *currRoot, const reque
                             ++(currRule);
                         } else {
                             /* DO NOT KNOW */
-                            printf("RETURN LE_OK 1 %.*s\r\n", s->length, s->data);
+                            printf("RETURN LE_OK 1 %.*s\r\n", (int)(s->length), s->data);
                             return LE_OK;
                         }
 
@@ -115,19 +115,19 @@ static lemonError isJsonPathResolved(const requestElement *currRoot, const reque
                             switch (currRule->type) {
                                 case JSONPATH_REQUEST_RECURSIVE:
                                     if ((TRUE == isComplex) && (currRule == lastRule)) {
-                                        printf("RETURN DATA 2 %.*s\r\n", s->length, s->data);
+                                        printf("RETURN DATA 2 %.*s\r\n", (int)s->length, s->data);
                                         puts("CALL 1");
                                         return (currRoot->data.root.callback.handler)(s, currRoot->data.root.callback.data);
                                     }
                                     break;
                                 default:
-                                    printf("RETURN LE_OK 3 %.*s\r\n", s->length, s->data);
+                                    printf("RETURN LE_OK 3 %.*s\r\n", (int)(s->length), s->data);
                                     return LE_OK;
                             }
                         }
                         break;
                     default:
-                        printf("RETURN LE_OK 4 %.*s\r\n", s->length, s->data);
+                        printf("RETURN LE_OK 4 %.*s\r\n", (int)(s->length), s->data);
                         return LE_OK;
                 }
                 break;
@@ -154,7 +154,7 @@ static lemonError isJsonPathResolved(const requestElement *currRoot, const reque
                         }
 
                         if ((1 + currRule == lastRule) && (JSONPATH_REQUEST_RECURSIVE == (1 + currRule)->type) && (currStack == lastStack) && (TRUE == isComplex)) {
-                            printf("RETURN DATA 2xxx %.*s\r\n", s->length, s->data);
+                            printf("RETURN DATA 2xxx %.*s\r\n", (int)(s->length), s->data);
                             puts("CALL 1xxx");
                             return (currRoot->data.root.callback.handler)(s, currRoot->data.root.callback.data);
                         }
@@ -174,7 +174,7 @@ static lemonError isJsonPathResolved(const requestElement *currRoot, const reque
                         }
 
                         if ((1 + currRule == lastRule) && (JSONPATH_REQUEST_RECURSIVE == (1 + currRule)->type) && (currStack == lastStack) && (TRUE == isComplex)) {
-                            printf("RETURN DATA 2xx %.*s\r\n", s->length, s->data);
+                            printf("RETURN DATA 2xx %.*s\r\n", (int)(s->length), s->data);
                             puts("CALL 1xx");
                             return (currRoot->data.root.callback.handler)(s, currRoot->data.root.callback.data);
                         }
@@ -195,7 +195,7 @@ static lemonError isJsonPathResolved(const requestElement *currRoot, const reque
                         }
 
                         if ((1 + currRule == lastRule) && (JSONPATH_REQUEST_RECURSIVE == (1 + currRule)->type) && (currStack == lastStack) && (TRUE == isComplex)) {
-                            printf("RETURN DATA 2x %.*s\r\n", s->length, s->data);
+                            printf("RETURN DATA 2x %.*s\r\n", (int)(s->length), s->data);
                             puts("CALL 1x");
                             return (currRoot->data.root.callback.handler)(s, currRoot->data.root.callback.data);
                         }
@@ -210,7 +210,7 @@ static lemonError isJsonPathResolved(const requestElement *currRoot, const reque
                         }
                         break;
                     default:
-                        printf("RETURN LE_OK 5 %.*s\r\n", s->length, s->data);
+                        printf("RETURN LE_OK 5 %.*s\r\n", (int)(s->length), s->data);
                         return LE_OK;
                 }
                 break;
@@ -228,7 +228,7 @@ static lemonError isJsonPathResolved(const requestElement *currRoot, const reque
                             }
 
                             if ((1 + currRule == lastRule) && (JSONPATH_REQUEST_RECURSIVE == (1 + currRule)->type) && (currStack == lastStack) /*&& (TRUE == isComplex)*/) {
-                                printf("RETURN DATA 2xxxx %.*s\r\n", s->length, s->data);
+                                printf("RETURN DATA 2xxxx %.*s\r\n", (int)(s->length), s->data);
                                 puts("CALL 1xxxb");
                                 return (currRoot->data.root.callback.handler)(s, currRoot->data.root.callback.data);
                             }
@@ -252,7 +252,7 @@ static lemonError isJsonPathResolved(const requestElement *currRoot, const reque
                                 return LE_OK;
                             }
                         } else {
-                            printf("RETURN LE_OK 10 %.*s\r\n", s->length, s->data);
+                            printf("RETURN LE_OK 10 %.*s\r\n", (int)(s->length), s->data);
                             return LE_OK;
                         }
                         break;
@@ -268,7 +268,7 @@ static lemonError isJsonPathResolved(const requestElement *currRoot, const reque
                             }
 
                             if ((1 + currRule == lastRule) && (JSONPATH_REQUEST_RECURSIVE == (1 + currRule)->type) && (currStack == lastStack) /*&& (TRUE == isComplex)*/) {
-                                printf("RETURN DATA 2xxxx %.*s\r\n", s->length, s->data);
+                                printf("RETURN DATA 2xxxx %.*s\r\n", (int)(s->length), s->data);
                                 puts("CALL 1xxxc");
                                 return (currRoot->data.root.callback.handler)(s, currRoot->data.root.callback.data);
                             }
@@ -290,12 +290,12 @@ static lemonError isJsonPathResolved(const requestElement *currRoot, const reque
                                 return LE_OK;
                             }
                         } else {
-                            printf("RETURN LE_OK 15 %.*s\r\n", s->length, s->data);
+                            printf("RETURN LE_OK 15 %.*s\r\n", (int)(s->length), s->data);
                             return LE_OK;
                         }
                         break;
                     case PARSED_JSON_INDEX:
-                        printf("RETURN LE_OK 16 %.*s\r\n", s->length, s->data);
+                        printf("RETURN LE_OK 16 %.*s\r\n", (int)(s->length), s->data);
                         return LE_OK;
                     case PARSED_JSON_OBJECT:
                     case PARSED_JSON_JOINED_OBJECT:
@@ -304,7 +304,7 @@ static lemonError isJsonPathResolved(const requestElement *currRoot, const reque
                         break;
                     default:
                         /* ERROR */
-                        printf("RETURN LE_OK 17 %.*s\r\n", s->length, s->data);
+                        printf("RETURN LE_OK 17 %.*s\r\n", (int)(s->length), s->data);
                         return LE_OK;;
                 }
                 break;
@@ -337,12 +337,12 @@ static lemonError isJsonPathResolved(const requestElement *currRoot, const reque
                             }
 
                         } else {
-                            printf("RETURN LE_OK 18 %.*s\r\n", s->length, s->data);
+                            printf("RETURN LE_OK 18 %.*s\r\n", (int)(s->length), s->data);
                             return LE_OK;
                         }
                         break;
                     default:
-                        printf("RETURN LE_OK 19 %.*s\r\n", s->length, s->data);
+                        printf("RETURN LE_OK 19 %.*s\r\n", (int)(s->length), s->data);
                         return LE_OK;
                 }
                 break;
@@ -369,7 +369,7 @@ static lemonError isJsonPathResolved(const requestElement *currRoot, const reque
                         }
 
                         if ((1 + currRule == lastRule) && (JSONPATH_REQUEST_RECURSIVE == (1 + currRule)->type) && (currStack == lastStack) && (TRUE == isComplex)) {
-                            printf("RETURN DATA 2xxx %.*s\r\n", s->length, s->data);
+                            printf("RETURN DATA 2xxx %.*s\r\n", (int)(s->length), s->data);
                             puts("CALL 1xxx");
                             return (currRoot->data.root.callback.handler)(s, currRoot->data.root.callback.data);
                         }
@@ -389,7 +389,7 @@ static lemonError isJsonPathResolved(const requestElement *currRoot, const reque
                         }
 
                         if ((1 + currRule == lastRule) && (JSONPATH_REQUEST_RECURSIVE == (1 + currRule)->type) && (currStack == lastStack) && (TRUE == isComplex)) {
-                            printf("RETURN DATA 2xx %.*s\r\n", s->length, s->data);
+                            printf("RETURN DATA 2xx %.*s\r\n", (int)(s->length), s->data);
                             puts("CALL 1xx");
                             return (currRoot->data.root.callback.handler)(s, currRoot->data.root.callback.data);
                         }
@@ -410,7 +410,7 @@ static lemonError isJsonPathResolved(const requestElement *currRoot, const reque
                         }
 
                         if ((1 + currRule == lastRule) && (JSONPATH_REQUEST_RECURSIVE == (1 + currRule)->type) && (currStack == lastStack) && (TRUE == isComplex)) {
-                            printf("RETURN DATA 2x %.*s\r\n", s->length, s->data);
+                            printf("RETURN DATA 2x %.*s\r\n", (int)(s->length), s->data);
                             puts("CALL 1x");
                             return (currRoot->data.root.callback.handler)(s, currRoot->data.root.callback.data);
                         }
@@ -425,7 +425,7 @@ static lemonError isJsonPathResolved(const requestElement *currRoot, const reque
                         }
                         break;
                     default:
-                        printf("RETURN LE_OK 20 %.*s\r\n", s->length, s->data);
+                        printf("RETURN LE_OK 20 %.*s\r\n", (int)(s->length), s->data);
                         return LE_OK;
                 }
                 break;
@@ -436,7 +436,7 @@ static lemonError isJsonPathResolved(const requestElement *currRoot, const reque
                             currStack->type = PARSED_JSON_HEAD_OF_JOINED_OBJECT;
                             isJsonPathResolved(currRoot, lastRule, lastStack, s, currRule, currStack, isComplex);
                             currStack->type = PARSED_JSON_OBJECT;
-                            printf("RETURN LE_OK 25 %.*s\r\n", s->length, s->data);
+                            printf("RETURN LE_OK 25 %.*s\r\n", (int)(s->length), s->data);
                             return LE_OK; /* by test 1  ??????????????????????????????????????????????? Can recursive be empty? */
                         } else {
                             currStack->type = PARSED_JSON_JOINED_OBJECT;
@@ -444,13 +444,13 @@ static lemonError isJsonPathResolved(const requestElement *currRoot, const reque
                             currStack->type = PARSED_JSON_HEAD_OF_JOINED_OBJECT;
                             isJsonPathResolved(currRoot, lastRule, lastStack, s, currRule, currStack, isComplex);
                             currStack->type = PARSED_JSON_OBJECT;
-                            printf("RETURN LE_OK 25 %.*s\r\n", s->length, s->data);
+                            printf("RETURN LE_OK 25 %.*s\r\n", (int)(s->length), s->data);
                             return LE_OK; /* by test 1  ??????????????????????????????????????????????? Can recursive be empty? */
                         }
                         return LE_OK;
                     case PARSED_JSON_JOINED_OBJECT:
                         if (lastStack == currStack) {
-                            printf("ERROR STATE 1 %.*s\r\n", s->length, s->data);
+                            printf("ERROR STATE 1 %.*s\r\n", (int)(s->length), s->data);
                             /* printStack(lastStack, "ERROR STATE 1"); */
                             return LE_OK;
                         } else {
@@ -463,14 +463,14 @@ static lemonError isJsonPathResolved(const requestElement *currRoot, const reque
                                 puts("CALL 6");
                                 return (currRoot->data.root.callback.handler)(s, currRoot->data.root.callback.data);
                             } else {
-                                printf("ERROR STATE 2 %.*s\r\n", s->length, s->data);
+                                printf("ERROR STATE 2 %.*s\r\n", (int)(s->length), s->data);
                                 /* printStack(lastStack, "ERROR STATE 2"); */
                                 return LE_OK;
                             }
                         } else {
                             isJsonPathResolved(currRoot, lastRule, lastStack, s, currRule + 1, currStack + 1, isComplex);
                             currStack->type = PARSED_JSON_OBJECT;
-                            printf("RETURN LE_OK 28 %.*s\r\n", s->length, s->data);
+                            printf("RETURN LE_OK 28 %.*s\r\n", (int)(s->length), s->data);
                             return LE_OK; /* May be break ??? */
                         }
                         break;
@@ -502,15 +502,15 @@ static lemonError isJsonPathResolved(const requestElement *currRoot, const reque
                         break;
                     case JSONPATH_REQUEST_ROOT:
                     case NONE:
-                        printf("RETURN LE_OK 41 %.*s\r\n", s->length, s->data);
+                        printf("RETURN LE_OK 41 %.*s\r\n", (int)(s->length), s->data);
                         return LE_OK;
                     default:
-                        printf("RETURN LE_OK 42 %.*s\r\n", s->length, s->data);
+                        printf("RETURN LE_OK 42 %.*s\r\n", (int)(s->length), s->data);
                         return LE_OK;
                 }
                 break;
             default:
-                printf("RETURN LE_OK 43 %.*s\r\n", s->length, s->data);
+                printf("RETURN LE_OK 43 %.*s\r\n", (int)(s->length), s->data);
                 return LE_OK;
         }
     }

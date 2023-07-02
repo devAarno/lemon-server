@@ -42,7 +42,7 @@ void tearDown(void) {
 }
 
 static lemonError fakeExecute(const string *value, calledCallback *data) {
-    printf("OOOUUUTTT %.*s\r\n", value->length, value->data);
+    printf("OOOUUUTTT %.*s\r\n", (int)(value->length), value->data);
     TEST_ASSERT_EQUAL(data->expectedValue.length, value->length);
     TEST_ASSERT_EQUAL_STRING_LEN(data->expectedValue.data, value->data, value->length);
     ++(data->callCounter);
@@ -70,52 +70,52 @@ static void test_empty(void) {
     methodCallback.callCounter = 0;
     methodCallback.expectedValue.data = "GET";
     methodCallback.expectedValue.length = 3;
-    TEST_ASSERT_EQUAL(LE_OK, appendHttpMethodRequest(&request, fakeExecute, &methodCallback));
+    TEST_ASSERT_EQUAL(LE_OK, appendHttpMethodRequest(&request, (httpMethodExecutionHandler) fakeExecute, &methodCallback));
 
     uriCallback.callCounter = 0;
     uriCallback.expectedValue.data = "/1.jpg";
     uriCallback.expectedValue.length = 6;
-    TEST_ASSERT_EQUAL(LE_OK, appendHttpUriRequest(&request, fakeExecute, &uriCallback));
+    TEST_ASSERT_EQUAL(LE_OK, appendHttpUriRequest(&request, (httpUriExecutionHandler) fakeExecute, &uriCallback));
 
     httpVersionCallback.callCounter = 0;
     httpVersionCallback.expectedValue.data = "HTTP/1.1";
     httpVersionCallback.expectedValue.length = 8;
-    TEST_ASSERT_EQUAL(LE_OK, appendHttpVersionRequest(&request, fakeExecute, &httpVersionCallback));
+    TEST_ASSERT_EQUAL(LE_OK, appendHttpVersionRequest(&request, (httpVersionExecutionHandler) fakeExecute, &httpVersionCallback));
 
     helloCallback.callCounter = 0;
     helloCallback.expectedValue.data = "world";
     helloCallback.expectedValue.length = 5;
-    TEST_ASSERT_EQUAL(LE_OK, appendHttpGetParameterQueryRequest(&request, "hello", fakeExecute, &helloCallback));
+    TEST_ASSERT_EQUAL(LE_OK, appendHttpGetParameterQueryRequest(&request, "hello", (httpGetParameterQueryExecutionHandler) fakeExecute, &helloCallback));
 
     value1Callback.callCounter = 0;
     value1Callback.expectedValue = getEmptyString();
-    TEST_ASSERT_EQUAL(LE_OK, appendHttpGetParameterQueryRequest(&request, "value1", fakeExecute, &value1Callback));
+    TEST_ASSERT_EQUAL(LE_OK, appendHttpGetParameterQueryRequest(&request, "value1", (httpGetParameterQueryExecutionHandler) fakeExecute, &value1Callback));
 
     value2Callback.callCounter = 0;
     value2Callback.expectedValue = getEmptyString();
-    TEST_ASSERT_EQUAL(LE_OK, appendHttpGetParameterQueryRequest(&request, "value2", fakeExecute, &value2Callback));
+    TEST_ASSERT_EQUAL(LE_OK, appendHttpGetParameterQueryRequest(&request, "value2", (httpGetParameterQueryExecutionHandler) fakeExecute, &value2Callback));
 
     testCallback.callCounter = 0;
     testCallback.expectedValue.data = "test";
     testCallback.expectedValue.length = 4;
-    TEST_ASSERT_EQUAL(LE_OK, appendHttpGetParameterQueryRequest(&request, "test", fakeExecute, &testCallback));
+    TEST_ASSERT_EQUAL(LE_OK, appendHttpGetParameterQueryRequest(&request, "test", (httpGetParameterQueryExecutionHandler) fakeExecute, &testCallback));
 
     yesCallback.callCounter = 0;
     yesCallback.expectedValue = getEmptyString();
-    TEST_ASSERT_EQUAL(LE_OK, appendHttpGetParameterQueryRequest(&request, "yes", fakeExecute, &yesCallback));
+    TEST_ASSERT_EQUAL(LE_OK, appendHttpGetParameterQueryRequest(&request, "yes", (httpGetParameterQueryExecutionHandler) fakeExecute, &yesCallback));
 
     clientCallback.callCounter = 0;
     clientCallback.expectedValue = getEmptyString();
-    TEST_ASSERT_EQUAL(LE_OK, appendHttpHeaderQueryRequest(&request, "Client", fakeExecute, &clientCallback));
+    TEST_ASSERT_EQUAL(LE_OK, appendHttpHeaderQueryRequest(&request, "Client", (httpHeaderQueryExecutionHandler) fakeExecute, &clientCallback));
 
     serverCallback.callCounter = 0;
     serverCallback.expectedValue = getEmptyString();
-    TEST_ASSERT_EQUAL(LE_OK, appendHttpHeaderQueryRequest(&request, "Server", fakeExecute, &serverCallback));
+    TEST_ASSERT_EQUAL(LE_OK, appendHttpHeaderQueryRequest(&request, "Server", (httpHeaderQueryExecutionHandler) fakeExecute, &serverCallback));
 
     thisCallback.callCounter = 0;
     thisCallback.expectedValue.data = "is a value";
     thisCallback.expectedValue.length = 10;
-    TEST_ASSERT_EQUAL(LE_OK, appendHttpHeaderQueryRequest(&request, "This", fakeExecute, &thisCallback));
+    TEST_ASSERT_EQUAL(LE_OK, appendHttpHeaderQueryRequest(&request, "This", (httpHeaderQueryExecutionHandler) fakeExecute, &thisCallback));
 
     TEST_ASSERT_EQUAL(LE_OK, parseHTTP(&request));
 
@@ -161,11 +161,11 @@ static void test_absent(void) {
 
     absentGetParamCallback.callCounter = 0;
     absentGetParamCallback.expectedValue = getEmptyString();
-    TEST_ASSERT_EQUAL(LE_OK, appendHttpGetParameterQueryRequest(&request, "any", fakeExecute, &absentGetParamCallback));
+    TEST_ASSERT_EQUAL(LE_OK, appendHttpGetParameterQueryRequest(&request, "any", (httpGetParameterQueryExecutionHandler) fakeExecute, &absentGetParamCallback));
 
     absentHeaderParamCallback.callCounter = 0;
     absentHeaderParamCallback.expectedValue = getEmptyString();
-    TEST_ASSERT_EQUAL(LE_OK, appendHttpHeaderQueryRequest(&request, "any", fakeExecute, &absentHeaderParamCallback));
+    TEST_ASSERT_EQUAL(LE_OK, appendHttpHeaderQueryRequest(&request, "any", (httpHeaderQueryExecutionHandler) fakeExecute, &absentHeaderParamCallback));
 
     TEST_ASSERT_EQUAL(LE_OK, parseHTTP(&request));
 
@@ -173,7 +173,7 @@ static void test_absent(void) {
     TEST_ASSERT_EQUAL(0, absentHeaderParamCallback.callCounter);
 }
 
-int main() {
+int main(void) {
     UnityBegin(__FILE__);
     RUN_TEST(test_empty);
     RUN_TEST(test_absent);

@@ -67,33 +67,28 @@ lemonError decodeValue(string *s, const boolean replacePlusWithSpace) {
         while (readPos < oldSize) {
             switch ((s->data)[readPos]) {
                 case '%':
-                    switch ((readPos < oldSize - 2) ? (a = tbl[(s->data)[readPos + 1]]) : NA) {
+                    switch ((readPos < oldSize - 2) ? (a = tbl[(unsigned char)((s->data)[readPos + 1])]) : NA) {
                         case NA:
                             return LE_PARSING_IS_FAILED;
-                            break;
                         default:
-                            switch (b = tbl[(s->data)[readPos + 2]]) {
+                            switch (b = tbl[(unsigned char)((s->data)[readPos + 2])]) {
                                 case NA:
                                     return LE_PARSING_IS_FAILED;
-                                    break;
                                 default:
                                     /* (s->data)[writePos] = 16 * a + b; */
-                                    (s->data)[writePos] = (a << 4) | b;
+                                    (s->data)[writePos++] = (char)((a << 4) | b);
                                     readPos += 3;
-                                    ++writePos;
                                     break;
                             }
                             break;
                     }
                     break;
                 case '+':
-                    (s->data)[writePos] = ((TRUE == replacePlusWithSpace) ? ' ' : (s->data)[readPos]);
-                    ++writePos;
+                    (s->data)[writePos++] = (char)((TRUE == replacePlusWithSpace) ? ' ' : (s->data)[readPos]);
                     ++readPos;
                     break;
                 default:
-                    (s->data)[writePos] = (s->data)[readPos];
-                    ++writePos;
+                    (s->data)[writePos++] = (s->data)[readPos];
                     ++readPos;
                     break;
             }

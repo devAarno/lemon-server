@@ -41,7 +41,7 @@ void tearDown(void) {
 }
 
 static lemonError fakeExecute(const string *value, calledCallback *data) {
-    printf("OOOUUUTTT %.*s\r\n", value->length, value->data);
+    printf("OOOUUUTTT %.*s\r\n", (int)(value->length), value->data);
     TEST_ASSERT_EQUAL(data->expectedValue.length, value->length);
     TEST_ASSERT_EQUAL_STRING_LEN(data->expectedValue.data, value->data, value->length);
     ++(data->callCounter);
@@ -59,7 +59,7 @@ static void commonTest(const char* rawRequest, const char* expected) {
     callData.callCounter = 0;
     callData.expectedValue.data = expected;
     callData.expectedValue.length = strlen(expected);
-    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&request, jsonPathQueryBuffer1, fakeExecute, &callData));
+    TEST_ASSERT_EQUAL(LE_OK, appendJsonPathRequest(&request, jsonPathQueryBuffer1, (jsonPathExecutionHandler) fakeExecute, &callData));
 
     strncpy(request.privateBuffer, rawRequest, sizeof (request.privateBuffer));
     TEST_ASSERT_EQUAL(LE_OK, parseJSON(&request));
@@ -158,7 +158,7 @@ static void test16(void) {
     commonTest(json, json);
 }
 
-int main() {
+int main(void) {
     UnityBegin(__FILE__);
     RUN_TEST(test1);
     RUN_TEST(test2);

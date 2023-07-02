@@ -44,7 +44,7 @@ void tearDown(void) {
 }
 
 static lemonError fakeExecute(const string *value, calledCallback *data) {
-    printf("OOOUUUTTT %.*s\r\n", value->length, value->data);
+    printf("OOOUUUTTT %.*s\r\n", (int)(value->length), value->data);
     TEST_ASSERT_EQUAL(data->expectedValue.length, value->length);
     TEST_ASSERT_EQUAL_STRING_LEN(data->expectedValue.data, value->data, value->length);
     ++(data->callCounter);
@@ -67,17 +67,17 @@ static void test1(void) {
     methodCallback.callCounter = 0;
     methodCallback.expectedValue.data = "GET";
     methodCallback.expectedValue.length = 3;
-    TEST_ASSERT_EQUAL(LE_OK, appendHttpMethodRequest(&request, fakeExecute, &methodCallback));
+    TEST_ASSERT_EQUAL(LE_OK, appendHttpMethodRequest(&request, (httpMethodExecutionHandler) fakeExecute, &methodCallback));
 
     uriCallback.callCounter = 0;
     uriCallback.expectedValue.data = "/a/b/c";
     uriCallback.expectedValue.length = 6;
-    TEST_ASSERT_EQUAL(LE_OK, appendHttpUriRequest(&request, fakeExecute, &uriCallback));
+    TEST_ASSERT_EQUAL(LE_OK, appendHttpUriRequest(&request, (httpUriExecutionHandler) fakeExecute, &uriCallback));
 
     httpVersionCallback.callCounter = 0;
     httpVersionCallback.expectedValue.data = "HTTP/1.1";
     httpVersionCallback.expectedValue.length = 8;
-    TEST_ASSERT_EQUAL(LE_OK, appendHttpVersionRequest(&request, fakeExecute, &httpVersionCallback));
+    TEST_ASSERT_EQUAL(LE_OK, appendHttpVersionRequest(&request, (httpVersionExecutionHandler) fakeExecute, &httpVersionCallback));
 
     TEST_ASSERT_EQUAL(LE_OK, parseHTTP(&request));
 
@@ -102,17 +102,17 @@ static void test2(void) {
     methodCallback.callCounter = 0;
     methodCallback.expectedValue.data = "GET";
     methodCallback.expectedValue.length = 3;
-    TEST_ASSERT_EQUAL(LE_OK, appendHttpMethodRequest(&request, fakeExecute, &methodCallback));
+    TEST_ASSERT_EQUAL(LE_OK, appendHttpMethodRequest(&request, (httpMethodExecutionHandler) fakeExecute, &methodCallback));
 
     uriCallback.callCounter = 0;
     uriCallback.expectedValue.data = "/a/c";
     uriCallback.expectedValue.length = 4;
-    TEST_ASSERT_EQUAL(LE_OK, appendHttpUriRequest(&request, fakeExecute, &uriCallback));
+    TEST_ASSERT_EQUAL(LE_OK, appendHttpUriRequest(&request, (httpUriExecutionHandler) fakeExecute, &uriCallback));
 
     httpVersionCallback.callCounter = 0;
     httpVersionCallback.expectedValue.data = "HTTP/1.1";
     httpVersionCallback.expectedValue.length = 8;
-    TEST_ASSERT_EQUAL(LE_OK, appendHttpVersionRequest(&request, fakeExecute, &httpVersionCallback));
+    TEST_ASSERT_EQUAL(LE_OK, appendHttpVersionRequest(&request, (httpVersionExecutionHandler) fakeExecute, &httpVersionCallback));
 
     TEST_ASSERT_EQUAL(LE_OK, parseHTTP(&request));
 
@@ -137,17 +137,17 @@ static void test3(void) {
     methodCallback.callCounter = 0;
     methodCallback.expectedValue.data = "GET";
     methodCallback.expectedValue.length = 3;
-    TEST_ASSERT_EQUAL(LE_OK, appendHttpMethodRequest(&request, fakeExecute, &methodCallback));
+    TEST_ASSERT_EQUAL(LE_OK, appendHttpMethodRequest(&request, (httpMethodExecutionHandler) fakeExecute, &methodCallback));
 
     uriCallback.callCounter = 0;
     uriCallback.expectedValue.data = "/c";
     uriCallback.expectedValue.length = 2;
-    TEST_ASSERT_EQUAL(LE_OK, appendHttpUriRequest(&request, fakeExecute, &uriCallback));
+    TEST_ASSERT_EQUAL(LE_OK, appendHttpUriRequest(&request, (httpUriExecutionHandler) fakeExecute, &uriCallback));
 
     httpVersionCallback.callCounter = 0;
     httpVersionCallback.expectedValue.data = "HTTP/1.1";
     httpVersionCallback.expectedValue.length = 8;
-    TEST_ASSERT_EQUAL(LE_OK, appendHttpVersionRequest(&request, fakeExecute, &httpVersionCallback));
+    TEST_ASSERT_EQUAL(LE_OK, appendHttpVersionRequest(&request, (httpVersionExecutionHandler) fakeExecute, &httpVersionCallback));
 
     TEST_ASSERT_EQUAL(LE_OK, parseHTTP(&request));
 
@@ -172,17 +172,17 @@ static void test4(void) {
     methodCallback.callCounter = 0;
     methodCallback.expectedValue.data = "GET";
     methodCallback.expectedValue.length = 3;
-    TEST_ASSERT_EQUAL(LE_OK, appendHttpMethodRequest(&request, fakeExecute, &methodCallback));
+    TEST_ASSERT_EQUAL(LE_OK, appendHttpMethodRequest(&request, (httpMethodExecutionHandler) fakeExecute, &methodCallback));
 
     uriCallback.callCounter = 0;
     uriCallback.expectedValue.data = "/c";
     uriCallback.expectedValue.length = 2;
-    TEST_ASSERT_EQUAL(LE_OK, appendHttpUriRequest(&request, fakeExecute, &uriCallback));
+    TEST_ASSERT_EQUAL(LE_OK, appendHttpUriRequest(&request, (httpUriExecutionHandler) fakeExecute, &uriCallback));
 
     httpVersionCallback.callCounter = 0;
     httpVersionCallback.expectedValue.data = "HTTP/1.1";
     httpVersionCallback.expectedValue.length = 8;
-    TEST_ASSERT_EQUAL(LE_OK, appendHttpVersionRequest(&request, fakeExecute, &httpVersionCallback));
+    TEST_ASSERT_EQUAL(LE_OK, appendHttpVersionRequest(&request, (httpVersionExecutionHandler) fakeExecute, &httpVersionCallback));
 
     TEST_ASSERT_EQUAL(LE_OK, parseHTTP(&request));
 
@@ -207,17 +207,17 @@ static void test5(void) {
     methodCallback.callCounter = 0;
     methodCallback.expectedValue.data = "GET";
     methodCallback.expectedValue.length = 3;
-    TEST_ASSERT_EQUAL(LE_OK, appendHttpMethodRequest(&request, fakeExecute, &methodCallback));
+    TEST_ASSERT_EQUAL(LE_OK, appendHttpMethodRequest(&request, (httpMethodExecutionHandler) fakeExecute, &methodCallback));
 
     uriCallback.callCounter = 0;
     uriCallback.expectedValue.data = "/c";
     uriCallback.expectedValue.length = 2;
-    TEST_ASSERT_EQUAL(LE_OK, appendHttpUriRequest(&request, fakeExecute, &uriCallback));
+    TEST_ASSERT_EQUAL(LE_OK, appendHttpUriRequest(&request, (httpUriExecutionHandler) fakeExecute, &uriCallback));
 
     httpVersionCallback.callCounter = 0;
     httpVersionCallback.expectedValue.data = "HTTP/1.1";
     httpVersionCallback.expectedValue.length = 8;
-    TEST_ASSERT_EQUAL(LE_OK, appendHttpVersionRequest(&request, fakeExecute, &httpVersionCallback));
+    TEST_ASSERT_EQUAL(LE_OK, appendHttpVersionRequest(&request, (httpVersionExecutionHandler) fakeExecute, &httpVersionCallback));
 
     TEST_ASSERT_EQUAL(LE_OK, parseHTTP(&request));
 
@@ -242,17 +242,17 @@ static void test6(void) {
     methodCallback.callCounter = 0;
     methodCallback.expectedValue.data = "GET";
     methodCallback.expectedValue.length = 3;
-    TEST_ASSERT_EQUAL(LE_OK, appendHttpMethodRequest(&request, fakeExecute, &methodCallback));
+    TEST_ASSERT_EQUAL(LE_OK, appendHttpMethodRequest(&request, (httpMethodExecutionHandler) fakeExecute, &methodCallback));
 
     uriCallback.callCounter = 0;
     uriCallback.expectedValue.data = "/a/b/j";
     uriCallback.expectedValue.length = 6;
-    TEST_ASSERT_EQUAL(LE_OK, appendHttpUriRequest(&request, fakeExecute, &uriCallback));
+    TEST_ASSERT_EQUAL(LE_OK, appendHttpUriRequest(&request, (httpUriExecutionHandler) fakeExecute, &uriCallback));
 
     httpVersionCallback.callCounter = 0;
     httpVersionCallback.expectedValue.data = "HTTP/1.1";
     httpVersionCallback.expectedValue.length = 8;
-    TEST_ASSERT_EQUAL(LE_OK, appendHttpVersionRequest(&request, fakeExecute, &httpVersionCallback));
+    TEST_ASSERT_EQUAL(LE_OK, appendHttpVersionRequest(&request, (httpVersionExecutionHandler) fakeExecute, &httpVersionCallback));
 
     TEST_ASSERT_EQUAL(LE_OK, parseHTTP(&request));
 
@@ -277,17 +277,17 @@ static void test7(void) {
     methodCallback.callCounter = 0;
     methodCallback.expectedValue.data = "GET";
     methodCallback.expectedValue.length = 3;
-    TEST_ASSERT_EQUAL(LE_OK, appendHttpMethodRequest(&request, fakeExecute, &methodCallback));
+    TEST_ASSERT_EQUAL(LE_OK, appendHttpMethodRequest(&request, (httpMethodExecutionHandler) fakeExecute, &methodCallback));
 
     uriCallback.callCounter = 0;
     uriCallback.expectedValue.data = "/a/c/d";
     uriCallback.expectedValue.length = 6;
-    TEST_ASSERT_EQUAL(LE_OK, appendHttpUriRequest(&request, fakeExecute, &uriCallback));
+    TEST_ASSERT_EQUAL(LE_OK, appendHttpUriRequest(&request, (httpUriExecutionHandler) fakeExecute, &uriCallback));
 
     httpVersionCallback.callCounter = 0;
     httpVersionCallback.expectedValue.data = "HTTP/1.1";
     httpVersionCallback.expectedValue.length = 8;
-    TEST_ASSERT_EQUAL(LE_OK, appendHttpVersionRequest(&request, fakeExecute, &httpVersionCallback));
+    TEST_ASSERT_EQUAL(LE_OK, appendHttpVersionRequest(&request, (httpVersionExecutionHandler) fakeExecute, &httpVersionCallback));
 
     TEST_ASSERT_EQUAL(LE_OK, parseHTTP(&request));
 
@@ -312,17 +312,17 @@ static void test8(void) {
     methodCallback.callCounter = 0;
     methodCallback.expectedValue.data = "GET";
     methodCallback.expectedValue.length = 3;
-    TEST_ASSERT_EQUAL(LE_OK, appendHttpMethodRequest(&request, fakeExecute, &methodCallback));
+    TEST_ASSERT_EQUAL(LE_OK, appendHttpMethodRequest(&request, (httpMethodExecutionHandler) fakeExecute, &methodCallback));
 
     uriCallback.callCounter = 0;
     uriCallback.expectedValue.data = "/A/b/c/{foo}";
     uriCallback.expectedValue.length = 12;
-    TEST_ASSERT_EQUAL(LE_OK, appendHttpUriRequest(&request, fakeExecute, &uriCallback));
+    TEST_ASSERT_EQUAL(LE_OK, appendHttpUriRequest(&request, (httpUriExecutionHandler) fakeExecute, &uriCallback));
 
     httpVersionCallback.callCounter = 0;
     httpVersionCallback.expectedValue.data = "HTTP/1.1";
     httpVersionCallback.expectedValue.length = 8;
-    TEST_ASSERT_EQUAL(LE_OK, appendHttpVersionRequest(&request, fakeExecute, &httpVersionCallback));
+    TEST_ASSERT_EQUAL(LE_OK, appendHttpVersionRequest(&request, (httpVersionExecutionHandler) fakeExecute, &httpVersionCallback));
 
     TEST_ASSERT_EQUAL(LE_OK, parseHTTP(&request));
 
@@ -347,17 +347,17 @@ static void test9(void) {
     methodCallback.callCounter = 0;
     methodCallback.expectedValue.data = "GET";
     methodCallback.expectedValue.length = 3;
-    TEST_ASSERT_EQUAL(LE_OK, appendHttpMethodRequest(&request, fakeExecute, &methodCallback));
+    TEST_ASSERT_EQUAL(LE_OK, appendHttpMethodRequest(&request, (httpMethodExecutionHandler) fakeExecute, &methodCallback));
 
     uriCallback.callCounter = 0;
     uriCallback.expectedValue.data = "/host/~user/x/y/z";
     uriCallback.expectedValue.length = 17;
-    TEST_ASSERT_EQUAL(LE_OK, appendHttpUriRequest(&request, fakeExecute, &uriCallback));
+    TEST_ASSERT_EQUAL(LE_OK, appendHttpUriRequest(&request, (httpUriExecutionHandler) fakeExecute, &uriCallback));
 
     httpVersionCallback.callCounter = 0;
     httpVersionCallback.expectedValue.data = "HTTP/1.1";
     httpVersionCallback.expectedValue.length = 8;
-    TEST_ASSERT_EQUAL(LE_OK, appendHttpVersionRequest(&request, fakeExecute, &httpVersionCallback));
+    TEST_ASSERT_EQUAL(LE_OK, appendHttpVersionRequest(&request, (httpVersionExecutionHandler) fakeExecute, &httpVersionCallback));
 
     TEST_ASSERT_EQUAL(LE_OK, parseHTTP(&request));
 
@@ -382,17 +382,17 @@ static void test10(void) {
     methodCallback.callCounter = 0;
     methodCallback.expectedValue.data = "GET";
     methodCallback.expectedValue.length = 3;
-    TEST_ASSERT_EQUAL(LE_OK, appendHttpMethodRequest(&request, fakeExecute, &methodCallback));
+    TEST_ASSERT_EQUAL(LE_OK, appendHttpMethodRequest(&request, (httpMethodExecutionHandler) fakeExecute, &methodCallback));
 
     uriCallback.callCounter = 0;
     uriCallback.expectedValue.data = "/host/~user/x/y/z";
     uriCallback.expectedValue.length = 17;
-    TEST_ASSERT_EQUAL(LE_OK, appendHttpUriRequest(&request, fakeExecute, &uriCallback));
+    TEST_ASSERT_EQUAL(LE_OK, appendHttpUriRequest(&request, (httpUriExecutionHandler) fakeExecute, &uriCallback));
 
     httpVersionCallback.callCounter = 0;
     httpVersionCallback.expectedValue.data = "HTTP/1.1";
     httpVersionCallback.expectedValue.length = 8;
-    TEST_ASSERT_EQUAL(LE_OK, appendHttpVersionRequest(&request, fakeExecute, &httpVersionCallback));
+    TEST_ASSERT_EQUAL(LE_OK, appendHttpVersionRequest(&request, (httpVersionExecutionHandler) fakeExecute, &httpVersionCallback));
 
     TEST_ASSERT_EQUAL(LE_OK, parseHTTP(&request));
 
@@ -417,17 +417,17 @@ static void test11(void) {
     methodCallback.callCounter = 0;
     methodCallback.expectedValue.data = "GET";
     methodCallback.expectedValue.length = 3;
-    TEST_ASSERT_EQUAL(LE_OK, appendHttpMethodRequest(&request, fakeExecute, &methodCallback));
+    TEST_ASSERT_EQUAL(LE_OK, appendHttpMethodRequest(&request, (httpMethodExecutionHandler) fakeExecute, &methodCallback));
 
     uriCallback.callCounter = 0;
     uriCallback.expectedValue.data = "/b/c/.def/.zz."; /* Really? Not `/b/c/.def/.zz./`? */
     uriCallback.expectedValue.length = 14;
-    TEST_ASSERT_EQUAL(LE_OK, appendHttpUriRequest(&request, fakeExecute, &uriCallback));
+    TEST_ASSERT_EQUAL(LE_OK, appendHttpUriRequest(&request, (httpUriExecutionHandler) fakeExecute, &uriCallback));
 
     httpVersionCallback.callCounter = 0;
     httpVersionCallback.expectedValue.data = "HTTP/1.1";
     httpVersionCallback.expectedValue.length = 8;
-    TEST_ASSERT_EQUAL(LE_OK, appendHttpVersionRequest(&request, fakeExecute, &httpVersionCallback));
+    TEST_ASSERT_EQUAL(LE_OK, appendHttpVersionRequest(&request, (httpVersionExecutionHandler) fakeExecute, &httpVersionCallback));
 
     TEST_ASSERT_EQUAL(LE_OK, parseHTTP(&request));
 
@@ -452,17 +452,17 @@ static void test12(void) {
     methodCallback.callCounter = 0;
     methodCallback.expectedValue.data = "GET";
     methodCallback.expectedValue.length = 3;
-    TEST_ASSERT_EQUAL(LE_OK, appendHttpMethodRequest(&request, fakeExecute, &methodCallback));
+    TEST_ASSERT_EQUAL(LE_OK, appendHttpMethodRequest(&request, (httpMethodExecutionHandler) fakeExecute, &methodCallback));
 
     uriCallback.callCounter = 0;
     uriCallback.expectedValue.data = "/b/c/.qq";
     uriCallback.expectedValue.length = 8;
-    TEST_ASSERT_EQUAL(LE_OK, appendHttpUriRequest(&request, fakeExecute, &uriCallback));
+    TEST_ASSERT_EQUAL(LE_OK, appendHttpUriRequest(&request, (httpUriExecutionHandler) fakeExecute, &uriCallback));
 
     httpVersionCallback.callCounter = 0;
     httpVersionCallback.expectedValue.data = "HTTP/1.1";
     httpVersionCallback.expectedValue.length = 8;
-    TEST_ASSERT_EQUAL(LE_OK, appendHttpVersionRequest(&request, fakeExecute, &httpVersionCallback));
+    TEST_ASSERT_EQUAL(LE_OK, appendHttpVersionRequest(&request, (httpVersionExecutionHandler) fakeExecute, &httpVersionCallback));
 
     TEST_ASSERT_EQUAL(LE_OK, parseHTTP(&request));
 
@@ -487,17 +487,17 @@ static void test13(void) {
     methodCallback.callCounter = 0;
     methodCallback.expectedValue.data = "POST";
     methodCallback.expectedValue.length = 4;
-    TEST_ASSERT_EQUAL(LE_OK, appendHttpMethodRequest(&request, fakeExecute, &methodCallback));
+    TEST_ASSERT_EQUAL(LE_OK, appendHttpMethodRequest(&request, (httpMethodExecutionHandler) fakeExecute, &methodCallback));
 
     uriCallback.callCounter = 0;
     uriCallback.expectedValue.data = "/test/me/again/.and./again/index.html";
     uriCallback.expectedValue.length = 37;
-    TEST_ASSERT_EQUAL(LE_OK, appendHttpUriRequest(&request, fakeExecute, &uriCallback));
+    TEST_ASSERT_EQUAL(LE_OK, appendHttpUriRequest(&request, (httpUriExecutionHandler) fakeExecute, &uriCallback));
 
     httpVersionCallback.callCounter = 0;
     httpVersionCallback.expectedValue.data = "HTTP/1.1";
     httpVersionCallback.expectedValue.length = 8;
-    TEST_ASSERT_EQUAL(LE_OK, appendHttpVersionRequest(&request, fakeExecute, &httpVersionCallback));
+    TEST_ASSERT_EQUAL(LE_OK, appendHttpVersionRequest(&request, (httpVersionExecutionHandler) fakeExecute, &httpVersionCallback));
 
     TEST_ASSERT_EQUAL(LE_OK, parseHTTP(&request));
 
@@ -506,7 +506,7 @@ static void test13(void) {
     TEST_ASSERT_EQUAL(1, httpVersionCallback.callCounter);
 }
 
-int main() {
+int main(void) {
     UnityBegin(__FILE__);
     RUN_TEST(test1);
     RUN_TEST(test2);

@@ -350,7 +350,7 @@ static void test13(void) {
     TEST_ASSERT_EQUAL(JSONPATH_REQUEST_ANY, fakeRequest.elements[2].type);
 }
 
-int main() {
+int main(void) {
     UnityBegin(__FILE__);
     RUN_TEST(test1);
     RUN_TEST(test2);

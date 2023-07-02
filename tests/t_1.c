@@ -44,7 +44,7 @@ void tearDown(void) {
 }
 
 static lemonError fakeExecute(const string *value, calledCallback *data) {
-    printf("OOOUUUTTT %.*s\r\n", value->length, value->data);
+    printf("OOOUUUTTT %.*s\r\n", (int)(value->length), value->data);
     TEST_ASSERT_EQUAL(data->expectedValue.length, value->length);
     TEST_ASSERT_EQUAL_STRING_LEN(data->expectedValue.data, value->data, value->length);
     ++(data->callCounter);
@@ -64,17 +64,17 @@ static void test_byRawRequest1(void) {
     methodCallback.callCounter = 0;
     methodCallback.expectedValue.data = "GET";
     methodCallback.expectedValue.length = 3;
-    TEST_ASSERT_EQUAL(LE_OK, appendHttpMethodRequest(&request, fakeExecute, &methodCallback));
+    TEST_ASSERT_EQUAL(LE_OK, appendHttpMethodRequest(&request, (httpMethodExecutionHandler) fakeExecute, &methodCallback));
 
     uriCallback.callCounter = 0;
     uriCallback.expectedValue.data = "/1.jpg";
     uriCallback.expectedValue.length = 6;
-    TEST_ASSERT_EQUAL(LE_OK, appendHttpUriRequest(&request, fakeExecute, &uriCallback));
+    TEST_ASSERT_EQUAL(LE_OK, appendHttpUriRequest(&request, (httpUriExecutionHandler) fakeExecute, &uriCallback));
 
     httpVersionCallback.callCounter = 0;
     httpVersionCallback.expectedValue.data = "HTTP/1.1";
     httpVersionCallback.expectedValue.length = 8;
-    TEST_ASSERT_EQUAL(LE_OK, appendHttpVersionRequest(&request, fakeExecute, &httpVersionCallback));
+    TEST_ASSERT_EQUAL(LE_OK, appendHttpVersionRequest(&request, (httpVersionExecutionHandler) fakeExecute, &httpVersionCallback));
 
     TEST_ASSERT_EQUAL(LE_OK, parseHTTP(&request));
 
@@ -103,52 +103,52 @@ static void test_byRawRequest2(void) {
     methodCallback.callCounter = 0;
     methodCallback.expectedValue.data = "GET";
     methodCallback.expectedValue.length = 3;
-    TEST_ASSERT_EQUAL(LE_OK, appendHttpMethodRequest(&request, fakeExecute, &methodCallback));
+    TEST_ASSERT_EQUAL(LE_OK, appendHttpMethodRequest(&request, (httpMethodExecutionHandler) fakeExecute, &methodCallback));
 
     uriCallback.callCounter = 0;
     uriCallback.expectedValue.data = "/";
     uriCallback.expectedValue.length = 1;
-    TEST_ASSERT_EQUAL(LE_OK, appendHttpUriRequest(&request, fakeExecute, &uriCallback));
+    TEST_ASSERT_EQUAL(LE_OK, appendHttpUriRequest(&request, (httpUriExecutionHandler) fakeExecute, &uriCallback));
 
     httpVersionCallback.callCounter = 0;
     httpVersionCallback.expectedValue.data = "HTTP/1.1";
     httpVersionCallback.expectedValue.length = 8;
-    TEST_ASSERT_EQUAL(LE_OK, appendHttpVersionRequest(&request, fakeExecute, &httpVersionCallback));
+    TEST_ASSERT_EQUAL(LE_OK, appendHttpVersionRequest(&request, (httpVersionExecutionHandler) fakeExecute, &httpVersionCallback));
 
     hostHeaderCallback.callCounter = 0;
     hostHeaderCallback.expectedValue.data = "myserver:40000";
     hostHeaderCallback.expectedValue.length = 14;
-    TEST_ASSERT_EQUAL(LE_OK, appendHttpHeaderQueryRequest(&request, "Host", fakeExecute, &hostHeaderCallback));
+    TEST_ASSERT_EQUAL(LE_OK, appendHttpHeaderQueryRequest(&request, "Host", (httpHeaderQueryExecutionHandler) fakeExecute, &hostHeaderCallback));
 
     userAgentHeaderCallback.callCounter = 0;
     userAgentHeaderCallback.expectedValue.data = "Browser/5.0 (OS 10.0; os64; x64; rv:54.0) HTMLEngine/20100101 Browser/54.0";
     userAgentHeaderCallback.expectedValue.length = 74;
-    TEST_ASSERT_EQUAL(LE_OK, appendHttpHeaderQueryRequest(&request, "User-Agent", fakeExecute, &userAgentHeaderCallback));
+    TEST_ASSERT_EQUAL(LE_OK, appendHttpHeaderQueryRequest(&request, "User-Agent", (httpHeaderQueryExecutionHandler) fakeExecute, &userAgentHeaderCallback));
 
     acceptHeaderCallback.callCounter = 0;
     acceptHeaderCallback.expectedValue.data = "text/html,application/xhtml+xml,application/xml;q=0.9,*//*;q=0.8";
     acceptHeaderCallback.expectedValue.length = 64;
-    TEST_ASSERT_EQUAL(LE_OK, appendHttpHeaderQueryRequest(&request, "Accept", fakeExecute, &acceptHeaderCallback));
+    TEST_ASSERT_EQUAL(LE_OK, appendHttpHeaderQueryRequest(&request, "Accept", (httpHeaderQueryExecutionHandler) fakeExecute, &acceptHeaderCallback));
 
     acceptLanguageHeaderCallback.callCounter = 0;
     acceptLanguageHeaderCallback.expectedValue.data = "ru-RU,ru;q=0.8,en-US;q=0.5,en;q=0.3";
     acceptLanguageHeaderCallback.expectedValue.length = 35;
-    TEST_ASSERT_EQUAL(LE_OK, appendHttpHeaderQueryRequest(&request, "Accept-Language", fakeExecute, &acceptLanguageHeaderCallback));
+    TEST_ASSERT_EQUAL(LE_OK, appendHttpHeaderQueryRequest(&request, "Accept-Language", (httpHeaderQueryExecutionHandler) fakeExecute, &acceptLanguageHeaderCallback));
 
     acceptEncodingHeaderCallback.callCounter = 0;
     acceptEncodingHeaderCallback.expectedValue.data = "gzip, deflate";
     acceptEncodingHeaderCallback.expectedValue.length = 13;
-    TEST_ASSERT_EQUAL(LE_OK, appendHttpHeaderQueryRequest(&request, "Accept-Encoding", fakeExecute, &acceptEncodingHeaderCallback));
+    TEST_ASSERT_EQUAL(LE_OK, appendHttpHeaderQueryRequest(&request, "Accept-Encoding", (httpHeaderQueryExecutionHandler) fakeExecute, &acceptEncodingHeaderCallback));
 
     connectionHeaderCallback.callCounter = 0;
     connectionHeaderCallback.expectedValue.data = "keep-alive";
     connectionHeaderCallback.expectedValue.length = 10;
-    TEST_ASSERT_EQUAL(LE_OK, appendHttpHeaderQueryRequest(&request, "Connection", fakeExecute, &connectionHeaderCallback));
+    TEST_ASSERT_EQUAL(LE_OK, appendHttpHeaderQueryRequest(&request, "Connection", (httpHeaderQueryExecutionHandler) fakeExecute, &connectionHeaderCallback));
 
     upgradeInsecureRequestsHeaderCallback.callCounter = 0;
     upgradeInsecureRequestsHeaderCallback.expectedValue.data = "1";
     upgradeInsecureRequestsHeaderCallback.expectedValue.length = 1;
-    TEST_ASSERT_EQUAL(LE_OK, appendHttpHeaderQueryRequest(&request, "Upgrade-Insecure-Requests", fakeExecute, &upgradeInsecureRequestsHeaderCallback));
+    TEST_ASSERT_EQUAL(LE_OK, appendHttpHeaderQueryRequest(&request, "Upgrade-Insecure-Requests", (httpHeaderQueryExecutionHandler) fakeExecute, &upgradeInsecureRequestsHeaderCallback));
 
     TEST_ASSERT_EQUAL(LE_OK, parseHTTP(&request));
 
@@ -191,47 +191,47 @@ static void test_byRawRequest3(void) {
     methodCallback.callCounter = 0;
     methodCallback.expectedValue.data = "POST";
     methodCallback.expectedValue.length = 4;
-    TEST_ASSERT_EQUAL(LE_OK, appendHttpMethodRequest(&request, fakeExecute, &methodCallback));
+    TEST_ASSERT_EQUAL(LE_OK, appendHttpMethodRequest(&request, (httpMethodExecutionHandler) fakeExecute, &methodCallback));
 
     uriCallback.callCounter = 0;
     uriCallback.expectedValue.data = "/index.html";
     uriCallback.expectedValue.length = 11;
-    TEST_ASSERT_EQUAL(LE_OK, appendHttpUriRequest(&request, fakeExecute, &uriCallback));
+    TEST_ASSERT_EQUAL(LE_OK, appendHttpUriRequest(&request, (httpUriExecutionHandler) fakeExecute, &uriCallback));
 
     httpVersionCallback.callCounter = 0;
     httpVersionCallback.expectedValue.data = "HTTP/1.1";
     httpVersionCallback.expectedValue.length = 8;
-    TEST_ASSERT_EQUAL(LE_OK, appendHttpVersionRequest(&request, fakeExecute, &httpVersionCallback));
+    TEST_ASSERT_EQUAL(LE_OK, appendHttpVersionRequest(&request, (httpVersionExecutionHandler) fakeExecute, &httpVersionCallback));
 
     iCallback.callCounter = 0;
     iCallback.expectedValue.data = "100";
     iCallback.expectedValue.length = 3;
-    TEST_ASSERT_EQUAL(LE_OK, appendHttpGetParameterQueryRequest(&request, "i", fakeExecute, &iCallback));
+    TEST_ASSERT_EQUAL(LE_OK, appendHttpGetParameterQueryRequest(&request, "i", (httpGetParameterQueryExecutionHandler) fakeExecute, &iCallback));
 
     jCallback.callCounter = 0;
     jCallback.expectedValue.data = "-7";
     jCallback.expectedValue.length = 2;
-    TEST_ASSERT_EQUAL(LE_OK, appendHttpGetParameterQueryRequest(&request, "j", fakeExecute, &jCallback));
+    TEST_ASSERT_EQUAL(LE_OK, appendHttpGetParameterQueryRequest(&request, "j", (httpGetParameterQueryExecutionHandler) fakeExecute, &jCallback));
 
     tempCallback.callCounter = 0;
     tempCallback.expectedValue.data = "Kelvin";
     tempCallback.expectedValue.length = 6;
-    TEST_ASSERT_EQUAL(LE_OK, appendHttpGetParameterQueryRequest(&request, "temp", fakeExecute, &tempCallback));
+    TEST_ASSERT_EQUAL(LE_OK, appendHttpGetParameterQueryRequest(&request, "temp", (httpGetParameterQueryExecutionHandler) fakeExecute, &tempCallback));
 
     hostHeaderCallback.callCounter = 0;
     hostHeaderCallback.expectedValue.data = "localhost";
     hostHeaderCallback.expectedValue.length = 9;
-    TEST_ASSERT_EQUAL(LE_OK, appendHttpHeaderQueryRequest(&request, "Host", fakeExecute, &hostHeaderCallback));
+    TEST_ASSERT_EQUAL(LE_OK, appendHttpHeaderQueryRequest(&request, "Host", (httpHeaderQueryExecutionHandler) fakeExecute, &hostHeaderCallback));
 
     complexHeaderCallback.callCounter = 0;
     complexHeaderCallback.expectedValue.data = "test1;test2;test3    groovy  mmm";
     complexHeaderCallback.expectedValue.length = 32;
-    TEST_ASSERT_EQUAL(LE_OK, appendHttpHeaderQueryRequest(&request, "complex", fakeExecute, &complexHeaderCallback));
+    TEST_ASSERT_EQUAL(LE_OK, appendHttpHeaderQueryRequest(&request, "complex", (httpHeaderQueryExecutionHandler) fakeExecute, &complexHeaderCallback));
 
     hoztHeaderCallback.callCounter = 0;
     hoztHeaderCallback.expectedValue.data = "z=z&z?z:z127.0.0.1";
     hoztHeaderCallback.expectedValue.length = 18;
-    TEST_ASSERT_EQUAL(LE_OK, appendHttpHeaderQueryRequest(&request, "Hozt", fakeExecute, &hoztHeaderCallback));
+    TEST_ASSERT_EQUAL(LE_OK, appendHttpHeaderQueryRequest(&request, "Hozt", (httpHeaderQueryExecutionHandler) fakeExecute, &hoztHeaderCallback));
 
     TEST_ASSERT_EQUAL(LE_OK, parseHTTP(&request));
 
