@@ -19,7 +19,7 @@
 
 #include "strncasecmp.h"
 
-#ifdef USE_INTERNAL_STRNCASECMP
+#ifndef USE_STRINGS_H
 
 /** FreeBSD implementation
  * https://svnweb.freebsd.org/base/head/lib/libc/string/strcasecmp.c?view=markup
@@ -63,7 +63,7 @@
 
 #include <ctype.h>
 
-static int strncasecmp_internal(const char *s1, const char *s2, size_t n) {
+int strncasecmp_internal(const char *s1, const char *s2, size_t n) {
     if (n != 0) {
         do {
             if (tolower(*s1) != tolower(*s2++))

@@ -30,7 +30,6 @@ set(allSymbols
   accept bind fprintf fwrite htonl htons listen memset printf puts read socket 
   strlen tolower NULL AF_INET SOCK_STREAM INADDR_ANY)
 
-set(httpRequestDefs "")
 
 check_include_files("${allHeaders}" ${PROJECT_NAME}_commonHeaders)
 if (NOT ${PROJECT_NAME}_commonHeaders)
@@ -40,7 +39,8 @@ endif (NOT ${PROJECT_NAME}_commonHeaders)
 check_include_file("strings.h" ${PROJECT_NAME}_strings)
 if (${PROJECT_NAME}_strings)
   set(allHeaders "${allHeaders}" "strings.h")
-  set(httpRequestDefs "${httpRequestDefs} -DUSE_STRINGS_H")
+elseif (${PROJECT_NAME}_strings)
+  set(allHeaders "${allHeaders}" "ctype.h")
 endif (${PROJECT_NAME}_strings)
 # END: Append to allHeaders some possible headers
 message("${allHeaders}")
@@ -59,11 +59,12 @@ string(TOUPPER ${PROJECT_NAME}_${s} sup_strncasecmp)
 check_symbol_exists(${s} "${allHeaders}" HAS_${sup_strncasecmp})
 
 
-if (NOT HAS_${sup_strncasecmp})
-  message(FATAL_ERROR "strncasecmp is not found.")
-elseif (NOT HAS_${sup_strncasecmp})
-  set(httpRequestDefs "${httpRequestDefs} -DUSE_INTERNAL_STRNCASECMP")
-endif (NOT HAS_${sup_strncasecmp})
+if (HAS_${sup_strncasecmp})
+  set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DUSE_STRING_H")
+  set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -DUSE_STRING_H")
+  set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS} -DUSE_STRING_H")
+  set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS} -DUSE_STRING_H")
+endif (HAS_${sup_strncasecmp})
 # END: Use internal strncasecmp or get it from a system library
 
 # https://samthursfield.wordpress.com/2015/11/21/cmake-dependencies-between-targets-and-files-and-custom-commands/
@@ -82,8 +83,6 @@ add_dependencies(parser lemon)
 file(GLOB_RECURSE allSrc RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.[c|h])
 list(REMOVE_ITEM allSrc lemonHttp/lempar.c)
 list(REMOVE_ITEM allSrc lemonHttp/http11Lemon.c lemonHttp/http11Lemon.h)
-
-set_source_files_properties(lemonHttp/http_request.c PROPERTIES COMPILE_FLAGS "${httpRequestDefs}")
 
 # add_definitions(-DYYSTACKDEPTH=480 -DParseHTTP11_ENGINEALWAYSONSTACK -DParseJSON_ENGINEALWAYSONSTACK -DParseJSONPath_ENGINEALWAYSONSTACK)
 

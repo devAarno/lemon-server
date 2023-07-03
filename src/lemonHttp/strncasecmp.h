@@ -20,19 +20,19 @@
 #ifndef LEMONSERVER_STRNCASECMP_H
 #define LEMONSERVER_STRNCASECMP_H
 
-#ifdef USE_STRINGS_H
-#include <strings.h>
-#endif
-
 #undef STRNCASECMP
 
-#ifdef USE_INTERNAL_STRNCASECMP
+#ifdef USE_STRINGS_H
 
-int strncasecmp_internal(const char *s1, const char *s2, size_t n);
-
-#define STRNCASECMP strncasecmp_internal
-#else
+#include <strings.h>
 #define STRNCASECMP strncasecmp
+
+#else
+
+#include <stddef.h>
+int strncasecmp_internal(const char *s1, const char *s2, size_t n);
+#define STRNCASECMP strncasecmp_internal
+
 #endif
 
 #endif /* LEMONSERVER_STRNCASECMP_H */
