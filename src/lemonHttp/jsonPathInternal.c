@@ -584,12 +584,11 @@ lemonError executeJsonPathCallbackWithValue(httpRequest *jsonRequest, const stri
     lastStack = &((jsonRequest->elements)[jsonRequest->elementsCount + jsonRequest->parsedStackSize - 1]);
 
     while (JSONPATH_REQUEST_ROOT == currElement->type) { /* Be carefull */
-        const rootRule *currRoot = &(currElement->data.root);
+        const size_t ruleSize = currElement->data.root.ruleSize;
 
+        isJsonPathResolved(currElement, &(currElement[ruleSize - 1]), lastStack, s, currElement, currStack, isComplex);
 
-        isJsonPathResolved(currRoot, &(currElement[currRoot->ruleSize - 1]), lastStack, s, currRoot, currStack, isComplex);
-
-        currElement = &(currElement[currRoot->ruleSize]);;
+        currElement = &(currElement[ruleSize]);
     }
 
     return LE_OK;

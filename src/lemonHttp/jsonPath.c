@@ -24,11 +24,13 @@
 #include "./jsonPathQueryBuffer.h"
 #include "parser.h"
 
-lemonError appendJsonPathRequest(httpRequest *p, jsonPathQueryBuffer *b, jsonPathExecutionHandler handler, changingData *data) {
+lemonError appendJsonPathRequest(httpRequest *p, jsonPathQueryBuffer *b, const jsonPathExecutionHandler handler, changingData *data) {
     if ((NULL == b) || (NULL == p) || (NULL == handler) || (NULL == data)) {
         return LE_NULL_IN_INPUT_VALUES;
     }
     {
+        rootRule rootRule;
+        jsonPathCallback jsonPathCallback;
         const size_t newRootPlace = p->elementsCount;
         const lemonError err = parseJSONPath(p, b);
 
@@ -36,9 +38,13 @@ lemonError appendJsonPathRequest(httpRequest *p, jsonPathQueryBuffer *b, jsonPat
             return err;
         }
 
-        (p->elements)[newRootPlace].data.root.callback.handler = handler;
-        (p->elements)[newRootPlace].data.root.callback.data = data;
-        (p->elements)[newRootPlace].data.root.ruleSize = p->elementsCount - newRootPlace;
+        jsonPathCallback.handler = handler;
+        jsonPathCallback.data = data;
+
+        rootRule.callback = jsonPathCallback;
+        rootRule.ruleSize = p->elementsCount - newRootPlace;
+
+        (p->elements)[newRootPlace].data.root = rootRule;
     }
     return LE_OK;
 }
