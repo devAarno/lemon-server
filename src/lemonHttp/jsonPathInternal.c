@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017, 2018, 2019, 2020, 2021, 2022, 2023 Parkhomenko Stanislav
+ * Copyright (C) 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024 Parkhomenko Stanislav
  *
  * This file is part of Lemon Server.
  *
@@ -26,15 +26,78 @@
 #include "../boolean.h"
 #include "rules.h"
 
+const char * getRuleName(const ruleType rule) {
+    switch (rule) {
+        case NONE:
+            return "NONE";
+        case HTTP_REQUEST_METHOD:
+            return "HTTP_REQUEST_METHOD";
+        case HTTP_REQUEST_URI:
+            return "HTTP_REQUEST_URI";
+        case HTTP_REQUEST_GET_QUERY_ELEMENT:
+            return "HTTP_REQUEST_GET_QUERY_ELEMENT";
+        case HTTP_REQUEST_VALUE:
+            return "HTTP_REQUEST_VALUE";
+        case HTTP_REQUEST_HTTP_VERSION:
+            return "HTTP_REQUEST_HTTP_VERSION";
+        case HTTP_REQUEST_HEADER:
+            return "HTTP_REQUEST_HEADER";
+        case JSONPATH_REQUEST_ROOT:
+            return "JSONPATH_REQUEST_ROOT";
+        case JSONPATH_REQUEST_ANY:
+            return "JSONPATH_REQUEST_ANY";
+        case JSONPATH_REQUEST_ANYINDEX:
+            return "JSONPATH_REQUEST_ANYINDEX";
+        case JSONPATH_REQUEST_NAME:
+            return "JSONPATH_REQUEST_NAME";
+        case JSON_PATH_REQUEST_NAME_WITH_OBJECT_OR_ARRAY:
+            return "JSON_PATH_REQUEST_NAME_WITH_OBJECT_OR_ARRAY";
+        case JSONPATH_REQUEST_INDEX:
+            return "JSONPATH_REQUEST_INDEX";
+        case JSONPATH_REQUEST_RECURSIVE:
+            return "JSONPATH_REQUEST_RECURSIVE";
+        case JSONPATH_REQUEST_OBJECT:
+            return "JSONPATH_REQUEST_OBJECT";
+        case JSONPATH_REQUEST_ARRAY:
+            return "JSONPATH_REQUEST_ARRAY";
+        case JSONPATH_REQUEST_TERMINATOR:
+            return "JSONPATH_REQUEST_TERMINATOR";
+        case PARSED_JSON_ROOT:
+            return "PARSED_JSON_ROOT";
+        case PARSED_JSON_OBJECT:
+            return "PARSED_JSON_OBJECT";
+        case PARSED_JSON_JOINED_OBJECT:
+            return "PARSED_JSON_JOINED_OBJECT";
+        case PARSED_JSON_HEAD_OF_JOINED_OBJECT:
+            return "PARSED_JSON_HEAD_OF_JOINED_OBJECT";
+        case PARSED_JSON_ARRAY:
+            return "PARSED_JSON_ARRAY";
+        case PARSED_JSON_ARRAY_VALUE:
+            return "PARSED_JSON_ARRAY_VALUE";
+        case PARSED_JSON_FIELD:
+            return "PARSED_JSON_FIELD";
+        case PARSED_JSON_FIELD_WITH_OBJECT:
+            return "PARSED_JSON_FIELD_WITH_OBJECT";
+        case PARSED_JSON_RESOLVED_FIELD:
+            return "PARSED_JSON_RESOLVED_FIELD";
+        case PARSED_JSON_VALUE:
+            return "PARSED_JSON_VALUE";
+        case FINAL_ON_SUCCESS_CALLBACK:
+            return "FINAL_ON_SUCCESS_CALLBACK";
+        case ON_START_CALLBACK:
+            return "ON_START_CALLBACK";
+    }
+}
+
 lemonError appendJsonPathElementOfHttpRequest(httpRequest *r, const string *s, const ruleType type) {
     const string emptyString = getEmptyString();
-    if ((NULL == r) || (NULL == s) || (NULL == s->data) ||
+    /* if ((NULL == r) || (NULL == s) || (NULL == s->data) ||
         (0 > r->elementsCount) ||
         (((emptyString.length == s->length) && (emptyString.data != s->data)) || ((emptyString.length != s->length) && (emptyString.data == s->data))) ||
         ((emptyString.length == s->length) && (emptyString.data == s->data) && (JSONPATH_REQUEST_ROOT != type) && (JSONPATH_REQUEST_ANY != type) && (JSONPATH_REQUEST_ANYINDEX != type) && (JSONPATH_REQUEST_RECURSIVE != type)) ||
         (emptyString.length > s->length)) {
         return LE_NULL_IN_INPUT_VALUES;
-    }
+    }*/
     {
         const size_t elementNo = (r->elementsCount)++;
         ((r->elements)[elementNo]).type = type;
@@ -53,6 +116,9 @@ lemonError appendJsonPathElementOfHttpRequest(httpRequest *r, const string *s, c
             case JSONPATH_REQUEST_ANY:
             case JSONPATH_REQUEST_ANYINDEX:
             case JSONPATH_REQUEST_RECURSIVE:
+            case JSONPATH_REQUEST_ARRAY:
+            case JSONPATH_REQUEST_OBJECT:
+            case JSONPATH_REQUEST_TERMINATOR:
                 break;
             default:
                 return LE_INCORRECT_INPUT_VALUES;
@@ -61,553 +127,972 @@ lemonError appendJsonPathElementOfHttpRequest(httpRequest *r, const string *s, c
     }
 }
 
-/* static lemonError printStack(jsonPathElement *lastStack, const char *name) {
-    printf("OOOUUUTTT STACK %s <<< ", name);
+lemonError openFrame(httpRequest *jsonRequest, const char *position, const ruleType type) {
+    requestElement *newStackElement = &(jsonRequest->elements[jsonRequest->elementsCount + jsonRequest->parsedStackSize]);
+    requestElement *stackElements = jsonRequest->elements;
+    newStackElement->type = type;
+    newStackElement->fType = USELESS;
+    newStackElement->frameStartPosition = position;
 
-    if ((lastStack -> type == PARSED_JSON_FIELD_WITH_OBJECT) || (lastStack -> type == PARSED_JSON_FIELD) || (lastStack -> type == PARSED_JSON_RESOLVED_FIELD)) {
-        printf(" %d(%.*s) ", lastStack -> type, lastStack->data.name.length, lastStack->data.name.data);
-    } else {
-        printf(" %d ", lastStack -> type);
-    }
-    while ((--lastStack)->type != PARSED_JSON_ROOT ) {
-        if ((lastStack -> type == PARSED_JSON_FIELD_WITH_OBJECT) || (lastStack -> type == PARSED_JSON_FIELD) || (lastStack -> type == PARSED_JSON_RESOLVED_FIELD)) {
-            printf(" %d(%.*s) ", lastStack -> type, lastStack->data.name.length, lastStack->data.name.data);
-        } else {
-            printf(" %d ", lastStack -> type);
+    ++(jsonRequest->parsedStackSize);
+
+    while (JSONPATH_REQUEST_ROOT == stackElements->type) { /* Be carefull */
+        const size_t ruleSize = stackElements->data.root.ruleSize;
+        requestElement *currRule = &(stackElements[stackElements->data.root.resolvedRulesCount]);
+
+        /* isJsonPathResolved(currElement, &(currElement[ruleSize - 1]), lastStack, s, currElement, currStack, isComplex); */
+
+        /* if ((NULL != stackElements->data.root.alreadyFailed) && (PARSED_JSON_FIELD == ((requestElement *)(stackElements->data.root.alreadyFailed))->type)) {
+            stackElements->data.root.alreadyFailed = newStackElement;
+        }*/
+
+        if ((NULL == stackElements->data.root.alreadyFailed) && (ruleSize - 1  == stackElements->data.root.resolvedRulesCount)) {
+            printf("  LOCK FRAME: ruleLine = %p, frame = %p, position = %.20s\n", stackElements, newStackElement, position);
+            stackElements->data.root.alreadyFailed = newStackElement;
+            newStackElement->fType = REQUIRED;
         }
+
+        if (NULL == stackElements->data.root.alreadyFailed) {
+
+            printf("OPEN FRAME: ruleLine = %p, currRule = %s meets arg = %s, position = %.20s\n", stackElements, getRuleName(currRule->type), getRuleName(type), position);
+
+            switch (currRule->type) {
+                case JSONPATH_REQUEST_ROOT:
+                    switch (type) {
+                        case PARSED_JSON_ROOT:
+                            ++(stackElements->data.root.resolvedRulesCount);
+                            printf("Next rule type 2: %d (root resolved)\n", stackElements[stackElements->data.root.resolvedRulesCount].type);
+                            break;
+                        case PARSED_JSON_OBJECT:
+                        case PARSED_JSON_JOINED_OBJECT:
+                        case PARSED_JSON_HEAD_OF_JOINED_OBJECT:
+                        case PARSED_JSON_ARRAY:
+                        case PARSED_JSON_ARRAY_VALUE:
+                        case PARSED_JSON_FIELD:
+                        case PARSED_JSON_FIELD_WITH_OBJECT:
+                        case PARSED_JSON_RESOLVED_FIELD:
+                        case PARSED_JSON_VALUE:
+                            stackElements->data.root.alreadyFailed = newStackElement;
+                            printf("  LOCK FRAME: ruleLine = %p, frame = %p, position = %.20s\n", stackElements, newStackElement, position);
+                            puts("(rule type) RRROOOTTT???");
+                            break;
+                        case NONE:
+                        case HTTP_REQUEST_METHOD:
+                        case HTTP_REQUEST_URI:
+                        case HTTP_REQUEST_GET_QUERY_ELEMENT:
+                        case HTTP_REQUEST_VALUE:
+                        case HTTP_REQUEST_HTTP_VERSION:
+                        case HTTP_REQUEST_HEADER:
+                        case JSONPATH_REQUEST_ROOT:
+                        case JSONPATH_REQUEST_ANY:
+                        case JSONPATH_REQUEST_ANYINDEX:
+                        case JSONPATH_REQUEST_NAME:
+                        case JSON_PATH_REQUEST_NAME_WITH_OBJECT_OR_ARRAY:
+                        case JSONPATH_REQUEST_INDEX:
+                        case JSONPATH_REQUEST_RECURSIVE:
+                        case JSONPATH_REQUEST_OBJECT:
+                        case JSONPATH_REQUEST_ARRAY:
+                        case FINAL_ON_SUCCESS_CALLBACK:
+                        case ON_START_CALLBACK:
+                        default:
+                            return LE_INCORRECT_INPUT_VALUES;
+                    }
+                    break;
+                case JSONPATH_REQUEST_OBJECT:
+                    switch (type) {
+                        case PARSED_JSON_OBJECT:
+                            ++(stackElements->data.root.resolvedRulesCount);
+                            printf("Next rule type 2: %d (object resolved)\n", stackElements[stackElements->data.root.resolvedRulesCount].type);
+                            break;
+                        case PARSED_JSON_ROOT:
+                        case PARSED_JSON_JOINED_OBJECT:
+                        case PARSED_JSON_HEAD_OF_JOINED_OBJECT:
+                        case PARSED_JSON_ARRAY:
+                        case PARSED_JSON_ARRAY_VALUE:
+                        case PARSED_JSON_FIELD:
+                        case PARSED_JSON_FIELD_WITH_OBJECT:
+                        case PARSED_JSON_RESOLVED_FIELD:
+                        case PARSED_JSON_VALUE:
+                            stackElements->data.root.alreadyFailed = newStackElement;
+                            printf("  LOCK FRAME: ruleLine = %p, frame = %p, position = %.20s\n", stackElements, newStackElement, position);
+                            puts("(rule type) OBJECT???");
+                            break;
+                        case NONE:
+                        case HTTP_REQUEST_METHOD:
+                        case HTTP_REQUEST_URI:
+                        case HTTP_REQUEST_GET_QUERY_ELEMENT:
+                        case HTTP_REQUEST_VALUE:
+                        case HTTP_REQUEST_HTTP_VERSION:
+                        case HTTP_REQUEST_HEADER:
+                        case JSONPATH_REQUEST_ROOT:
+                        case JSONPATH_REQUEST_ANY:
+                        case JSONPATH_REQUEST_ANYINDEX:
+                        case JSONPATH_REQUEST_NAME:
+                        case JSON_PATH_REQUEST_NAME_WITH_OBJECT_OR_ARRAY:
+                        case JSONPATH_REQUEST_INDEX:
+                        case JSONPATH_REQUEST_RECURSIVE:
+                        case JSONPATH_REQUEST_OBJECT:
+                        case JSONPATH_REQUEST_ARRAY:
+                        case FINAL_ON_SUCCESS_CALLBACK:
+                        case ON_START_CALLBACK:
+                        default:
+                            return LE_INCORRECT_INPUT_VALUES;
+                    }
+                    break;
+                case JSONPATH_REQUEST_ARRAY:
+                    switch (type) {
+                        case PARSED_JSON_ARRAY:
+                            /* It contains the current index value */
+                            newStackElement->data.index.index = 0;
+                            newStackElement->data.index.containerStartPosition = position;
+                            ++(stackElements->data.root.resolvedRulesCount);
+                            break;
+                        case PARSED_JSON_ARRAY_VALUE:
+                        case PARSED_JSON_ROOT:
+                        case PARSED_JSON_OBJECT:
+                        case PARSED_JSON_JOINED_OBJECT:
+                        case PARSED_JSON_HEAD_OF_JOINED_OBJECT:
+                        case PARSED_JSON_FIELD:
+                        case PARSED_JSON_FIELD_WITH_OBJECT:
+                        case PARSED_JSON_RESOLVED_FIELD:
+                        case PARSED_JSON_VALUE:
+                            stackElements->data.root.alreadyFailed = newStackElement;
+                            printf("  LOCK FRAME: ruleLine = %p, frame = %p, position = %.20s\n", stackElements, newStackElement, position);
+                            puts("(rule type) ARRAY???");
+                            break;
+                        case NONE:
+                        case HTTP_REQUEST_METHOD:
+                        case HTTP_REQUEST_URI:
+                        case HTTP_REQUEST_GET_QUERY_ELEMENT:
+                        case HTTP_REQUEST_VALUE:
+                        case HTTP_REQUEST_HTTP_VERSION:
+                        case HTTP_REQUEST_HEADER:
+                        case JSONPATH_REQUEST_ROOT:
+                        case JSONPATH_REQUEST_ANY:
+                        case JSONPATH_REQUEST_ANYINDEX:
+                        case JSONPATH_REQUEST_NAME:
+                        case JSON_PATH_REQUEST_NAME_WITH_OBJECT_OR_ARRAY:
+                        case JSONPATH_REQUEST_INDEX:
+                        case JSONPATH_REQUEST_RECURSIVE:
+                        case JSONPATH_REQUEST_OBJECT:
+                        case JSONPATH_REQUEST_ARRAY:
+                        case FINAL_ON_SUCCESS_CALLBACK:
+                        case ON_START_CALLBACK:
+                        default:
+                            return LE_INCORRECT_INPUT_VALUES;
+                    }
+                    break;
+                case JSONPATH_REQUEST_ANY:
+                case JSONPATH_REQUEST_NAME:
+                    switch (type) {
+                        case PARSED_JSON_FIELD:
+                            /* We force REQUIRED because we need a field name */
+                            newStackElement->fType = REQUIRED;
+                            break;
+                        case PARSED_JSON_ROOT:
+                        case PARSED_JSON_OBJECT:
+                        case PARSED_JSON_JOINED_OBJECT:
+                        case PARSED_JSON_HEAD_OF_JOINED_OBJECT:
+                        case PARSED_JSON_ARRAY:
+                        case PARSED_JSON_ARRAY_VALUE:
+                        case PARSED_JSON_FIELD_WITH_OBJECT:
+                        case PARSED_JSON_RESOLVED_FIELD:
+                        case PARSED_JSON_VALUE:
+                            stackElements->data.root.alreadyFailed = newStackElement;
+                            printf("  LOCK FRAME: ruleLine = %p, frame = %p, position = %.20s\n", stackElements, newStackElement, position);
+                            puts("(rule type) FIELD???");
+                            break;
+                        case NONE:
+                        case HTTP_REQUEST_METHOD:
+                        case HTTP_REQUEST_URI:
+                        case HTTP_REQUEST_GET_QUERY_ELEMENT:
+                        case HTTP_REQUEST_VALUE:
+                        case HTTP_REQUEST_HTTP_VERSION:
+                        case HTTP_REQUEST_HEADER:
+                        case JSONPATH_REQUEST_ROOT:
+                        case JSONPATH_REQUEST_ANY:
+                        case JSONPATH_REQUEST_ANYINDEX:
+                        case JSONPATH_REQUEST_NAME:
+                        case JSON_PATH_REQUEST_NAME_WITH_OBJECT_OR_ARRAY:
+                        case JSONPATH_REQUEST_INDEX:
+                        case JSONPATH_REQUEST_RECURSIVE:
+                        case JSONPATH_REQUEST_OBJECT:
+                        case JSONPATH_REQUEST_ARRAY:
+                        case FINAL_ON_SUCCESS_CALLBACK:
+                        case ON_START_CALLBACK:
+                        default:
+                            return LE_INCORRECT_INPUT_VALUES;
+                    }
+                    break;
+                case JSONPATH_REQUEST_ANYINDEX:
+                    switch (type) {
+                        case PARSED_JSON_ARRAY_VALUE:
+                            newStackElement->fType = REQUIRED;
+                            newStackElement->frameStartPosition = position;
+                            ++(stackElements->data.root.resolvedRulesCount);
+                            break;
+                        case NONE:
+                        case HTTP_REQUEST_METHOD:
+                        case HTTP_REQUEST_URI:
+                        case HTTP_REQUEST_GET_QUERY_ELEMENT:
+                        case HTTP_REQUEST_VALUE:
+                        case HTTP_REQUEST_HTTP_VERSION:
+                        case HTTP_REQUEST_HEADER:
+                        case JSONPATH_REQUEST_ROOT:
+                        case JSONPATH_REQUEST_ANY:
+                        case JSONPATH_REQUEST_ANYINDEX:
+                        case JSONPATH_REQUEST_NAME:
+                        case JSON_PATH_REQUEST_NAME_WITH_OBJECT_OR_ARRAY:
+                        case JSONPATH_REQUEST_INDEX:
+                        case JSONPATH_REQUEST_RECURSIVE:
+                        case JSONPATH_REQUEST_OBJECT:
+                        case JSONPATH_REQUEST_ARRAY:
+                        case JSONPATH_REQUEST_TERMINATOR:
+                        case PARSED_JSON_ROOT:
+                        case PARSED_JSON_OBJECT:
+                        case PARSED_JSON_JOINED_OBJECT:
+                        case PARSED_JSON_HEAD_OF_JOINED_OBJECT:
+                        case PARSED_JSON_ARRAY:
+                        case PARSED_JSON_FIELD:
+                        case PARSED_JSON_FIELD_WITH_OBJECT:
+                        case PARSED_JSON_RESOLVED_FIELD:
+                        case PARSED_JSON_VALUE:
+                        case FINAL_ON_SUCCESS_CALLBACK:
+                        case ON_START_CALLBACK:
+                        default:
+                            return LE_INCORRECT_INPUT_VALUES;
+                    }
+                    break;
+                case JSONPATH_REQUEST_INDEX:
+                    switch (type) {
+                        case PARSED_JSON_ARRAY_VALUE:
+                            /* We store current index value at JSONPATH_REQUEST_ARRAY */
+                            if (currRule->data.index.index != (currRule - 1)->data.index.index) {
+                                stackElements->data.root.alreadyFailed = newStackElement;
+                                printf("  LOCK FRAME: ruleLine = %p, frame = %p, position = %.20s\n", stackElements, newStackElement, position);
+                            } else {
+                                newStackElement->fType = REQUIRED;
+                                newStackElement->frameStartPosition = position;
+                                ++(stackElements->data.root.resolvedRulesCount);
+                            }
+                            break;
+                        case NONE:
+                        case HTTP_REQUEST_METHOD:
+                        case HTTP_REQUEST_URI:
+                        case HTTP_REQUEST_GET_QUERY_ELEMENT:
+                        case HTTP_REQUEST_VALUE:
+                        case HTTP_REQUEST_HTTP_VERSION:
+                        case HTTP_REQUEST_HEADER:
+                        case JSONPATH_REQUEST_ROOT:
+                        case JSONPATH_REQUEST_ANY:
+                        case JSONPATH_REQUEST_ANYINDEX:
+                        case JSONPATH_REQUEST_NAME:
+                        case JSON_PATH_REQUEST_NAME_WITH_OBJECT_OR_ARRAY:
+                        case JSONPATH_REQUEST_INDEX:
+                        case JSONPATH_REQUEST_RECURSIVE:
+                        case JSONPATH_REQUEST_OBJECT:
+                        case JSONPATH_REQUEST_ARRAY:
+                        case JSONPATH_REQUEST_TERMINATOR:
+                        case PARSED_JSON_ROOT:
+                        case PARSED_JSON_OBJECT:
+                        case PARSED_JSON_JOINED_OBJECT:
+                        case PARSED_JSON_HEAD_OF_JOINED_OBJECT:
+                        case PARSED_JSON_ARRAY:
+                        case PARSED_JSON_FIELD:
+                        case PARSED_JSON_FIELD_WITH_OBJECT:
+                        case PARSED_JSON_RESOLVED_FIELD:
+                        case PARSED_JSON_VALUE:
+                        case FINAL_ON_SUCCESS_CALLBACK:
+                        case ON_START_CALLBACK:
+                        default:
+                            return LE_INCORRECT_INPUT_VALUES;
+                    }
+                    /* if (currRule->data.index.index != (newStackElement - 1)->data.index.index) {
+                        if (REQUIRED == (newStackElement - 1)->fType) {
+                            --(stackElements->data.root.resolvedRulesCount);
+                        }
+                        stackElements->data.root.alreadyFailed = newStackElement;
+                        (newStackElement - 1)->fType = USELESS;
+                        (newStackElement - 1)->frameStartPosition = NULL;
+                    } else {
+                        (newStackElement - 1)->fType = REQUIRED;
+                        (newStackElement - 1)->frameStartPosition = position;
+                        ++(stackElements->data.root.resolvedRulesCount);
+                    }*/
+                    puts("(rule type) INDEX???");
+                    break;
+                case NONE:
+                case HTTP_REQUEST_METHOD:
+                case HTTP_REQUEST_URI:
+                case HTTP_REQUEST_GET_QUERY_ELEMENT:
+                case HTTP_REQUEST_VALUE:
+                case HTTP_REQUEST_HTTP_VERSION:
+                case HTTP_REQUEST_HEADER:
+                case JSON_PATH_REQUEST_NAME_WITH_OBJECT_OR_ARRAY:
+                case JSONPATH_REQUEST_RECURSIVE:
+                case PARSED_JSON_ROOT:
+                case PARSED_JSON_OBJECT:
+                case PARSED_JSON_JOINED_OBJECT:
+                case PARSED_JSON_HEAD_OF_JOINED_OBJECT:
+                case PARSED_JSON_ARRAY:
+                case PARSED_JSON_ARRAY_VALUE:
+                case PARSED_JSON_FIELD:
+                case PARSED_JSON_FIELD_WITH_OBJECT:
+                case PARSED_JSON_RESOLVED_FIELD:
+                case PARSED_JSON_VALUE:
+                case FINAL_ON_SUCCESS_CALLBACK:
+                case ON_START_CALLBACK:
+                default:
+                    puts("wtf");
+                    return LE_INCORRECT_INPUT_VALUES;
+            }
+        }
+
+
+
+        stackElements = &(stackElements[ruleSize]);
     }
-    if ((lastStack -> type == PARSED_JSON_FIELD_WITH_OBJECT) || (lastStack -> type == PARSED_JSON_FIELD) || (lastStack -> type == PARSED_JSON_RESOLVED_FIELD)) {
-        printf(" %d(%.*s) ", lastStack -> type, lastStack->data.name.length, lastStack->data.name.data);
-    } else {
-        printf(" %d ", lastStack -> type);
-    }
-    puts("");
+
     return LE_OK;
-} */
+}
 
-static lemonError isJsonPathResolved(const requestElement *currRoot, const requestElement *lastRule, const requestElement *lastStack, const string *s, requestElement *currRule, requestElement *currStack, const boolean isComplex) {
+lemonError setFrameLength(httpRequest *jsonRequest, const size_t length) {
+    (&(jsonRequest->elements[jsonRequest->elementsCount + (jsonRequest->parsedStackSize - 1)]))->frameLength = length;
+    printf("SET LENGTH %lu\n", length);
+    return LE_OK;
+}
 
-    /* Ugly hack, but test34 works */
-    /*if ((JSONPATH_REQUEST_RECURSIVE == currRule->type) && (currStack > lastStack) && (TRUE == isComplex)) {
-        return (currRoot->data.root.callback.handler)(s, currRoot->data.root.callback.data);
+lemonError setFrameString(httpRequest *jsonRequest, const size_t length) {
+    requestElement *lastStackElement = &((jsonRequest->elements)[jsonRequest->elementsCount + jsonRequest->parsedStackSize - 1]);
+    lastStackElement->frameLength = length;
+    lastStackElement->vType = VSTRING;
+    ++(lastStackElement->frameStartPosition);
+    printf("SET STRING %lu\n", length);
+    return LE_OK;
+}
+
+lemonError setNull(httpRequest *jsonRequest) {
+    requestElement *lastStackElement = &((jsonRequest->elements)[jsonRequest->elementsCount + jsonRequest->parsedStackSize - 1]);
+    lastStackElement->frameLength = 4;
+    lastStackElement->vType = VSTRING;
+    lastStackElement->frameStartPosition = getNullString().data;
+    printf("SET STRING %lu\n", 4);
+    return LE_OK;
+}
+
+lemonError setFalse(httpRequest *jsonRequest) {
+    requestElement *lastStackElement = &((jsonRequest->elements)[jsonRequest->elementsCount + jsonRequest->parsedStackSize - 1]);
+    lastStackElement->frameLength = 5;
+    lastStackElement->vType = VSTRING;
+    lastStackElement->frameStartPosition = getFalseString().data;
+    printf("SET STRING %lu\n", 5);
+    return LE_OK;
+}
+
+lemonError setTrue(httpRequest *jsonRequest) {
+    requestElement *lastStackElement = &((jsonRequest->elements)[jsonRequest->elementsCount + jsonRequest->parsedStackSize - 1]);
+    lastStackElement->frameLength = 4;
+    lastStackElement->vType = VSTRING;
+    lastStackElement->frameStartPosition = getTrueString().data;
+    printf("SET STRING %lu\n", 4);
+    return LE_OK;
+}
+
+lemonError closeFrame(httpRequest * jsonRequest, const char *position) {
+
+    requestElement *stackElements = jsonRequest->elements;
+    requestElement *lastStackElement = &((jsonRequest->elements)[jsonRequest->elementsCount + jsonRequest->parsedStackSize - 1]);
+    const ruleType type = lastStackElement->type;
+
+    while (JSONPATH_REQUEST_ROOT == stackElements->type) { /* Be carefull */
+        const size_t ruleSize = stackElements->data.root.ruleSize;
+        requestElement *currRule = &(stackElements[stackElements->data.root.resolvedRulesCount]);
+
+        if (lastStackElement == stackElements->data.root.alreadyFailed) {
+            printf("UNLOCK FRAME: ruleLine = %p, frame = %p\n", stackElements, stackElements->data.root.alreadyFailed);
+            stackElements->data.root.alreadyFailed = NULL;
+        }
+
+        /* if ((NULL == stackElements->data.root.alreadyFailed) && (ruleSize - 1 == stackElements->data.root.resolvedRulesCount) && (REQUIRED == lastStackElement->fType)) {
+            string s;
+            s.data = lastStackElement->frameStartPosition;
+            s.length = lastStackElement->frameLength;
+            (stackElements->data.root.callback.handler)(&s, stackElements->data.root.callback.data);
+        }*/
+
+        /* This is more correct */
+        if ((JSONPATH_REQUEST_TERMINATOR == currRule->type) && (NULL == stackElements->data.root.alreadyFailed)) {
+
+            string s;
+            s.data = lastStackElement->frameStartPosition;
+            s.length = lastStackElement->frameLength;
+            (stackElements->data.root.callback.handler)(&s, stackElements->data.root.callback.data);
+
+            --(stackElements->data.root.resolvedRulesCount);
+            currRule = &(stackElements[stackElements->data.root.resolvedRulesCount]);
+
+            printf("CLOSE TERM FRAME: ruleLine = %p, currRule = %s meets arg = %s\n", stackElements, getRuleName(currRule->type), getRuleName(type));
+        }
+
+        if (NULL == stackElements->data.root.alreadyFailed) {
+
+            printf("CLOSE FRAME: ruleLine = %p, currRule = %s meets arg = %s\n", stackElements, getRuleName(currRule->type), getRuleName(type));
+
+            switch (currRule->type) {
+                /*case JSONPATH_REQUEST_TERMINATOR:
+                    --(stackElements->data.root.resolvedRulesCount);
+                    currRule = &(stackElements[stackElements->data.root.resolvedRulesCount]);
+                    break; */
+                case JSONPATH_REQUEST_ROOT:
+                    switch (type) {
+                        case PARSED_JSON_ROOT:
+                            if (0 < stackElements->data.root.resolvedRulesCount) {
+                                --(stackElements->data.root.resolvedRulesCount);
+                            } else {
+                                puts("ERROR 10");
+                                return LE_INCORRECT_INPUT_VALUES;
+                            }
+
+                            puts("(rule type) Out of root abs\n");
+                            break;
+                        case PARSED_JSON_OBJECT:
+                        case PARSED_JSON_JOINED_OBJECT:
+                        case PARSED_JSON_HEAD_OF_JOINED_OBJECT:
+                        case PARSED_JSON_ARRAY:
+                        case PARSED_JSON_ARRAY_VALUE:
+                        case PARSED_JSON_FIELD:
+                        case PARSED_JSON_FIELD_WITH_OBJECT:
+                        case PARSED_JSON_RESOLVED_FIELD:
+                        case PARSED_JSON_VALUE:
+                            puts("(rule type) out RRROOOTTT???");
+                            break;
+                        case NONE:
+                        case HTTP_REQUEST_METHOD:
+                        case HTTP_REQUEST_URI:
+                        case HTTP_REQUEST_GET_QUERY_ELEMENT:
+                        case HTTP_REQUEST_VALUE:
+                        case HTTP_REQUEST_HTTP_VERSION:
+                        case HTTP_REQUEST_HEADER:
+                        case JSONPATH_REQUEST_ROOT:
+                        case JSONPATH_REQUEST_ANY:
+                        case JSONPATH_REQUEST_ANYINDEX:
+                        case JSONPATH_REQUEST_NAME:
+                        case JSON_PATH_REQUEST_NAME_WITH_OBJECT_OR_ARRAY:
+                        case JSONPATH_REQUEST_INDEX:
+                        case JSONPATH_REQUEST_RECURSIVE:
+                        case JSONPATH_REQUEST_OBJECT:
+                        case JSONPATH_REQUEST_ARRAY:
+                        case FINAL_ON_SUCCESS_CALLBACK:
+                        case ON_START_CALLBACK:
+                        default:
+                            return LE_INCORRECT_INPUT_VALUES;
+                    }
+                    break;
+                case JSONPATH_REQUEST_OBJECT:
+                    switch (type) {
+                        case PARSED_JSON_OBJECT:
+                            if (0 < stackElements->data.root.resolvedRulesCount) {
+                                --(stackElements->data.root.resolvedRulesCount);
+                            } else {
+                                puts("ERROR 11");
+                                return LE_INCORRECT_INPUT_VALUES;
+                            }
+                            printf("Rollback rule type 2: %d (object out)\n", stackElements[stackElements->data.root.resolvedRulesCount].type);
+                            break;
+                        case PARSED_JSON_FIELD:
+                            if (0 < stackElements->data.root.resolvedRulesCount) {
+                                --(stackElements->data.root.resolvedRulesCount);
+                            } else {
+                                puts("ERROR 12");
+                                return LE_INCORRECT_INPUT_VALUES;
+                            }
+                            printf("Rollback rule type 2: %d (object out)\n", stackElements[stackElements->data.root.resolvedRulesCount].type);
+                            /*if (PARSED_JSON_OBJECT == stackElements[stackElements->data.root.resolvedRulesCount].type) {
+                                --(stackElements->data.root.resolvedRulesCount);
+                                printf("Rollback rule type 2: %d (object out 2)\n", stackElements[stackElements->data.root.resolvedRulesCount].type);
+                            }*/
+                            break;
+                        case PARSED_JSON_ROOT:
+                        case PARSED_JSON_JOINED_OBJECT:
+                        case PARSED_JSON_HEAD_OF_JOINED_OBJECT:
+                        case PARSED_JSON_ARRAY:
+                        case PARSED_JSON_ARRAY_VALUE:
+                        case PARSED_JSON_FIELD_WITH_OBJECT:
+                        case PARSED_JSON_RESOLVED_FIELD:
+                        case PARSED_JSON_VALUE:
+                            puts("(rule type) out OBJECT???");
+                            break;
+                        case NONE:
+                        case HTTP_REQUEST_METHOD:
+                        case HTTP_REQUEST_URI:
+                        case HTTP_REQUEST_GET_QUERY_ELEMENT:
+                        case HTTP_REQUEST_VALUE:
+                        case HTTP_REQUEST_HTTP_VERSION:
+                        case HTTP_REQUEST_HEADER:
+                        case JSONPATH_REQUEST_ROOT:
+                        case JSONPATH_REQUEST_ANY:
+                        case JSONPATH_REQUEST_ANYINDEX:
+                        case JSONPATH_REQUEST_NAME:
+                        case JSON_PATH_REQUEST_NAME_WITH_OBJECT_OR_ARRAY:
+                        case JSONPATH_REQUEST_INDEX:
+                        case JSONPATH_REQUEST_RECURSIVE:
+                        case JSONPATH_REQUEST_OBJECT:
+                        case JSONPATH_REQUEST_ARRAY:
+                        case FINAL_ON_SUCCESS_CALLBACK:
+                        case ON_START_CALLBACK:
+                        default:
+                            return LE_INCORRECT_INPUT_VALUES;
+                    }
+                    break;
+                case JSONPATH_REQUEST_ARRAY:
+                    switch (type) {
+                        case PARSED_JSON_ARRAY:
+                            if (0 < stackElements->data.root.resolvedRulesCount) {
+                                --(stackElements->data.root.resolvedRulesCount);
+                            } else {
+                                puts("ERROR 13");
+                                return LE_INCORRECT_INPUT_VALUES;
+                            }
+                            printf("Rollback rule type 2: %d (array out)\n", stackElements[stackElements->data.root.resolvedRulesCount].type);
+                            break;
+                        case PARSED_JSON_ARRAY_VALUE:
+                        case PARSED_JSON_ROOT:
+                        case PARSED_JSON_OBJECT:
+                        case PARSED_JSON_JOINED_OBJECT:
+                        case PARSED_JSON_HEAD_OF_JOINED_OBJECT:
+                        case PARSED_JSON_FIELD:
+                        case PARSED_JSON_FIELD_WITH_OBJECT:
+                        case PARSED_JSON_RESOLVED_FIELD:
+                        case PARSED_JSON_VALUE:
+                            puts("(rule type) out ARRAY???");
+                            break;
+                        case NONE:
+                        case HTTP_REQUEST_METHOD:
+                        case HTTP_REQUEST_URI:
+                        case HTTP_REQUEST_GET_QUERY_ELEMENT:
+                        case HTTP_REQUEST_VALUE:
+                        case HTTP_REQUEST_HTTP_VERSION:
+                        case HTTP_REQUEST_HEADER:
+                        case JSONPATH_REQUEST_ROOT:
+                        case JSONPATH_REQUEST_ANY:
+                        case JSONPATH_REQUEST_ANYINDEX:
+                        case JSONPATH_REQUEST_NAME:
+                        case JSON_PATH_REQUEST_NAME_WITH_OBJECT_OR_ARRAY:
+                        case JSONPATH_REQUEST_INDEX:
+                        case JSONPATH_REQUEST_RECURSIVE:
+                        case JSONPATH_REQUEST_OBJECT:
+                        case JSONPATH_REQUEST_ARRAY:
+                        case FINAL_ON_SUCCESS_CALLBACK:
+                        case ON_START_CALLBACK:
+                        default:
+                            return LE_INCORRECT_INPUT_VALUES;
+                    }
+                    break;
+                case JSONPATH_REQUEST_INDEX:
+                    switch (type) {
+                        case PARSED_JSON_ARRAY_VALUE:
+                            /* Here is bug. >Each< rule decreases lastStackElement */
+                            if (currRule->data.index.index == (currRule - 1)->data.index.index) {
+                                --(stackElements->data.root.resolvedRulesCount);
+                            }
+                            ++((currRule - 1)->data.index.index);
+                            break;
+                        case NONE:
+                        case HTTP_REQUEST_METHOD:
+                        case HTTP_REQUEST_URI:
+                        case HTTP_REQUEST_GET_QUERY_ELEMENT:
+                        case HTTP_REQUEST_VALUE:
+                        case HTTP_REQUEST_HTTP_VERSION:
+                        case HTTP_REQUEST_HEADER:
+                        case JSONPATH_REQUEST_ROOT:
+                        case JSONPATH_REQUEST_ANY:
+                        case JSONPATH_REQUEST_ANYINDEX:
+                        case JSONPATH_REQUEST_NAME:
+                        case JSON_PATH_REQUEST_NAME_WITH_OBJECT_OR_ARRAY:
+                        case JSONPATH_REQUEST_INDEX:
+                        case JSONPATH_REQUEST_RECURSIVE:
+                        case JSONPATH_REQUEST_OBJECT:
+                        case JSONPATH_REQUEST_ARRAY:
+                        case JSONPATH_REQUEST_TERMINATOR:
+                        case PARSED_JSON_ROOT:
+                        case PARSED_JSON_OBJECT:
+                        case PARSED_JSON_JOINED_OBJECT:
+                        case PARSED_JSON_HEAD_OF_JOINED_OBJECT:
+                        case PARSED_JSON_ARRAY:
+                        case PARSED_JSON_FIELD:
+                        case PARSED_JSON_FIELD_WITH_OBJECT:
+                        case PARSED_JSON_RESOLVED_FIELD:
+                        case PARSED_JSON_VALUE:
+                        case FINAL_ON_SUCCESS_CALLBACK:
+                        case ON_START_CALLBACK:
+                        default:
+                            return LE_INCORRECT_INPUT_VALUES;
+                    }
+                    break;
+                case JSONPATH_REQUEST_ANYINDEX:
+                    switch (type) {
+                        case PARSED_JSON_ARRAY_VALUE:
+
+                            /* Do NOTHING */
+
+                            /* The next possible field is also good. */
+
+                            /* --(stackElements->data.root.resolvedRulesCount); */
+                            ++((currRule - 1)->data.index.index);
+                            break;
+                        case PARSED_JSON_ARRAY:
+                            if (0 < stackElements->data.root.resolvedRulesCount) {
+                                --(stackElements->data.root.resolvedRulesCount);
+                            } else {
+                                puts("ERROR 14");
+                                return LE_INCORRECT_INPUT_VALUES;
+                            }
+                            printf("Rollback rule type 2: %d (any index out)\n", stackElements[stackElements->data.root.resolvedRulesCount].type);
+                            if ((JSONPATH_REQUEST_ARRAY == stackElements[stackElements->data.root.resolvedRulesCount].type)) {
+                                if (0 < stackElements->data.root.resolvedRulesCount) {
+                                    --(stackElements->data.root.resolvedRulesCount);
+                                } else {
+                                    puts("ERROR 15");
+                                    return LE_INCORRECT_INPUT_VALUES;
+                                }
+                                printf("Rollback rule type 3: %d (array out)\n", stackElements[stackElements->data.root.resolvedRulesCount].type);
+                            }
+                            break;
+                        case PARSED_JSON_ROOT:
+                        case PARSED_JSON_OBJECT:
+                        case PARSED_JSON_JOINED_OBJECT:
+                        case PARSED_JSON_HEAD_OF_JOINED_OBJECT:
+                        case PARSED_JSON_FIELD:
+                        case PARSED_JSON_FIELD_WITH_OBJECT:
+                        case PARSED_JSON_RESOLVED_FIELD:
+                        case PARSED_JSON_VALUE:
+                            puts("(rule type) ANYINDEX out ???");
+                            break;
+                        case NONE:
+                        case HTTP_REQUEST_METHOD:
+                        case HTTP_REQUEST_URI:
+                        case HTTP_REQUEST_GET_QUERY_ELEMENT:
+                        case HTTP_REQUEST_VALUE:
+                        case HTTP_REQUEST_HTTP_VERSION:
+                        case HTTP_REQUEST_HEADER:
+                        case JSONPATH_REQUEST_ROOT:
+                        case JSONPATH_REQUEST_ANY:
+                        case JSONPATH_REQUEST_NAME:
+                        case JSON_PATH_REQUEST_NAME_WITH_OBJECT_OR_ARRAY:
+                        case JSONPATH_REQUEST_INDEX:
+                        case JSONPATH_REQUEST_RECURSIVE:
+                        case JSONPATH_REQUEST_OBJECT:
+                        case JSONPATH_REQUEST_ARRAY:
+                        case FINAL_ON_SUCCESS_CALLBACK:
+                        case ON_START_CALLBACK:
+                        case JSONPATH_REQUEST_TERMINATOR:
+                            return LE_INCORRECT_INPUT_VALUES;
+                    }
+                    break;
+                case JSONPATH_REQUEST_NAME:
+                    switch (type) {
+                        case PARSED_JSON_FIELD:
+                            if (
+                                    (currRule->data.name.length == lastStackElement->data.name.length) &&
+                                    (0 == STRNCASECMP(lastStackElement->data.name.data, currRule->data.name.data,
+                                                      lastStackElement->data.name.length))
+                                    ) {
+                                /* if ((ruleSize == stackElements->data.root.resolvedRulesCount)) {
+                                    lastStackElement->fType = USELESS;
+                                };*/
+                                lastStackElement->fType = USELESS; /* ??????????????? */
+                                if (0 < stackElements->data.root.resolvedRulesCount) {
+                                    /* --(stackElements->data.root.resolvedRulesCount); */
+                                } else {
+                                    puts("ERROR 16");
+                                    return LE_INCORRECT_INPUT_VALUES;
+                                }
+                                printf("Rollback rule type 2: %d (resolved field out)\n", stackElements[stackElements->data.root.resolvedRulesCount].type);
+                            }
+                            break;
+                        case PARSED_JSON_OBJECT:
+                            if (0 < stackElements->data.root.resolvedRulesCount) {
+                                /* Exit from JSONPATH_REQUEST_NAME */
+                                --(stackElements->data.root.resolvedRulesCount);
+                                /* Exit from JSONPATH_REQUEST_OBJECT */
+                                --(stackElements->data.root.resolvedRulesCount);
+                            } else {
+                                puts("ERROR 17");
+                                return LE_INCORRECT_INPUT_VALUES;
+                            }
+                            printf("Rollback rule type 2: %d (object out at field rule)\n", stackElements[stackElements->data.root.resolvedRulesCount].type);
+                            break;
+                        case PARSED_JSON_ARRAY:
+                            if (0 < stackElements->data.root.resolvedRulesCount) {
+                                --(stackElements->data.root.resolvedRulesCount);
+                            } else {
+                                puts("ERROR 17b");
+                                return LE_INCORRECT_INPUT_VALUES;
+                            }
+                            printf("Rollback rule type 2: %d (array out at field rule)\n", stackElements[stackElements->data.root.resolvedRulesCount].type);
+                            break;
+                        case PARSED_JSON_ARRAY_VALUE:
+                        case PARSED_JSON_ROOT:
+                        case PARSED_JSON_JOINED_OBJECT:
+                        case PARSED_JSON_HEAD_OF_JOINED_OBJECT:
+                        case PARSED_JSON_FIELD_WITH_OBJECT:
+                        case PARSED_JSON_RESOLVED_FIELD:
+                        case PARSED_JSON_VALUE:
+                            puts("(rule type) out FIELD???");
+                            break;
+                        case NONE:
+                        case HTTP_REQUEST_METHOD:
+                        case HTTP_REQUEST_URI:
+                        case HTTP_REQUEST_GET_QUERY_ELEMENT:
+                        case HTTP_REQUEST_VALUE:
+                        case HTTP_REQUEST_HTTP_VERSION:
+                        case HTTP_REQUEST_HEADER:
+                        case JSONPATH_REQUEST_ROOT:
+                        case JSONPATH_REQUEST_ANY:
+                        case JSONPATH_REQUEST_ANYINDEX:
+                        case JSONPATH_REQUEST_NAME:
+                        case JSON_PATH_REQUEST_NAME_WITH_OBJECT_OR_ARRAY:
+                        case JSONPATH_REQUEST_INDEX:
+                        case JSONPATH_REQUEST_RECURSIVE:
+                        case JSONPATH_REQUEST_OBJECT:
+                        case JSONPATH_REQUEST_ARRAY:
+                        case FINAL_ON_SUCCESS_CALLBACK:
+                        case ON_START_CALLBACK:
+                        default:
+                            return LE_INCORRECT_INPUT_VALUES;
+                    }
+                    break;
+                case JSONPATH_REQUEST_ANY:
+                    switch (type) {
+                        case PARSED_JSON_FIELD:
+
+                            /* Do NOTHING */
+
+                            /* The next possible field is also good. */
+
+                            /*if (0 < stackElements->data.root.resolvedRulesCount) {
+                                --(stackElements->data.root.resolvedRulesCount);
+                            } else {
+                                puts("ERROR 18");
+                                return LE_INCORRECT_INPUT_VALUES;
+                            }
+                            printf("Rollback rule type 2: %d (resolved any field out)\n", stackElements[stackElements->data.root.resolvedRulesCount].type);*/
+                            break;
+                        case PARSED_JSON_OBJECT:
+                            if (0 < stackElements->data.root.resolvedRulesCount) {
+                                /* Exit from JSONPATH_REQUEST_ANY */
+                                --(stackElements->data.root.resolvedRulesCount);
+                                /* Exit from JSONPATH_REQUEST_OBJECT */
+                                --(stackElements->data.root.resolvedRulesCount);
+                            } else {
+                                puts("ERROR 17");
+                                return LE_INCORRECT_INPUT_VALUES;
+                            }
+                            printf("Rollback rule type 2: %d (object out at field rule)\n", stackElements[stackElements->data.root.resolvedRulesCount].type);
+                            break;
+                        case PARSED_JSON_ROOT:
+                        case PARSED_JSON_JOINED_OBJECT:
+                        case PARSED_JSON_HEAD_OF_JOINED_OBJECT:
+                        case PARSED_JSON_ARRAY:
+                        case PARSED_JSON_ARRAY_VALUE:
+                        case PARSED_JSON_FIELD_WITH_OBJECT:
+                        case PARSED_JSON_RESOLVED_FIELD:
+                        case PARSED_JSON_VALUE:
+                            puts("(rule type) out ANY FIELD???");
+                            break;
+                        case NONE:
+                        case HTTP_REQUEST_METHOD:
+                        case HTTP_REQUEST_URI:
+                        case HTTP_REQUEST_GET_QUERY_ELEMENT:
+                        case HTTP_REQUEST_VALUE:
+                        case HTTP_REQUEST_HTTP_VERSION:
+                        case HTTP_REQUEST_HEADER:
+                        case JSONPATH_REQUEST_ROOT:
+                        case JSONPATH_REQUEST_ANY:
+                        case JSONPATH_REQUEST_ANYINDEX:
+                        case JSONPATH_REQUEST_NAME:
+                        case JSON_PATH_REQUEST_NAME_WITH_OBJECT_OR_ARRAY:
+                        case JSONPATH_REQUEST_INDEX:
+                        case JSONPATH_REQUEST_RECURSIVE:
+                        case JSONPATH_REQUEST_OBJECT:
+                        case JSONPATH_REQUEST_ARRAY:
+                        case FINAL_ON_SUCCESS_CALLBACK:
+                        case ON_START_CALLBACK:
+                        default:
+                            return LE_INCORRECT_INPUT_VALUES;
+                    }
+                    break;
+                case NONE:
+                case HTTP_REQUEST_METHOD:
+                case HTTP_REQUEST_URI:
+                case HTTP_REQUEST_GET_QUERY_ELEMENT:
+                case HTTP_REQUEST_VALUE:
+                case HTTP_REQUEST_HTTP_VERSION:
+                case HTTP_REQUEST_HEADER:
+                case JSON_PATH_REQUEST_NAME_WITH_OBJECT_OR_ARRAY:
+                case JSONPATH_REQUEST_RECURSIVE:
+                case PARSED_JSON_ROOT:
+                case PARSED_JSON_OBJECT:
+                case PARSED_JSON_JOINED_OBJECT:
+                case PARSED_JSON_HEAD_OF_JOINED_OBJECT:
+                case PARSED_JSON_ARRAY:
+                case PARSED_JSON_ARRAY_VALUE:
+                case PARSED_JSON_FIELD:
+                case PARSED_JSON_FIELD_WITH_OBJECT:
+                case PARSED_JSON_RESOLVED_FIELD:
+                case PARSED_JSON_VALUE:
+                case FINAL_ON_SUCCESS_CALLBACK:
+                case ON_START_CALLBACK:
+                default:
+                    printf("wtf2 %d\n", currRule->type);
+                    return LE_INCORRECT_INPUT_VALUES;
+            }
+        }
+
+        if (lastStackElement == stackElements->data.root.alreadyFailed) {
+            /* stackElements->data.root.alreadyFailed = NULL; */
+            /* Return complex object */
+            /*
+            if ((ruleSize  == stackElements->data.root.resolvedRulesCount)) {
+                string s;
+                s.data = lastStackElement->frameStartPosition;
+                s.length = lastStackElement->frameLength;
+                (stackElements->data.root.callback.handler)(&s, stackElements->data.root.callback.data);
+            }*/
+        }
+
+        /*if ((NULL == stackElements->data.root.alreadyFailed) && (ruleSize  == stackElements->data.root.resolvedRulesCount)) {
+            string s;
+            s.data = lastStackElement->frameStartPosition;
+            s.length = lastStackElement->frameLength;
+            (stackElements->data.root.callback.handler)(&s, stackElements->data.root.callback.data);
+        }*/
+
+        stackElements = &(stackElements[ruleSize]);
+    }
+
+    /*if (PARSED_JSON_ARRAY_VALUE == (&(jsonRequest->elements[jsonRequest->elementsCount + (--(jsonRequest->parsedStackSize))]))->type) {
+        (&(jsonRequest->elements[jsonRequest->elementsCount + ((jsonRequest->parsedStackSize))]))->vType = UNKNOWN;
+        (&(jsonRequest->elements[jsonRequest->elementsCount + (--(jsonRequest->parsedStackSize))]))->type = NONE;
     }*/
 
-    while ((currRule <= lastRule) && (currStack <= lastStack)) {
-        switch (currRule->type) {
-            case JSONPATH_REQUEST_ROOT:
-                switch (currStack->type) {
-                    case PARSED_JSON_ROOT:
-                        if ((currRule == lastRule) && (currStack == lastStack)) {
-                            return (currRoot->data.root.callback.handler)(s, currRoot->data.root.callback.data);
-                        }
-
-                        if ((1 + currRule) <= lastRule) {
-                            ++(currRule);
-                        } else {
-                            /* DO NOT KNOW */
-                            printf("RETURN LE_OK 1 %.*s\r\n", (int)(s->length), s->data);
-                            return LE_OK;
-                        }
-
-                        if ((1 + currStack) <= lastStack) {
-                            ++(currStack);
-                        } else {
-                            switch (currRule->type) {
-                                case JSONPATH_REQUEST_RECURSIVE:
-                                    if ((TRUE == isComplex) && (currRule == lastRule)) {
-                                        printf("RETURN DATA 2 %.*s\r\n", (int)s->length, s->data);
-                                        puts("CALL 1");
-                                        return (currRoot->data.root.callback.handler)(s, currRoot->data.root.callback.data);
-                                    }
-                                    break;
-                                default:
-                                    printf("RETURN LE_OK 3 %.*s\r\n", (int)(s->length), s->data);
-                                    return LE_OK;
-                            }
-                        }
-                        break;
-                    default:
-                        printf("RETURN LE_OK 4 %.*s\r\n", (int)(s->length), s->data);
-                        return LE_OK;
-                }
-                break;
-            case JSONPATH_REQUEST_ANY:
-                /* printStack(lastStack, "INIT STATE JSONPATH_REQUEST_ANY"); */
-                switch (currStack->type) {
-                    case PARSED_JSON_OBJECT:
-                    case PARSED_JSON_JOINED_OBJECT:
-                    case PARSED_JSON_HEAD_OF_JOINED_OBJECT:
-                        if ((lastStack == currStack) && (lastRule == currRule)) {
-                            return (currRoot->data.root.callback.handler)(s, currRoot->data.root.callback.data);
-                        }
-
-                        if (1 + currStack <= lastStack) {
-                            ++(currStack);
-                        } else {
-                            return LE_OK; /* ????????????? */
-                        }
-
-                        break;
-                    case PARSED_JSON_INDEX:
-                        if ((lastStack == currStack) && (lastRule == currRule)) {
-                            return (currRoot->data.root.callback.handler)(s, currRoot->data.root.callback.data);
-                        }
-
-                        if ((1 + currRule == lastRule) && (JSONPATH_REQUEST_RECURSIVE == (1 + currRule)->type) && (currStack == lastStack) && (TRUE == isComplex)) {
-                            printf("RETURN DATA 2xxx %.*s\r\n", (int)(s->length), s->data);
-                            puts("CALL 1xxx");
-                            return (currRoot->data.root.callback.handler)(s, currRoot->data.root.callback.data);
-                        }
-
-                        if ((1 + currStack <= lastStack) && (1 + currRule <= lastRule)) {
-                            currStack->type = PARSED_JSON_RESOLVED_FIELD;
-                            isJsonPathResolved(currRoot, lastRule, lastStack, s, currRule + 1, currStack + 1, isComplex);
-                            currStack->type = PARSED_JSON_INDEX;
-                            return LE_OK;
-                        } else {
-                            return LE_OK;
-                        }
-                        break;
-                    case PARSED_JSON_FIELD_WITH_OBJECT:
-                        if ((lastStack == currStack) && (lastRule == currRule)) {
-                            return (currRoot->data.root.callback.handler)(s, currRoot->data.root.callback.data);
-                        }
-
-                        if ((1 + currRule == lastRule) && (JSONPATH_REQUEST_RECURSIVE == (1 + currRule)->type) && (currStack == lastStack) && (TRUE == isComplex)) {
-                            printf("RETURN DATA 2xx %.*s\r\n", (int)(s->length), s->data);
-                            puts("CALL 1xx");
-                            return (currRoot->data.root.callback.handler)(s, currRoot->data.root.callback.data);
-                        }
-
-                        if ((1 + currStack <= lastStack) && (1 + currRule <= lastRule)) {
-                            currStack->type = PARSED_JSON_RESOLVED_FIELD;
-                            isJsonPathResolved(currRoot, lastRule, lastStack, s, currRule + 1, currStack + 1, isComplex);
-                            currStack->type = PARSED_JSON_FIELD_WITH_OBJECT;
-                            return LE_OK;
-                        } else {
-                            return LE_OK;
-                        }
-
-                        break;
-                    case PARSED_JSON_FIELD:
-                        if ((lastStack == currStack) && (lastRule == currRule)) {
-                            return (currRoot->data.root.callback.handler)(s, currRoot->data.root.callback.data);
-                        }
-
-                        if ((1 + currRule == lastRule) && (JSONPATH_REQUEST_RECURSIVE == (1 + currRule)->type) && (currStack == lastStack) && (TRUE == isComplex)) {
-                            printf("RETURN DATA 2x %.*s\r\n", (int)(s->length), s->data);
-                            puts("CALL 1x");
-                            return (currRoot->data.root.callback.handler)(s, currRoot->data.root.callback.data);
-                        }
-
-                        if ((1 + currStack <= lastStack) && (1 + currRule <= lastRule)) {
-                            currStack->type = PARSED_JSON_RESOLVED_FIELD;
-                            isJsonPathResolved(currRoot, lastRule, lastStack, s, currRule + 1, currStack + 1, isComplex);
-                            currStack->type = PARSED_JSON_FIELD;
-                            return LE_OK;
-                        } else {
-                            return LE_OK;
-                        }
-                        break;
-                    default:
-                        printf("RETURN LE_OK 5 %.*s\r\n", (int)(s->length), s->data);
-                        return LE_OK;
-                }
-                break;
-            case JSONPATH_REQUEST_NAME:
-                /* printStack(lastStack, "INIT STATE JSONPATH_REQUEST_NAME X2"); */
-                switch (currStack->type) {
-                    case PARSED_JSON_FIELD:
-                        if (
-                                (currRule->data.name.length == currStack->data.name.length) &&
-                                (0 == STRNCASECMP(currStack->data.name.data, currRule->data.name.data,
-                                                  currStack->data.name.length))
-                                ) {
-                            if ((lastStack == currStack) && (lastRule == currRule)) {
-                                return (currRoot->data.root.callback.handler)(s, currRoot->data.root.callback.data);
-                            }
-
-                            if ((1 + currRule == lastRule) && (JSONPATH_REQUEST_RECURSIVE == (1 + currRule)->type) && (currStack == lastStack) /*&& (TRUE == isComplex)*/) {
-                                printf("RETURN DATA 2xxxx %.*s\r\n", (int)(s->length), s->data);
-                                puts("CALL 1xxxb");
-                                return (currRoot->data.root.callback.handler)(s, currRoot->data.root.callback.data);
-                            }
-
-                            /* JSONPATH_REQUEST_NAME can not resolve further stack itself */
-                            if ((lastStack != currStack) && (lastRule == currRule)) {
-                                return LE_OK;
-                            }
-
-                            /* Not all rules have been resolved */
-                            if ((lastStack == currStack) && (lastRule != currRule)) {
-                                return LE_OK;
-                            }
-
-                            if (((1 + currRule) <= lastRule) && ((1 + currStack) <= lastStack)) {
-                                currStack->type = PARSED_JSON_RESOLVED_FIELD;
-                                isJsonPathResolved(currRoot, lastRule, lastStack, s, currRule + 1, currStack + 1, isComplex);
-                                currStack->type = PARSED_JSON_FIELD;
-                                return LE_OK;
-                            } else {
-                                return LE_OK;
-                            }
-                        } else {
-                            printf("RETURN LE_OK 10 %.*s\r\n", (int)(s->length), s->data);
-                            return LE_OK;
-                        }
-                        break;
-                    case PARSED_JSON_FIELD_WITH_OBJECT:
-                        if (
-                                (currRule->data.name.length == currStack->data.name.length) &&
-                                (0 == STRNCASECMP(currStack->data.name.data, currRule->data.name.data,
-                                                  currStack->data.name.length))
-                                ) {
-
-                            if ((lastStack == currStack) && (lastRule == currRule)) {
-                                return (currRoot->data.root.callback.handler)(s, currRoot->data.root.callback.data);
-                            }
-
-                            if ((1 + currRule == lastRule) && (JSONPATH_REQUEST_RECURSIVE == (1 + currRule)->type) && (currStack == lastStack) /*&& (TRUE == isComplex)*/) {
-                                printf("RETURN DATA 2xxxx %.*s\r\n", (int)(s->length), s->data);
-                                puts("CALL 1xxxc");
-                                return (currRoot->data.root.callback.handler)(s, currRoot->data.root.callback.data);
-                            }
-
-                            /* JSONPATH_REQUEST_NAME can not resolve further stack itself */
-                            if ((lastStack != currStack) && (lastRule == currRule)) {
-                                return LE_OK;
-                            }
-
-                            /* Not all rules have been resolved */
-                            if ((lastStack == currStack) && (lastRule != currRule)) {
-                                return LE_OK;
-                            }
-
-                            if (((1 + currRule) <= lastRule) && ((1 + currStack) <= lastStack)) {
-                                currStack->type = PARSED_JSON_RESOLVED_FIELD;
-                                isJsonPathResolved(currRoot, lastRule, lastStack, s, currRule + 1, currStack + 1, isComplex);
-                                currStack->type = PARSED_JSON_FIELD_WITH_OBJECT;
-                                return LE_OK;
-                            }
-                        } else {
-                            printf("RETURN LE_OK 15 %.*s\r\n", (int)(s->length), s->data);
-                            return LE_OK;
-                        }
-                        break;
-                    case PARSED_JSON_INDEX:
-                        printf("RETURN LE_OK 16 %.*s\r\n", (int)(s->length), s->data);
-                        return LE_OK;
-                    case PARSED_JSON_OBJECT:
-                    case PARSED_JSON_JOINED_OBJECT:
-                    case PARSED_JSON_HEAD_OF_JOINED_OBJECT:
-                        ++(currStack);
-                        break;
-                    default:
-                        /* ERROR */
-                        printf("RETURN LE_OK 17 %.*s\r\n", (int)(s->length), s->data);
-                        return LE_OK;;
-                }
-                break;
-            case JSONPATH_REQUEST_INDEX:
-                /* printStack(lastStack, "INIT STATE JSONPATH_REQUEST_INDEX"); */
-                switch (currStack->type) {
-                    case PARSED_JSON_OBJECT:
-                    case PARSED_JSON_JOINED_OBJECT:
-                    case PARSED_JSON_HEAD_OF_JOINED_OBJECT:
-                        ++(currStack);
-                        break;
-                    case PARSED_JSON_INDEX:
-
-                        if (currRule->data.index.index == currStack->data.index.index) {
-
-                            if ((lastStack == currStack) && (lastRule == currRule)) {
-                                return (currRoot->data.root.callback.handler)(s, currRoot->data.root.callback.data);
-                            }
-
-                            if (1 + currRule <= lastRule) {
-                                ++(currRule);
-                            } else {
-                                return LE_OK;
-                            }
-
-                            if (1 + currStack <= lastStack) {
-                                ++(currStack);
-                            } else {
-                                return LE_OK; /* ????????????? */
-                            }
-
-                        } else {
-                            printf("RETURN LE_OK 18 %.*s\r\n", (int)(s->length), s->data);
-                            return LE_OK;
-                        }
-                        break;
-                    default:
-                        printf("RETURN LE_OK 19 %.*s\r\n", (int)(s->length), s->data);
-                        return LE_OK;
-                }
-                break;
-            case JSONPATH_REQUEST_ANYINDEX:
-                /* printStack(lastStack, "INIT STATE JSONPATH_REQUEST_ANYINDEX"); */
-                switch (currStack->type) {
-                    case PARSED_JSON_OBJECT:
-                    case PARSED_JSON_JOINED_OBJECT:
-                    case PARSED_JSON_HEAD_OF_JOINED_OBJECT:
-                        if ((lastStack == currStack) && (lastRule == currRule)) {
-                            return (currRoot->data.root.callback.handler)(s, currRoot->data.root.callback.data);
-                        }
-
-                        if (1 + currStack <= lastStack) {
-                            ++(currStack);
-                        } else {
-                            return LE_OK; /* ????????????? */
-                        }
-
-                        break;
-                    case PARSED_JSON_INDEX:
-                        if ((lastStack == currStack) && (lastRule == currRule)) {
-                            return (currRoot->data.root.callback.handler)(s, currRoot->data.root.callback.data);
-                        }
-
-                        if ((1 + currRule == lastRule) && (JSONPATH_REQUEST_RECURSIVE == (1 + currRule)->type) && (currStack == lastStack) && (TRUE == isComplex)) {
-                            printf("RETURN DATA 2xxx %.*s\r\n", (int)(s->length), s->data);
-                            puts("CALL 1xxx");
-                            return (currRoot->data.root.callback.handler)(s, currRoot->data.root.callback.data);
-                        }
-
-                        if ((1 + currStack <= lastStack) && (1 + currRule <= lastRule)) {
-                            currStack->type = PARSED_JSON_RESOLVED_FIELD;
-                            isJsonPathResolved(currRoot, lastRule, lastStack, s, currRule + 1, currStack + 1, isComplex);
-                            currStack->type = PARSED_JSON_INDEX;
-                            return LE_OK;
-                        } else {
-                            return LE_OK;
-                        }
-                        break;
-                    case PARSED_JSON_FIELD_WITH_OBJECT:
-                        if ((lastStack == currStack) && (lastRule == currRule)) {
-                            return (currRoot->data.root.callback.handler)(s, currRoot->data.root.callback.data);
-                        }
-
-                        if ((1 + currRule == lastRule) && (JSONPATH_REQUEST_RECURSIVE == (1 + currRule)->type) && (currStack == lastStack) && (TRUE == isComplex)) {
-                            printf("RETURN DATA 2xx %.*s\r\n", (int)(s->length), s->data);
-                            puts("CALL 1xx");
-                            return (currRoot->data.root.callback.handler)(s, currRoot->data.root.callback.data);
-                        }
-
-                        if ((1 + currStack <= lastStack) && (1 + currRule <= lastRule)) {
-                            currStack->type = PARSED_JSON_RESOLVED_FIELD;
-                            isJsonPathResolved(currRoot, lastRule, lastStack, s, currRule + 1, currStack + 1, isComplex);
-                            currStack->type = PARSED_JSON_FIELD_WITH_OBJECT;
-                            return LE_OK;
-                        } else {
-                            return LE_OK;
-                        }
-
-                        break;
-                    case PARSED_JSON_FIELD:
-                        if ((lastStack == currStack) && (lastRule == currRule)) {
-                            return (currRoot->data.root.callback.handler)(s, currRoot->data.root.callback.data);
-                        }
-
-                        if ((1 + currRule == lastRule) && (JSONPATH_REQUEST_RECURSIVE == (1 + currRule)->type) && (currStack == lastStack) && (TRUE == isComplex)) {
-                            printf("RETURN DATA 2x %.*s\r\n", (int)(s->length), s->data);
-                            puts("CALL 1x");
-                            return (currRoot->data.root.callback.handler)(s, currRoot->data.root.callback.data);
-                        }
-
-                        if ((1 + currStack <= lastStack) && (1 + currRule <= lastRule)) {
-                            currStack->type = PARSED_JSON_RESOLVED_FIELD;
-                            isJsonPathResolved(currRoot, lastRule, lastStack, s, currRule + 1, currStack + 1, isComplex);
-                            currStack->type = PARSED_JSON_FIELD;
-                            return LE_OK;
-                        } else {
-                            return LE_OK;
-                        }
-                        break;
-                    default:
-                        printf("RETURN LE_OK 20 %.*s\r\n", (int)(s->length), s->data);
-                        return LE_OK;
-                }
-                break;
-            case JSONPATH_REQUEST_RECURSIVE: /* currRule */
-                switch (currStack->type) {
-                    case PARSED_JSON_OBJECT:
-                        if (currRule == lastRule) {
-                            currStack->type = PARSED_JSON_HEAD_OF_JOINED_OBJECT;
-                            isJsonPathResolved(currRoot, lastRule, lastStack, s, currRule, currStack, isComplex);
-                            currStack->type = PARSED_JSON_OBJECT;
-                            printf("RETURN LE_OK 25 %.*s\r\n", (int)(s->length), s->data);
-                            return LE_OK; /* by test 1  ??????????????????????????????????????????????? Can recursive be empty? */
-                        } else {
-                            currStack->type = PARSED_JSON_JOINED_OBJECT;
-                            isJsonPathResolved(currRoot, lastRule, lastStack, s, currRule, currStack, isComplex);
-                            currStack->type = PARSED_JSON_HEAD_OF_JOINED_OBJECT;
-                            isJsonPathResolved(currRoot, lastRule, lastStack, s, currRule, currStack, isComplex);
-                            currStack->type = PARSED_JSON_OBJECT;
-                            printf("RETURN LE_OK 25 %.*s\r\n", (int)(s->length), s->data);
-                            return LE_OK; /* by test 1  ??????????????????????????????????????????????? Can recursive be empty? */
-                        }
-                        return LE_OK;
-                    case PARSED_JSON_JOINED_OBJECT:
-                        if (lastStack == currStack) {
-                            printf("ERROR STATE 1 %.*s\r\n", (int)(s->length), s->data);
-                            /* printStack(lastStack, "ERROR STATE 1"); */
-                            return LE_OK;
-                        } else {
-                            ++(currStack);
-                        }
-                        break;
-                    case PARSED_JSON_HEAD_OF_JOINED_OBJECT: /* currStack */
-                        if (lastRule == currRule) {
-                            if (TRUE == isComplex) {
-                                puts("CALL 6");
-                                return (currRoot->data.root.callback.handler)(s, currRoot->data.root.callback.data);
-                            } else {
-                                printf("ERROR STATE 2 %.*s\r\n", (int)(s->length), s->data);
-                                /* printStack(lastStack, "ERROR STATE 2"); */
-                                return LE_OK;
-                            }
-                        } else {
-                            isJsonPathResolved(currRoot, lastRule, lastStack, s, currRule + 1, currStack + 1, isComplex);
-                            currStack->type = PARSED_JSON_OBJECT;
-                            printf("RETURN LE_OK 28 %.*s\r\n", (int)(s->length), s->data);
-                            return LE_OK; /* May be break ??? */
-                        }
-                        break;
-                    case PARSED_JSON_FIELD:
-                        return LE_OK;
-                        break;
-                    case PARSED_JSON_INDEX:
-                        if ((currStack == lastStack) && (lastRule == currRule)) {
-                            if (TRUE == isComplex) {
-                                return (currRoot->data.root.callback.handler)(s, currRoot->data.root.callback.data);
-                            } else {
-                                return LE_OK;
-                            }
-
-                            /* return LE_OK; */
-                        } else {
-                            isJsonPathResolved(currRoot, lastRule, lastStack, s, currRule, currStack + 1, isComplex);
-                            isJsonPathResolved(currRoot, lastRule, lastStack, s, currRule + 1, currStack, isComplex);
-                            return LE_OK;
-                        }
-                        /*return LE_OK;*/
-                        break;
-                    case PARSED_JSON_FIELD_WITH_OBJECT:
-                        if (currStack == lastStack) {
-                            return LE_OK;
-                        } else {
-                            ++(currStack);
-                        }
-                        break;
-                    case JSONPATH_REQUEST_ROOT:
-                    case NONE:
-                        printf("RETURN LE_OK 41 %.*s\r\n", (int)(s->length), s->data);
-                        return LE_OK;
-                    default:
-                        printf("RETURN LE_OK 42 %.*s\r\n", (int)(s->length), s->data);
-                        return LE_OK;
-                }
-                break;
-            default:
-                printf("RETURN LE_OK 43 %.*s\r\n", (int)(s->length), s->data);
-                return LE_OK;
-        }
-    }
-
-    if ((currRule > lastRule) || (currStack > lastStack)) {
-        return LE_OK;
-    }
-    return LE_OK;
-}
-
-
-lemonError updateJsonPathRequestStatusByFieldName(httpRequest *jsonRequest, const string *key) {
-    requestElement *currentElement = &(jsonRequest->elements[jsonRequest->elementsCount + (jsonRequest->parsedStackSize++)]);
-    currentElement->type = PARSED_JSON_FIELD;
-    currentElement->data.name.data = key->data;
-    currentElement->data.name.length = key->length;
-    return LE_OK;
-}
-
-lemonError rollbackJsonPathRequestStatusByFieldName(httpRequest *jsonRequest, const string *key) {
-    requestElement *currentElement = &(jsonRequest->elements[jsonRequest->elementsCount + (--(jsonRequest->parsedStackSize))]);
-    currentElement->type = NONE;
-    return LE_OK;
-}
-
-lemonError updateJsonPathRequestStatusByObject(httpRequest *jsonRequest, const char *startObjectPosition) {
-    requestElement *currentElement = &(jsonRequest->elements[jsonRequest->elementsCount + jsonRequest->parsedStackSize]);
-    currentElement->type = PARSED_JSON_OBJECT;
-    currentElement->data.containerStartPosition = startObjectPosition;
-    ++(jsonRequest->parsedStackSize);
-    return LE_OK;
-}
-
-lemonError rollbackJsonPathRequestStatusByObject(httpRequest *jsonRequest, const char *endObjectPosition) {
+    (&(jsonRequest->elements[jsonRequest->elementsCount + ((jsonRequest->parsedStackSize))]))->vType = UNKNOWN;
     (&(jsonRequest->elements[jsonRequest->elementsCount + (--(jsonRequest->parsedStackSize))]))->type = NONE;
+    puts("CLOSE_FRAME");
     return LE_OK;
 }
 
-lemonError updateJsonPathRequestStatusByArray(httpRequest *jsonRequest, const char *startArrayPosition) {
-    /* May be collapse ? */
-    requestElement *currentElement = &(jsonRequest->elements[jsonRequest->elementsCount + (jsonRequest->parsedStackSize++)]);
-    currentElement->type = PARSED_JSON_INDEX;
-    currentElement->data.index.containerStartPosition = startArrayPosition;
-    currentElement->data.index.index = 0;
-    return LE_OK;
-}
+lemonError fixFieldName(httpRequest *jsonRequest, const size_t length) {
+    requestElement *currentElement = &(jsonRequest->elements[jsonRequest->elementsCount + jsonRequest->parsedStackSize - 1]);
+    requestElement *stackElements = jsonRequest->elements;
 
-lemonError rollbackJsonPathRequestStatusByArray(httpRequest *jsonRequest, const char *endArrayPosition) {
-    /* May be collapse ? */
-    return rollbackJsonPathRequestStatusByObject(jsonRequest, endArrayPosition);
-}
+    if (PARSED_JSON_FIELD == currentElement->type) {
 
-lemonError executeJsonPathCallbackWithValue(httpRequest *jsonRequest, const string *s, const boolean isComplex) {
-    requestElement *currElement = jsonRequest->elements;
+        currentElement->data.name.length = length;
+        currentElement->fType = USELESS;
 
-    const requestElement *currStack = &((jsonRequest->elements)[jsonRequest->elementsCount]);
-    requestElement *lastStack = &((jsonRequest->elements)[jsonRequest->elementsCount + jsonRequest->parsedStackSize - 1]);
+        while (JSONPATH_REQUEST_ROOT == stackElements->type) { /* Be carefull */
+            const size_t ruleSize = stackElements->data.root.ruleSize;
+            requestElement *currRule = stackElements->data.root.resolvedRulesCount < ruleSize ? &(stackElements[stackElements->data.root.resolvedRulesCount]) : &(stackElements[ruleSize - 1]);
 
-    if ((TRUE == isComplex) && (PARSED_JSON_FIELD == lastStack->type)) {
-        lastStack->type = PARSED_JSON_FIELD_WITH_OBJECT;
-    }
+            if (NULL == stackElements->data.root.alreadyFailed) {
+                switch (currRule->type) {
+                    case JSONPATH_REQUEST_NAME:
+                        if (
+                                (PARSED_JSON_FIELD == currentElement->type) &&
+                                (currRule->data.name.length == currentElement->data.name.length) &&
+                                (0 == STRNCASECMP(currentElement->data.name.data, currRule->data.name.data,
+                                                  currentElement->data.name.length))
+                                ) {
+                            ++(stackElements->data.root.resolvedRulesCount);
+                            if ((ruleSize - 1 == stackElements->data.root.resolvedRulesCount)) {
+                                currentElement->fType = REQUIRED;
+                            };
+                            printf("Next rule type 9: %d (field matched)\n", stackElements[stackElements->data.root.resolvedRulesCount].type);
+                        } else {
+                            stackElements->data.root.alreadyFailed = currentElement;
+                            printf("  LOCK FRAME: ruleLine = %p, frame = %p, FIX_FIELD_NAME\n", stackElements, currentElement);
+                        }
+                        break;
+                    case JSONPATH_REQUEST_ANY:
+                        ++(stackElements->data.root.resolvedRulesCount);
+                        if ((ruleSize - 1 == stackElements->data.root.resolvedRulesCount)) {
+                            currentElement->fType = REQUIRED;
+                        };
+                        printf("Next rule type: %d\n", stackElements[stackElements->data.root.resolvedRulesCount].type);
+                        break;
 
-    while (lastStack != currStack) {
-        if (((PARSED_JSON_OBJECT == lastStack->type) || (PARSED_JSON_INDEX == lastStack->type)) && (PARSED_JSON_FIELD == (lastStack - 1)->type)) {
-            (lastStack - 1)->type = PARSED_JSON_FIELD_WITH_OBJECT;
+                    case NONE:
+                    case HTTP_REQUEST_METHOD:
+                    case HTTP_REQUEST_URI:
+                    case HTTP_REQUEST_GET_QUERY_ELEMENT:
+                    case HTTP_REQUEST_VALUE:
+                    case HTTP_REQUEST_HTTP_VERSION:
+                    case HTTP_REQUEST_HEADER:
+                    case JSONPATH_REQUEST_ROOT:
+                    case JSONPATH_REQUEST_ANYINDEX:
+                    case JSON_PATH_REQUEST_NAME_WITH_OBJECT_OR_ARRAY:
+                    case JSONPATH_REQUEST_INDEX:
+                    case JSONPATH_REQUEST_RECURSIVE:
+                    case JSONPATH_REQUEST_OBJECT:
+                    case JSONPATH_REQUEST_ARRAY:
+                    case PARSED_JSON_ROOT:
+                    case PARSED_JSON_OBJECT:
+                    case PARSED_JSON_JOINED_OBJECT:
+                    case PARSED_JSON_HEAD_OF_JOINED_OBJECT:
+                    case PARSED_JSON_ARRAY:
+                    case PARSED_JSON_ARRAY_VALUE:
+                    case PARSED_JSON_FIELD:
+                    case PARSED_JSON_FIELD_WITH_OBJECT:
+                    case PARSED_JSON_RESOLVED_FIELD:
+                    case PARSED_JSON_VALUE:
+                    case FINAL_ON_SUCCESS_CALLBACK:
+                    case ON_START_CALLBACK:
+                    default:
+                        printf("wtf222 %d\n", currRule->type);
+                        return LE_INCORRECT_INPUT_VALUES;
+                }
+            }
+            stackElements = &(stackElements[ruleSize]);
         }
-        --(lastStack);
-    }
+    } else {
+        return LE_PARSING_IS_FAILED;
+    };
 
+    /* requestElement *currentElement = &(jsonRequest->elements[jsonRequest->elementsCount + jsonRequest->parsedStackSize - 1]);
 
-    lastStack = &((jsonRequest->elements)[jsonRequest->elementsCount + jsonRequest->parsedStackSize - 1]);
-
-    while (JSONPATH_REQUEST_ROOT == currElement->type) { /* Be carefull */
-        const size_t ruleSize = currElement->data.root.ruleSize;
-
-        isJsonPathResolved(currElement, &(currElement[ruleSize - 1]), lastStack, s, currElement, currStack, isComplex);
-
-        currElement = &(currElement[ruleSize]);
-    }
+    if (PARSED_JSON_FIELD == currentElement->type) {
+        currentElement->data.name.length = length;
+        currentElement->fType = USELESS;
+    } else {
+        return LE_PARSING_IS_FAILED;
+    }; */
 
     return LE_OK;
 }
 
-lemonError updateJsonPathRequestStatusByArrayElement(httpRequest *jsonRequest) {
-    requestElement *currStack = &((jsonRequest->elements)[jsonRequest->elementsCount + jsonRequest->parsedStackSize - 1]);
-    if (PARSED_JSON_INDEX == currStack->type) {
-        ++(currStack->data.index.index);
-    }
+lemonError openKey(httpRequest *jsonRequest, const char *key) {
+    requestElement *currentElement = &(jsonRequest->elements[jsonRequest->elementsCount + jsonRequest->parsedStackSize - 1]);
+
+    if (PARSED_JSON_FIELD == currentElement->type) {
+        currentElement->data.name.data = key;
+        currentElement->fType = USELESS;
+        currentElement->vType = UNKNOWN;
+    } else {
+        return LE_PARSING_IS_FAILED;
+    };
+
     return LE_OK;
 }
 
-lemonError updateJsonPathRequestStatusByRoot(httpRequest *jsonRequest) {
-    jsonRequest->elements[jsonRequest->elementsCount + (jsonRequest->parsedStackSize++)].type = PARSED_JSON_ROOT;
-    return LE_OK;
-}
+lemonError openValue(httpRequest *jsonRequest, const char *value) {
+    requestElement *currentElement = &(jsonRequest->elements[jsonRequest->elementsCount + jsonRequest->parsedStackSize - 1]);
 
-lemonError rollbackJsonPathRequestStatusByRoot(httpRequest *jsonRequest) {
-    jsonRequest->elements[jsonRequest->elementsCount + (--(jsonRequest->parsedStackSize))].type = NONE;
+    if (PARSED_JSON_FIELD == currentElement->type) {
+        currentElement->frameStartPosition = value;
+    } else {
+        return LE_PARSING_IS_FAILED;
+    };
+
     return LE_OK;
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017, 2018, 2019, 2020, 2021, 2022, 2023 Parkhomenko Stanislav
+ * Copyright (C) 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024 Parkhomenko Stanislav
  *
  * This file is part of Lemon Server.
  *
@@ -41,6 +41,7 @@ typedef struct {
 typedef struct {
     dataContainer container;
     char fallbackLayer;
+    char *currentPosition;
     boolean isParsed;
     boolean isParseFailed;
     boolean isSyntaxIncorrect;

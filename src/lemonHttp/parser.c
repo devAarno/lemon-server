@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017, 2018, 2019, 2020, 2021, 2022, 2023 Parkhomenko Stanislav
+ * Copyright (C) 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024 Parkhomenko Stanislav
  *
  * This file is part of Lemon Server.
  *
@@ -229,6 +229,9 @@ static lemonError parse(dataContainer container, const parsingMode mode) {
                 ) {
             const char c = (buffer)[pos];
             const unsigned char sym = (0 <= c && 128 > c) ? ascii[(unsigned char)c] : TOK_OBSTEXT;
+            printf("REAL CHAR = %hhd\n", c);
+            ps.currentPosition = &((buffer)[pos]);
+            printf("PPPPPPPOSITION = %lu\n", pos);
             ParseHTTP11(&pParser, sym, &((buffer)[pos]), &ps);
             ++pos;
         }

@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2017, 2018, 2019, 2020, 2021, 2022, 2023 Parkhomenko Stanislav
+# Copyright (C) 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024 Parkhomenko Stanislav
 #
 # This file is part of Lemon Server.
 #
@@ -22,7 +22,8 @@ project (lemonServer C)
 set(CMAKE_VERBOSE_MAKEFILE on)
 
 set(EXTRA_C_STD "-std=c89 -pedantic -Wmissing-prototypes -Wstrict-prototypes -Wold-style-definition  -Wall -Wpedantic -Wextra")
-set(EXTRA_SANITIZE "-fsanitize=address -fsanitize=pointer-compare -fsanitize=pointer-subtract -fsanitize=leak -fsanitize=undefined -fsanitize-address-use-after-scope -fsanitize=shift-base -fsanitize=shift-exponent -fsanitize=integer-divide-by-zero -fsanitize=unreachable -fsanitize=vla-bound -fsanitize=null -fsanitize=return -fsanitize=signed-integer-overflow -fsanitize=bounds -fsanitize=bounds-strict -fsanitize=alignment -fsanitize=object-size -fsanitize=float-divide-by-zero -fsanitize=float-cast-overflow -fsanitize=nonnull-attribute -fsanitize=returns-nonnull-attribute -fsanitize=bool -fsanitize=enum -fsanitize=vptr -fsanitize=pointer-overflow -fsanitize=builtin")
+# set(EXTRA_SANITIZE "-fsanitize=address -fsanitize=pointer-compare -fsanitize=pointer-subtract -fsanitize=leak -fsanitize=undefined -fsanitize-address-use-after-scope -fsanitize=shift-base -fsanitize=shift-exponent -fsanitize=integer-divide-by-zero -fsanitize=unreachable -fsanitize=vla-bound -fsanitize=null -fsanitize=return -fsanitize=signed-integer-overflow -fsanitize=bounds -fsanitize=bounds-strict -fsanitize=alignment -fsanitize=object-size -fsanitize=float-divide-by-zero -fsanitize=float-cast-overflow -fsanitize=nonnull-attribute -fsanitize=returns-nonnull-attribute -fsanitize=bool -fsanitize=enum -fsanitize=vptr -fsanitize=pointer-overflow -fsanitize=builtin")
+set(EXTRA_SANITIZE "")
 set(EXTRA_DEBUG_MODE "-O0 -gdwarf-4 -ggdb -g3 -fvar-tracking-assignments -gstatement-frontiers -ginline-points -fcf-protection=full -fstack-protector-all")
 set(EXTRA_PERFORMANCE "-Ofast -ftree-vectorize -fweb -fno-semantic-interposition -fipa-pta -fdevirtualize-at-ltrans -fdevirtualize-speculatively -fira-region=all -floop-nest-optimize -floop-parallelize-all -fgraphite-identity -ftree-loop-im -ftree-loop-ivcanon -fivopts -ftree-vectorize -fmodulo-sched -fmodulo-sched-allow-regmoves -fgcse-sm -fgcse-las")
 # set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)

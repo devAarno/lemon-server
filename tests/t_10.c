@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017, 2018, 2019, 2020, 2021, 2022, 2023 Parkhomenko Stanislav
+ * Copyright (C) 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024 Parkhomenko Stanislav
  *
  * This file is part of Lemon Server.
  *
@@ -158,6 +158,10 @@ static void test16(void) {
     commonTest(json, json);
 }
 
+static void test17(void) {
+    commonTest("                 {}     ", "{}");
+}
+
 int main(void) {
     UnityBegin(__FILE__);
     RUN_TEST(test1);
@@ -175,5 +179,7 @@ int main(void) {
     RUN_TEST(test13);
     RUN_TEST(test14);
     RUN_TEST(test15);
+    RUN_TEST(test16);
+    RUN_TEST(test17);
     return (UnityEnd());
 }

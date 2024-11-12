@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017, 2018, 2019, 2020, 2021, 2022, 2023 Parkhomenko Stanislav
+ * Copyright (C) 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024 Parkhomenko Stanislav
  *
  * This file is part of Lemon Server.
  *
@@ -26,24 +26,30 @@
 
 lemonError appendJsonPathElementOfHttpRequest(httpRequest *r, const string *s, const ruleType type);
 
-lemonError updateJsonPathRequestStatusByFieldName(httpRequest *jsonRequest, const string *key);
-
-lemonError rollbackJsonPathRequestStatusByFieldName(httpRequest *jsonRequest, const string *key);
-
-lemonError updateJsonPathRequestStatusByObject(httpRequest *jsonRequest, const char *startObjectPosition);
-
-lemonError rollbackJsonPathRequestStatusByObject(httpRequest *jsonRequest, const char *endObjectPosition);
-
-lemonError updateJsonPathRequestStatusByArray(httpRequest *jsonRequest, const char *startArrayPosition);
-
-lemonError rollbackJsonPathRequestStatusByArray(httpRequest *jsonRequest, const char *endArrayPosition);
-
 lemonError executeJsonPathCallbackWithValue(httpRequest *jsonRequest, const string *s, const boolean isComplex);
 
-lemonError updateJsonPathRequestStatusByArrayElement(httpRequest *jsonRequest);
+lemonError updateJsonPathRequestStatusByArrayElement(httpRequest *jsonRequest, const char *position);
 
-lemonError updateJsonPathRequestStatusByRoot(httpRequest *jsonRequest);
+lemonError updateJsonPathRequestStatusByZeroElement(httpRequest *jsonRequest, const char *position);
 
-lemonError rollbackJsonPathRequestStatusByRoot(httpRequest *jsonRequest);
+lemonError openFrame(httpRequest *jsonRequest, const char *position, const ruleType type);
+
+lemonError setFrameLength(httpRequest *jsonRequest, const size_t length);
+
+lemonError setFrameString(httpRequest *jsonRequest, const size_t length);
+
+lemonError setNull(httpRequest *jsonRequest);
+
+lemonError setFalse(httpRequest *jsonRequest);
+
+lemonError setTrue(httpRequest *jsonRequest);
+
+lemonError closeFrame(httpRequest *jsonRequest, const char *position);
+
+lemonError fixFieldName(httpRequest *jsonRequest, const size_t length);
+
+lemonError openKey(httpRequest *jsonRequest, const char *key);
+
+lemonError openValue(httpRequest *jsonRequest, const char *value);
 
 #endif /* LEMONSERVER_JSONPATHINTERNAL_H */

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017, 2018, 2019, 2020, 2021, 2022, 2023 Parkhomenko Stanislav
+ * Copyright (C) 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024 Parkhomenko Stanislav
  *
  * This file is part of Lemon Server.
  *
@@ -43,6 +43,8 @@ lemonError appendJsonPathRequest(httpRequest *p, jsonPathQueryBuffer *b, const j
 
         rootRule.callback = jsonPathCallback;
         rootRule.ruleSize = p->elementsCount - newRootPlace;
+        rootRule.resolvedRulesCount = 0;
+        rootRule.alreadyFailed = NULL;
 
         (p->elements)[newRootPlace].data.root = rootRule;
     }

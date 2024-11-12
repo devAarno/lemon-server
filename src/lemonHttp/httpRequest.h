@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017, 2018, 2019, 2020, 2021, 2022, 2023 Parkhomenko Stanislav
+ * Copyright (C) 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024 Parkhomenko Stanislav
  *
  * This file is part of Lemon Server.
  *
@@ -37,6 +37,14 @@
 
 /* ----------------- */
 
+typedef enum {
+    NEW, REQUIRED, USELESS
+} frameType;
+
+typedef enum {
+    UNKNOWN, VSTRING, VNUMERIC, VTRUE, VFALSE, VNULL, VOBJECT, VARRAY
+} valueType;
+
 typedef struct {
     union {
         onStartCallback onStartCallback;
@@ -55,7 +63,12 @@ typedef struct {
         indexRule index;
         char *containerStartPosition;
     } data;
+    char *frameStartPosition;
+    size_t frameLength;
     ruleType type;
+    frameType fType;
+    valueType vType;
+    boolean isResolved;
 } requestElement;
 
 typedef struct {
